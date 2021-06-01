@@ -1,0 +1,29 @@
+[topCellInitializer{}(LblinitGeneratedTopCell{}())]
+
+module MINUS-MINI
+
+// imports
+  import K []
+
+// sorts
+  sort SortTCellFragment{} []
+  sort SortKCellOpt{} []
+  sort SortGeneratedTopCellFragment{} []
+  hooked-sort SortList{} [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), element{}(LblListItem{}()), concat{}(Lbl'Unds'List'Unds'{}()), unit{}(Lbl'Stop'List{}()), hook{}("LIST.List"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(596,3,596,31)")]
+  sort SortKCell{} []
+  sort SortGeneratedTopCell{} []
+  sort SortGeneratedCounterCell{} []
+  sort SortTCellOpt{} []
+  sort SortAExp{} []
+  hooked-sort SortMap{} [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), element{}(Lbl'UndsPipe'-'-GT-Unds'{}()), concat{}(Lbl'Unds'Map'Unds'{}()), unit{}(Lbl'Stop'Map{}()), hook{}("MAP.Map"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(220,3,220,28)")]
+  sort SortGeneratedCounterCellOpt{} []
+  sort SortKConfigVar{} [org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(40,3,40,27)"), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/kast.md)"), token{}(), hasDomainValues{}()]
+  hooked-sort SortInt{} [hook{}("INT.Int"), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(853,3,853,28)"), hasDomainValues{}()]
+  hooked-sort SortSet{} [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), element{}(LblSetItem{}()), concat{}(Lbl'Unds'Set'Unds'{}()), unit{}(Lbl'Stop'Set{}()), hook{}("SET.Set"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(471,3,471,28)")]
+  sort SortKResult{} []
+  sort SortCell{} []
+  sort SortTCell{} []
+  hooked-sort SortBool{} [hook{}("BOOL.Bool"), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(751,3,751,31)"), hasDomainValues{}()]
+
+// priority groups
+endmodule [org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(7,1,20,9)"), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/Bureau/These/K_framework/KTest/./minus-mini.k)")]

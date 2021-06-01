@@ -1,0 +1,5 @@
+[topCellInitializer{}(LblinitGeneratedTopCell{}())]
+
+module INJ
+  symbol inj{From,To}(From) : To []
+endmodule []

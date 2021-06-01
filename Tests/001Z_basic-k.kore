@@ -1,0 +1,6 @@
+[topCellInitializer{}(LblinitGeneratedTopCell{}())]
+
+module BASIC-K
+  sort SortK{} []
+  sort SortKItem{} []
+endmodule []

@@ -1,0 +1,29 @@
+[topCellInitializer{}(LblinitGeneratedTopCell{}())]
+
+module MINUS-MINI
+
+// imports
+  import K []
+
+// sorts
+  sort SortTCellFragment{} []
+  sort SortKCellOpt{} []
+  sort SortGeneratedTopCellFragment{} []
+  hooked-sort SortList{} []
+  sort SortKCell{} []
+  sort SortGeneratedTopCell{} []
+  sort SortGeneratedCounterCell{} []
+  sort SortTCellOpt{} []
+  sort SortAExp{} []
+  hooked-sort SortMap{} []
+  sort SortGeneratedCounterCellOpt{} []
+  sort SortKConfigVar{} []
+  hooked-sort SortInt{} []
+  hooked-sort SortSet{} []
+  sort SortKResult{} []
+  sort SortCell{} []
+  sort SortTCell{} []
+  hooked-sort SortBool{} []
+
+// priority groups
+endmodule [org'Stop'kframework'Stop'attributes'Stop'Location{}(), org'Stop'kframework'Stop'attributes'Stop'Source{}()]

@@ -1,0 +1,259 @@
+[topCellInitializer{}(LblinitGeneratedTopCell{}())]
+
+module A
+
+// rule `project:A`(inj{A,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortA{}, SortKItem{}}(VarK:SortA{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortA{},R} (
+        Lblproject'Coln'A{}(X0:SortK{}),
+        VarK:SortA{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:Bool`(inj{Bool,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortBool{}, SortKItem{}}(VarK:SortBool{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortBool{},R} (
+        Lblproject'Coln'Bool{}(X0:SortK{}),
+        VarK:SortBool{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:Cell`(inj{Cell,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortCell{}, SortKItem{}}(VarK:SortCell{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortCell{},R} (
+        Lblproject'Coln'Cell{}(X0:SortK{}),
+        VarK:SortCell{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:GeneratedCounterCell`(inj{GeneratedCounterCell,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortGeneratedCounterCell{}, SortKItem{}}(VarK:SortGeneratedCounterCell{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortGeneratedCounterCell{},R} (
+        Lblproject'Coln'GeneratedCounterCell{}(X0:SortK{}),
+        VarK:SortGeneratedCounterCell{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:GeneratedCounterCellOpt`(inj{GeneratedCounterCellOpt,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortGeneratedCounterCellOpt{}, SortKItem{}}(VarK:SortGeneratedCounterCellOpt{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortGeneratedCounterCellOpt{},R} (
+        Lblproject'Coln'GeneratedCounterCellOpt{}(X0:SortK{}),
+        VarK:SortGeneratedCounterCellOpt{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:GeneratedTopCell`(inj{GeneratedTopCell,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortGeneratedTopCell{}, SortKItem{}}(VarK:SortGeneratedTopCell{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortGeneratedTopCell{},R} (
+        Lblproject'Coln'GeneratedTopCell{}(X0:SortK{}),
+        VarK:SortGeneratedTopCell{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:GeneratedTopCellFragment`(inj{GeneratedTopCellFragment,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortGeneratedTopCellFragment{}, SortKItem{}}(VarK:SortGeneratedTopCellFragment{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortGeneratedTopCellFragment{},R} (
+        Lblproject'Coln'GeneratedTopCellFragment{}(X0:SortK{}),
+        VarK:SortGeneratedTopCellFragment{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:Int`(inj{Int,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortInt{}, SortKItem{}}(VarK:SortInt{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortInt{},R} (
+        Lblproject'Coln'Int{}(X0:SortK{}),
+        VarK:SortInt{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:K`(K)=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            VarK:SortK{}
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortK{},R} (
+        Lblproject'Coln'K{}(X0:SortK{}),
+        VarK:SortK{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:KCell`(inj{KCell,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortKCell{}, SortKItem{}}(VarK:SortKCell{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortKCell{},R} (
+        Lblproject'Coln'KCell{}(X0:SortK{}),
+        VarK:SortKCell{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:KCellOpt`(inj{KCellOpt,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortKCellOpt{}, SortKItem{}}(VarK:SortKCellOpt{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortKCellOpt{},R} (
+        Lblproject'Coln'KCellOpt{}(X0:SortK{}),
+        VarK:SortKCellOpt{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:KItem`(K)=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(VarK:SortKItem{},dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortKItem{},R} (
+        Lblproject'Coln'KItem{}(X0:SortK{}),
+        VarK:SortKItem{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:KResult`(inj{KResult,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortKResult{}, SortKItem{}}(VarK:SortKResult{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortKResult{},R} (
+        Lblproject'Coln'KResult{}(X0:SortK{}),
+        VarK:SortKResult{}),
+      \top{R}()))
+  [projection{}()]
+
+// rule `project:Map`(inj{Map,KItem}(K))=>K requires #token("true","Bool") ensures #token("true","Bool") [projection]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \top{R}(),
+      \and{R} (
+          \in{SortK{}, R} (
+            X0:SortK{},
+            kseq{}(inj{SortMap{}, SortKItem{}}(VarK:SortMap{}),dotk{}())
+          ),
+          \top{R} ()
+        )),
+    \and{R} (
+      \equals{SortMap{},R} (
+        Lblproject'Coln'Map{}(X0:SortK{}),
+        VarK:SortMap{}),
+      \top{R}()))
+  [projection{}()]
+
+
+// priority groups
+endmodule [org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(166,1,170,9)"), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/Bureau/These/K/KTests/a/./b.k)")]
