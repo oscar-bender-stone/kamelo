@@ -59,9 +59,9 @@ let () =
   in
   print_c c;*)
 
-  let import_to_require_open : import -> p_command = fun i ->
+  let import_to_require_open : string list -> import -> p_command = fun chemin i ->
     let filename = String.lowercase_ascii (fst i) in
-    Pos.none (P_require (true, [Pos.none ["tests"; filename]]))
+    Pos.none (P_require (true, [Pos.none (chemin @ [filename])]))
   in
   let sort_to_p_symbol : sort -> p_symbol = fun s ->
     { p_sym_mod = [] (* Const ? *)
@@ -82,7 +82,7 @@ let () =
   in
 
   let trans_import : Format.formatter -> import -> unit = fun ppf i ->
-    pp_command ppf (import_to_require_open i)
+    pp_command ppf (import_to_require_open ["tests"] i)
   in
   let trans_sort : Format.formatter -> sort -> unit =
     fun ppf s -> pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol s)))
@@ -159,6 +159,12 @@ let () =
   let module_to_file : modu -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
     let name, import_l, sort_l, induc_m, sym_l, ax_l = preprocessing m in
+
+    let import_l = match import_l with
+     | [] -> import_l
+     | _ -> ("prelude", [])::import_l
+    in
+
     let filename = String.lowercase_ascii name in
     let f  = open_out (filename ^ ".lp") in
     let ff = Format.formatter_of_out_channel f in

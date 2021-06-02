@@ -383,7 +383,7 @@ let pp_command : p_command pp = fun ppf {elt;_} ->
   | P_builtin(s,qid) -> out ppf "builtin \"%s\" ≔ %a" s pp_p_qident qid
   | P_inductive(_, _, []) -> assert false (* not possible *)
   | P_inductive(ms, xs, i::il) ->
-      out ppf "%a%a%a%a\nend"
+      out ppf "%a%a%a%a"
         modifiers ms
         (list_pp pp_p_params " ") xs
         (pp_p_inductive "inductive") i
