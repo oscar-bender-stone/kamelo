@@ -90,8 +90,8 @@ let () =
   let trans_induc : Format.formatter -> sort * symbol list -> unit =
     fun ppf i -> pp_command ppf (Pos.none (P_inductive([], [], [induc_to_p_inductive i])))
   in
-  let trans_symbol : Format.formatter -> symbol -> unit =
-    fun ppf s -> pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s)))
+  let trans_symbol : Format.formatter -> symbol * attribut list -> unit =
+    fun ppf (s, attr_l) -> pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
   in
   let trans_axiom : Format.formatter -> quant_var list * axiom * attribut list -> unit =
     fun ppf (qv_l, a, attr_l) ->
@@ -108,7 +108,7 @@ let () =
      | Sort   s | H_sort   s ->
         pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol s)))
      | Symbol s | H_symbol s ->
-        pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s)))
+        pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attri_l)))
      | Alias  _       -> ()
      | Axiom  (qv, a) ->
         match attri_l with
@@ -130,7 +130,7 @@ let () =
      | t::q -> if t = a then q else t::(remove a q)
   in
   let preprocessing :
-        modu -> name * import list * sort list * (symbol list) Induc.t * symbol list *
+        modu -> name * import list * sort list * (symbol list) Induc.t * (symbol * attribut list) list *
                   (quant_var list * axiom * attribut list) list =
     fun (name, i_l, c_l, _) ->
     let rec aux l ((sort_l, induc_m, sym_l, ax_l) as acc) =
@@ -147,7 +147,7 @@ let () =
                    let induc_m = Induc.update sort (f s) induc_m in
                    aux q (remove sort sort_l, induc_m, sym_l, ax_l)
                 | None ->
-                   aux q (sort_l, induc_m, s::sym_l, ax_l))
+                   aux q (sort_l, induc_m, (s,attr_l)::sym_l, ax_l))
            | Alias _ -> aux q (sort_l, induc_m, sym_l, ax_l) (* @TODO *)
            | Axiom(qv,a) ->
               match attr_l with
