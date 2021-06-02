@@ -93,7 +93,13 @@ let () =
   let trans_symbol : Format.formatter -> symbol -> unit =
     fun ppf s -> pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s)))
   in
-
+  let trans_axiom : Format.formatter -> quant_var list * axiom * attribut list -> unit =
+    fun ppf (qv_l, a, attr_l) ->
+    match attr_l with
+     | Unit _::nil | Comm _::nil | Assoc _::nil | Idem _::nil ->
+        pp_command ppf (Pos.none (P_rules [of_equality_axiom a]))
+     | _ -> () (* @TODO *)
+  in
   (*let trans_axiom : Format.formatter -> axiom -> unit =*)
 
   let trans_command : Format.formatter -> command -> unit =
@@ -125,7 +131,7 @@ let () =
   in
   let preprocessing :
         modu -> name * import list * sort list * (symbol list) Induc.t * symbol list *
-                  (quant_var list * axiom) list =
+                  (quant_var list * axiom * attribut list) list =
     fun (name, i_l, c_l, _) ->
     let rec aux l ((sort_l, induc_m, sym_l, ax_l) as acc) =
       match l with
@@ -147,11 +153,11 @@ let () =
               match attr_l with
                | [] -> if is_predicate_axiom a
                        then aux q acc
-                       else aux q (sort_l, induc_m, sym_l, (qv,a)::ax_l)
+                       else aux q (sort_l, induc_m, sym_l, (qv,a,attr_l)::ax_l)
                | [t] ->
-                  let res = of_axiom (qv,a) t ax_l in
+                  let res = of_axiom (qv,a,attr_l) t ax_l in
                   aux q (sort_l, induc_m, sym_l, res)
-               | _ -> aux q (sort_l, induc_m, sym_l, (qv,a)::ax_l)  (* failwith "Not yet implemented" *)
+               | _ -> aux q (sort_l, induc_m, sym_l, (qv,a,attr_l)::ax_l)  (* failwith "Not yet implemented" *)
     in
     let sort_l, induc_m, sym_l, ax_l = aux c_l ([], Induc.empty, [], []) in
     (name, List.rev i_l, List.rev sort_l, induc_m, List.rev sym_l, List.rev ax_l)
@@ -160,10 +166,7 @@ let () =
     (* let name, import_l, command_l, attribut_l = m in *)
     let name, import_l, sort_l, induc_m, sym_l, ax_l = preprocessing m in
 
-    let import_l = match import_l with
-     | [] -> import_l
-     | _ -> ("prelude", [])::import_l
-    in
+    let import_l = if Induc.is_empty induc_m then import_l else ("prelude", [])::import_l in
 
     let filename = String.lowercase_ascii name in
     let f  = open_out (filename ^ ".lp") in
@@ -172,8 +175,9 @@ let () =
     List.iter (trans_sort ff) sort_l;
     List.iter (trans_induc ff) (List.rev (Induc.bindings induc_m));
     List.iter (trans_symbol ff) sym_l;
-    (*List.iter (trans_command ff) command_l;
-    List.iter (trans_axiom ff) ax.l;*)
+    (*List.iter (trans_command ff) command_l;*)
+    Format.printf "There are %i axiom(s) in %s.lp\n" (List.length ax_l) filename;
+    List.iter (trans_axiom ff) ax_l;
     (*List.iter (trans_command Format.std_formatter) command_l;*)
     Format.pp_print_flush ff ();
     close_out f

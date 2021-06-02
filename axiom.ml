@@ -93,19 +93,19 @@ let of_command : command -> = fun (c, a_l) ->
    est un prédicat : il faut peut-être le rajouter ?
   let of_axiom : quant_var list * axiom * attribut list -> = fun qv_l a a_l ->*)
 
-let of_axiom : quant_var list * axiom -> attribut -> (quant_var list * axiom) list ->
-               (quant_var list * axiom) list = fun (qv,a) attri ax_l ->
-  let myprint = Printf.fprintf stdout "%s" (Format.flush_str_formatter()) in
-  let stdout = Format.std_formatter in
+let of_axiom : quant_var list * axiom * attribut list -> attribut ->
+               (quant_var list * axiom * attribut list) list ->
+               (quant_var list * axiom * attribut list) list =
+  fun (qv_l,a,a_l) attri ax_l ->
   match attri with
   | Subsort     _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
   | Functional  _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
   | Constructor _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
-  | Assoc _ -> (qv,a)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
-  | Comm  _ -> (qv,a)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
-  | Idem  _ -> (qv,a)::ax_l
-  | Unit  _ -> (qv,a)::ax_l
+  | Assoc _ -> (qv_l,a,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
+  | Comm  _ -> (qv_l,a,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
+  | Idem  _ -> (qv_l,a,a_l)::ax_l
+  | Unit  _ -> (qv_l,a,a_l)::ax_l
   | Initializer _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
-  | Owise       _ -> if is_predicate_axiom a then ax_l else (qv,a)::ax_l
+  | Owise       _ -> if is_predicate_axiom a then ax_l else (qv_l,a,a_l)::ax_l
   | Projection  _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
-  | _ -> ax_l
+  | _ -> (qv_l,a,a_l)::ax_l
