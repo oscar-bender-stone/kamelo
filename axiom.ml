@@ -33,6 +33,13 @@ let is_rule_axiom : axiom -> bool = fun a ->
   | Rewrites _ -> true
   | _ -> false
 
+let is_rule_command : command -> bool = fun (c,_) ->
+  match c with
+  | Axiom(_,ax) ->
+     (match ax with
+      | Rewrites _ -> true
+      | _ -> false)
+  | _ -> false
 
 
 (* GENRALISATION
@@ -55,19 +62,30 @@ let curry : (axiom list -> p_term) -> axiom list -> p_term = fun f l ->
   aux l (fun -> )
  *)
 
+let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
+  fun l1 f l2 -> match l1 with
+                 | [] -> l2
+                 | h::t -> (f h)::(map_append t f l2)
+
+
 let rec ax_curry : axiom -> p_term = fun a ->
+  let f = fun (a:p_term) (b:axiom) : p_term ->
+              Pos.none (P_Appl(a, ax_curry b))
+  in
   match a with
   | Predicat p ->
     begin
      match p with
-     | Sym(n, _, a_l) ->
-        let f = fun (a:p_term) (b:axiom) : p_term ->
-                        Pos.none (P_Appl(a, ax_curry b))
-        in
-        List.fold_left f (create_ident n) a_l
+     | Sym("inj", qv_l, a_l) ->
+        let g p = match p with S x | Q x -> create_explicit_arg x in
+        let tmp = List.map g qv_l in
+        let appl a b = Pos.none (P_Appl(a, b)) in
+        let res = List.fold_left appl (create_ident "injG") tmp in
+        List.fold_left f res a_l
+     | Sym(n, _, a_l) -> List.fold_left f (create_ident n) a_l
      | Var(n, p) -> create_pattern_var n
     end
-  | _ -> failwith "Not yet implemented."
+  | _ -> failwith "Not yet implemented, if the axiom isn't a predicat."
 
 
 
@@ -109,3 +127,42 @@ let of_axiom : quant_var list * axiom * attribut list -> attribut ->
   | Owise       _ -> if is_predicate_axiom a then ax_l else (qv_l,a,a_l)::ax_l
   | Projection  _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
   | _ -> (qv_l,a,a_l)::ax_l
+(*
+type def = A of axiom | D of name * quant_var
+
+type alias = symbol * (name * quant_var list * (name * param) list * def)
+             *)
+let is_conditional_rule : axiom -> bool = fun a ->
+  match a with
+  | Top _ -> false
+  | _     -> true
+
+let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
+  let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
+  let def = get_def aw in
+  (* Create the LHS thanks to the alias *)
+  let lhs =
+    match def with
+    | A a ->
+       begin
+        match a with
+        | And(_,a1,a2) ->
+           if is_conditional_rule a1 then
+             failwith "Conditional rewriting rule not supported yet."
+           else
+             ax_curry a2
+        |  _ -> failwith "In LHS: Not yet implemented"
+       end
+    | D _ -> failwith "Not possible in rewriting axiom"
+  in
+  (* Create the RHS thanks to the axiom *)
+  let rhs =
+    match ax with
+    | Rewrites(_,_,And(_,a1,a2)) ->
+       if is_conditional_rule a1 then
+         failwith "Conditional rewriting rule not supported yet."
+       else
+         ax_curry a2
+    |  _ -> failwith "In RHS: Not yet implemented"
+  in
+  Pos.none (lhs, rhs)

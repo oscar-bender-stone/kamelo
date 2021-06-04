@@ -68,12 +68,14 @@ and axiom =
 
 type def = A of axiom | D of name * quant_var
 
+type alias = symbol * (name * quant_var list * (name * param) list * def)
+
 type command_aux =
  | Sort     of sort
  | H_sort   of sort
  | Symbol   of symbol
  | H_symbol of symbol
- | Alias    of symbol * (name * quant_var list * (name * param) list * def)
+ | Alias    of alias
  | Axiom    of quant_var list * axiom
 
 type command = command_aux * attribut list

@@ -14,7 +14,7 @@ FILES=klexer.mll type.ml pos.ml syntax.ml LP_p_term.ml \
 all: kamelo
 
 kamelo: $(CAMLOBJS)
-	ocamlc -g -o kamelo unix.cma $(CAMLOBJS)
+	ocamlc -g -o kamelo unix.cma str.cma $(CAMLOBJS)
 
 clean:
 	rm -f *.cmi *.cmo

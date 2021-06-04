@@ -142,13 +142,13 @@ let rec sym_curry : symbol -> p_term = fun s ->
   (**let f = fun (a:p_term) (b:axiom) : p_term ->
                         Pos.none (P_Arro(a, sym_curry b))
         in*)
-  let g = fun a -> match a with | S x | Q x ->
-                                   create_ident x in
-  let f = fun a b -> match a with | S x | Q x ->
-                                     Pos.none (P_Arro(create_ident x,b)) in
+  let g = fun a ->
+    match a with
+    | S x | Q x -> get_type x
+  in
+  let f = fun a b ->
+    match a with | S x | Q x -> Pos.none (P_Arro(get_type x,b)) in
   List.fold_right f p_l (g p)
-
-
 
 let symbol_to_p_symbol : symbol -> attribut list -> p_symbol = fun s attr_l ->
   let name, qvar_l, p_l, p = s in

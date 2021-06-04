@@ -318,22 +318,12 @@ module MINUS-MINI
   alias rule0LHS{}(SortAExp{},SortGeneratedCounterCell{},SortK{}) : SortGeneratedTopCell{}
   where rule0LHS{}(VarX:SortAExp{},Var'Unds'DotVar0:SortGeneratedCounterCell{},Var'Unds'DotVar2:SortK{}) :=
     \and{SortGeneratedTopCell{}} (
-      \top{SortGeneratedTopCell{}}(),
-      Lbl'-LT-'generatedTop'-GT-'{}(
-         Lbl'-LT-'T'-GT-'{}(Lbl'-LT-'k'-GT-'{}(
-            kseq{}(inj{SortAExp{}, SortKItem{}}(Lbl'Unds'-'UndsUnds'MINUS-MINI-SYNTAX'Unds'AExp'Unds'AExp'Unds'AExp{}(VarX:SortAExp{},VarX:SortAExp{})),
-            Var'Unds'DotVar2:SortK{}))),
-         Var'Unds'DotVar0:SortGeneratedCounterCell{})) []
+      \top{SortGeneratedTopCell{}}(), Lbl'-LT-'generatedTop'-GT-'{}(Lbl'-LT-'T'-GT-'{}(Lbl'-LT-'k'-GT-'{}(kseq{}(inj{SortAExp{}, SortKItem{}}(Lbl'Unds'-'UndsUnds'MINUS-MINI-SYNTAX'Unds'AExp'Unds'AExp'Unds'AExp{}(VarX:SortAExp{},VarX:SortAExp{})),Var'Unds'DotVar2:SortK{}))),Var'Unds'DotVar0:SortGeneratedCounterCell{})) []
 
-
-    axiom{} \rewrites{SortGeneratedTopCell{}} (
+  axiom{} \rewrites{SortGeneratedTopCell{}} (
     rule0LHS{}(VarX:SortAExp{},Var'Unds'DotVar0:SortGeneratedCounterCell{},Var'Unds'DotVar2:SortK{}),
     \and{SortGeneratedTopCell{}} (
-      \top{SortGeneratedTopCell{}}(),
-      Lbl'-LT-'generatedTop'-GT-'{}(Lbl'-LT-'T'-GT-'{}(
-         Lbl'-LT-'k'-GT-'{}(kseq{}(inj{SortInt{}, SortKItem{}}(Lbl0'Unds'MINUS-MINI-SYNTAX'Unds'Int{}()),
-         Var'Unds'DotVar2:SortK{}))),
-      Var'Unds'DotVar0:SortGeneratedCounterCell{})))
+      \top{SortGeneratedTopCell{}}(), Lbl'-LT-'generatedTop'-GT-'{}(Lbl'-LT-'T'-GT-'{}(Lbl'-LT-'k'-GT-'{}(kseq{}(inj{SortInt{}, SortKItem{}}(Lbl0'Unds'MINUS-MINI-SYNTAX'Unds'Int{}()),Var'Unds'DotVar2:SortK{}))),Var'Unds'DotVar0:SortGeneratedCounterCell{})))
   [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/Bureau/These/K_framework/KTest/./minus-mini.k)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody [klabel(#ruleNoConditions), symbol]"), contentStartLine{}("16"), contentStartColumn{}("8"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(16,8,16,20)"), UNIQUE'Unds'ID{}("f7bb1811515c19c6d6ed4d09c3663549cddee667567a69ac9ff3816e58b5f05c")]
 
 // rule `_|Set__SET_Set_Set_Set`(S1,S2)=>`_Set_`(S1,`Set:difference`(S2,S1)) requires #token("true","Bool") ensures #token("true","Bool") [UNIQUE_ID(e9a710d8d1ca5c799420161879cbbff926de45a5bddd820d646f51d43eb67e62), contentStartColumn(8), contentStartLine(520), org.kframework.attributes.Location(Location(520,8,520,45)), org.kframework.attributes.Source(Source(/usr/include/kframework/builtin/domains.md)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody [klabel(#ruleNoConditions), symbol])]
