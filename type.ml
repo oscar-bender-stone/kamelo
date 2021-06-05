@@ -27,6 +27,7 @@ type attribut =
  | Cellname     of param list * string
  | Cellfragment of param list * string
  | Celloptabst  of param list * string
+ | Color        of param list * string
  | Latex        of param list * string
  | Nothread     of param list * string
  | Hook         of param list * string
@@ -34,6 +35,7 @@ type attribut =
  | Klabel       of param list * string
  | Terminals    of param list * string
  | Index        of param list * string
+ | SMTlib       of param list * string
  | Format       of param list * string
  | StartLine    of param list * string
  | StartCol     of param list * string

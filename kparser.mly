@@ -59,6 +59,7 @@
 %token CELLNAME
 %token CELLFRAGMENT
 %token CELLOPTABST
+%token COLOR
 %token LATEX
 %token NOTHREAD
 %token HOOK
@@ -66,6 +67,7 @@
 %token KLABEL
 %token TERMINALS
 %token INDEX
+%token SMTLIB
 %token FORMAT
 %token STARTLINE
 %token STARTCOLUMN
@@ -218,6 +220,7 @@ attribut:
   | CELLNAME       attri_params { let a1,a2 = $2 in Cellname(a1, a2)     }
   | CELLFRAGMENT   attri_params { let a1,a2 = $2 in Cellfragment(a1, a2) }
   | CELLOPTABST    attri_params { let a1,a2 = $2 in Celloptabst(a1, a2)  }
+  | COLOR          attri_params { let a1,a2 = $2 in Color(a1, a2)        }
   | LATEX          attri_params { let a1,a2 = $2 in Latex(a1, a2)        }
   | NOTHREAD       attri_params { let a1,a2 = $2 in Nothread(a1, a2)     }
   | HOOK           attri_params { let a1,a2 = $2 in Hook(a1, a2)         }
@@ -225,6 +228,7 @@ attribut:
   | KLABEL         attri_params { let a1,a2 = $2 in Klabel(a1, a2)       }
   | TERMINALS      attri_params { let a1,a2 = $2 in Terminals(a1, a2)    }
   | INDEX          attri_params { let a1,a2 = $2 in Index(a1, a2)        }
+  | SMTLIB         attri_params { let a1,a2 = $2 in SMTlib(a1, a2)       }
   | FORMAT         attri_params { let a1,a2 = $2 in Format(a1, a2)       }
   | STARTLINE      attri_params { let a1,a2 = $2 in StartLine(a1, a2)    }
   | STARTCOLUMN    attri_params { let a1,a2 = $2 in StartCol(a1, a2)     }

@@ -60,6 +60,7 @@
   | CELLNAME
   | CELLFRAGMENT
   | CELLOPTABST
+  | COLOR
   | LATEX
   | NOTHREAD
   | HOOK
@@ -67,6 +68,7 @@
   | KLABEL
   | TERMINALS
   | INDEX
+  | SMTLIB
   | FORMAT
   | STARTLINE
   | STARTCOLUMN
@@ -170,6 +172,7 @@ rule token = parse
   | "cellName"           { CELLNAME     }
   | "cellFragment"       { CELLFRAGMENT }
   | "cellOptAbsent"      { CELLOPTABST  }
+  | "color"              { COLOR        }
   | "latex"              { LATEX        }
   | "noThread"           { NOTHREAD     }
   | "hook"               { HOOK         }
@@ -177,6 +180,7 @@ rule token = parse
   | "klabel"             { KLABEL       }
   | "terminals"          { TERMINALS    }
   | "index"              { INDEX        }
+  | "smtlib"             { SMTLIB       }
   | "format"             { FORMAT       }
   | "contentStartLine"   { STARTLINE    }
   | "contentStartColumn" { STARTCOLUMN  }
