@@ -1,8 +1,58 @@
 
 open Syntax
 
+
+let pretty_printing = true
+
+(* Meilleure complexité avec une map, mais moins lisible *)
+
+(*
+let pretty_name : string -> (string * string) list -> string = fun s iso ->
+  let len = ref (String.length s) in
+  let res = ref s in
+  let rec aux l = match l with
+     | [] -> !res
+     | (pattern, new_s)::t ->
+        let head_len = String.length pattern in
+        let new_len  = String.length new_s   in
+        let rec comparison k i pattern j =
+          if j = head_len then
+            (res := String.sub !res 0 k ^ new_s ^ String.sub !res (k+new_len+1) (!len-(k+new_len+1)-1);
+             len := String.length !res)
+          else
+            if i+k < !len && j < head_len && !res.[i] = pattern.[j]
+            then comparison  k    (i+1) pattern (j+1)
+            else comparison (k+1) (k+1) pattern  0
+        in
+        comparison 0 0 pattern 0;
+        (*for k = 0 to !len-1 do
+          res := comparison k !res k pattern 0;
+          len := String.length !res
+        done; *)
+        aux t
+  in
+  aux iso
+ *)
+
+let pretty_string : (string * string) list -> string -> string = fun iso s ->
+  let rec aux l s = match l with
+     | [] -> s
+     | (pattern, new_s)::t ->
+        aux t (Str.global_replace (Str.regexp pattern) new_s s)
+  in
+  aux iso s
+
+let string_symbol_isomorphism =
+  [ ("Lbl", "") ; (* ("Sort", "") ; ("Stop", ".") ; *) ("Unds", "_") ; ("'", "") ;  ("-LT-", "<") ; ("-GT-", ">") ;
+    ("Pipe", "|") ; ("Eqls", "=") ; (* ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ;
+    ("Comm", ",") ; ("Coln", ":") *) ]
+let pp = if pretty_printing then pretty_string string_symbol_isomorphism else fun x -> x
+
+
+
+
 let create_ident : string -> p_term = fun s ->
-  Pos.none (P_Iden(Pos.none ([], s), false))
+  Pos.none (P_Iden(Pos.none ([], (pp s)), false))
 
 let create_meta_var : string -> p_meta_ident = fun s ->
   Pos.none (Name s)

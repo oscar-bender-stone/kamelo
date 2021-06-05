@@ -46,42 +46,6 @@ let prelude_name = "prelude"
 let string_symbol_isomorphism = [ ("Unds", "_") ; ("'", "") ; ("Lbl", "") ; ("-LT-", "<") ; ("-GT-", ">") ; ("Pipe", "|") ]
 (* Meilleure complexité avec une map, mais moins lisible *)
 
-(*
-let pretty_name : string -> (string * string) list -> string = fun s iso ->
-  let len = ref (String.length s) in
-  let res = ref s in
-  let rec aux l = match l with
-     | [] -> !res
-     | (pattern, new_s)::t ->
-        let head_len = String.length pattern in
-        let new_len  = String.length new_s   in
-        let rec comparison k i pattern j =
-          if j = head_len then
-            (res := String.sub !res 0 k ^ new_s ^ String.sub !res (k+new_len+1) (!len-(k+new_len+1)-1);
-             len := String.length !res)
-          else
-            if i+k < !len && j < head_len && !res.[i] = pattern.[j]
-            then comparison  k    (i+1) pattern (j+1)
-            else comparison (k+1) (k+1) pattern  0
-        in
-        comparison 0 0 pattern 0;
-        (*for k = 0 to !len-1 do
-          res := comparison k !res k pattern 0;
-          len := String.length !res
-        done; *)
-        aux t
-  in
-  aux iso
- *)
-
-let pretty_name : string -> (string * string) list -> string = fun s iso ->
-  let rec aux s l = match l with
-     | [] -> s
-     | (pattern, new_s)::t ->
-        aux (Str.global_replace (Str.regexp pattern) new_s s) t
-  in
-  aux s iso
-
 let () =
   parse
     [(*("-v",  Unit (fun () -> verbose:=1), "reports stuff");
@@ -135,14 +99,14 @@ let () =
     pp_command ppf (import_to_require_open path i)
   in
   let trans_sort : Format.formatter -> sort -> unit =
-    fun ppf s -> pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol s)))
+    fun ppf s -> pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol (pp s))))
   in
   let trans_induc : Format.formatter -> sort * symbol list -> unit =
     fun ppf i -> pp_command ppf (Pos.none (P_inductive([], [], [induc_to_p_inductive i])))
   in
   let trans_symbol : Format.formatter -> symbol * attribut list -> unit =
     fun ppf ((name, qv_l, p_l, p), attr_l) ->
-    let s = (pretty_name name string_symbol_isomorphism, qv_l, p_l, p) in
+    let s = (pp name, qv_l, p_l, p) in
     pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
   in
   let trans_alias : Format.formatter -> alias * (quant_var list * axiom * attribut list) option -> unit =

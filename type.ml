@@ -3,51 +3,54 @@ type sort = name
 type quant_var = name
 type param = S of sort | Q of quant_var
 
+type data_attr = param list * string list
+
 type attribut =
- | Topcellinit  of param list * string
- | Left         of param list * string
- | Right        of param list * string
- | Priorities   of param list * string
- | Subsort      of param list * string
- | Functional   of param list * string
- | Function     of param list * string
- | Constructor  of param list * string
- | Injective    of param list * string
- | Predicate    of param list * string
- | Assoc        of param list * string
- | Comm         of param list * string
- | Idem         of param list * string
- | Unit         of param list * string
- | Element      of param list * string
- | Concat       of param list * string
- | Owise        of param list * string
- | Topcell      of param list * string
- | Cell         of param list * string
- | Maincell     of param list * string
- | Cellname     of param list * string
- | Cellfragment of param list * string
- | Celloptabst  of param list * string
- | Color        of param list * string
- | Latex        of param list * string
- | Nothread     of param list * string
- | Hook         of param list * string
- | Token        of param list * string
- | Klabel       of param list * string
- | Terminals    of param list * string
- | Index        of param list * string
- | SMTlib       of param list * string
- | Format       of param list * string
- | StartLine    of param list * string
- | StartCol     of param list * string
- | Projection   of param list * string
- | Initializer  of param list * string
- | Sortinject   of param list * string
- | Keyword      of param list * string
- | Hasdomainval of param list * string
- | Unique       of param list * string
- | Location     of param list * string
- | Source       of param list * string
- | Production   of param list * string
+ | Topcellinit  of data_attr
+ | Left         of data_attr
+ | Right        of data_attr
+ | Priorities   of data_attr
+ | Subsort      of data_attr
+ | Functional   of data_attr
+ | Function     of data_attr
+ | Constructor  of data_attr
+ | Injective    of data_attr
+ | Predicate    of data_attr
+ | Assoc        of data_attr
+ | Comm         of data_attr
+ | Idem         of data_attr
+ | Unit         of data_attr
+ | Element      of data_attr
+ | Concat       of data_attr
+ | Owise        of data_attr
+ | Topcell      of data_attr
+ | Cell         of data_attr
+ | Maincell     of data_attr
+ | Cellname     of data_attr
+ | Cellfragment of data_attr
+ | Celloptabst  of data_attr
+ | Color        of data_attr
+ | Latex        of data_attr
+ | Nothread     of data_attr
+ | Hook         of data_attr
+ | Token        of data_attr
+ | Klabel       of data_attr
+ | Terminals    of data_attr
+ | Index        of data_attr
+ | SMTlib       of data_attr
+ | Format       of data_attr
+ | StartLine    of data_attr
+ | StartCol     of data_attr
+ | Projection   of data_attr
+ | Initializer  of data_attr
+ | Sortinject   of data_attr
+ | Keyword      of data_attr
+ | Hasdomainval of data_attr
+ | Unique       of data_attr
+ | Location     of data_attr
+ | Source       of data_attr
+ | Production   of data_attr
+ | Other        of string * data_attr
 
 type symbol = name * quant_var list * param list * param
 

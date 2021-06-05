@@ -190,10 +190,10 @@ modules:
 instance_symbol:
   | name L_CURLY_BRA R_CURLY_BRA L_PAREN R_PAREN { $1 }
   | STRING { $1 }
-  |        { "" }
+  //|        { "" }
 
 attri_params:
-  | L_CURLY_BRA param_list R_CURLY_BRA L_PAREN instance_symbol R_PAREN
+  | L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, instance_symbol) R_PAREN
       { ($2, $5) }
 
 attribut:
@@ -241,6 +241,7 @@ attribut:
   | LOCATION       attri_params { let a1,a2 = $2 in Location(a1, a2)     }
   | SOURCE         attri_params { let a1,a2 = $2 in Source(a1, a2)       }
   | PRODUCTION     attri_params { let a1,a2 = $2 in Production(a1, a2)   }
+  | name           attri_params { let a1,a2 = $2 in Other($1, (a1, a2))  }
 
 attributs:
   | L_SQUARE_BRA separated_list(COMMA, attribut) R_SQUARE_BRA { $2 }
