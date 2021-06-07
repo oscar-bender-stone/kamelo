@@ -207,6 +207,11 @@ and comment = parse
   | eof  { raise (EOFError "Unexpected end of file in comment.")   }
 
 and quote buf = parse
+  | '\\'    { after_backslash buf lexbuf                           }
   | '"'     { STRING (Buffer.contents buf)                         }
   | _ as c  { Buffer.add_char buf c; quote buf lexbuf              }
   | eof     { raise (EOFError "Unexpected end of file in string.") }
+
+and after_backslash buf = parse
+  | '"'    { quote buf lexbuf }
+  | _ as c { Buffer.add_char buf '\\'; Buffer.add_char buf c; quote buf lexbuf }
