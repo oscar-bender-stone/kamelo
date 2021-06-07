@@ -144,7 +144,7 @@ let () =
   in
   (*let trans_axiom : Format.formatter -> axiom -> unit =*)
 
-  let trans_command : Format.formatter -> command -> unit =
+  (* let trans_command : Format.formatter -> command -> unit =
     fun ppf (c, attri_l) ->
     match c with
      | Sort   s | H_sort   s ->
@@ -157,7 +157,7 @@ let () =
          | Unit _::nil | Comm _::nil | Assoc _::nil | Idem _::nil ->
             pp_command ppf (Pos.none (P_rules [of_equality_axiom a]))
          | _ -> ()
-  in
+  in *)
 
 
 

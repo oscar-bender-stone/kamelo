@@ -352,7 +352,7 @@ let pp_tactic : p_tactic pp = fun ppf t ->
   | P_tac_admit -> out ppf "admit"
   | P_tac_apply t -> out ppf "apply %a" pp_p_term t
   | P_tac_assume ids ->
-      let param_id ppf x = out ppf " %a" pp_p_param_id x in
+      let pp_p_param_id ppf x = out ppf " %a" pp_p_param_id x in
       out ppf "assume%a" (list_pp pp_p_param_id "") ids
   | P_tac_fail -> out ppf "fail"
   | P_tac_focus i -> out ppf "focus %i" i

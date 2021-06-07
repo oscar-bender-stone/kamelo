@@ -67,6 +67,7 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
                  | [] -> l2
                  | h::t -> (f h)::(map_append t f l2)
 
+exception KComputation of string
 
 let rec ax_curry : axiom -> p_term = fun a ->
   let f = fun (a:p_term) (b:axiom) : p_term ->
@@ -85,6 +86,17 @@ let rec ax_curry : axiom -> p_term = fun a ->
      | Sym(n, _, a_l) -> List.fold_left f (create_ident n) a_l
      | Var(n, p) -> create_pattern_var n
     end
+  | Dom_val(sort, name) -> create_ident name
+  (*| In _ -> failwith "OK, guys"
+  | Equals _ -> failwith "EQUALS"
+  | Exists _ -> failwith "EXISTS"
+  | Or _ -> failwith "OR"
+  | Not _ -> failwith "NOT"
+  | Implies _ -> failwith "IMPLIES"
+  | Bottom _ -> failwith "BOTTOM"
+  | Top    _ -> failwith "TOP"
+  | Rewrites _ -> failwith "REWRITES" *)
+  | And _ -> raise (KComputation "K computations not yet implemented.")
   | _ -> failwith "Not yet implemented, if the axiom isn't a predicat."
 
 
@@ -93,7 +105,9 @@ let rec ax_curry : axiom -> p_term = fun a ->
 let of_equality_axiom : axiom -> p_rule = fun a ->
   match a with
   | Equals(_, a1, a2) ->
-     Pos.none (ax_curry a1, ax_curry a2)
+     (try
+        Pos.none (ax_curry a1, ax_curry a2)
+      with _ -> failwith "Unit, Idem, comm, assoc")
   | _ -> failwith "The current axiom isn't an equality one.\n
                    Please, raise an issue."
 (*
@@ -152,7 +166,10 @@ let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
            if is_conditional_rule a1 then
              raise (ConditionalRule "Conditional rewriting rule not supported yet.")
            else
-             ax_curry a2
+             (try ax_curry a2
+              with KComputation _ ->
+                Format.printf (yel "WARNiNG KCOMPUTATION found\n") ; Pos.none P_Type)
+                (* _ -> failwith "LHS"*)
         |  _ -> failwith "In LHS: Not yet implemented"
        end
     | D _ -> failwith "Not possible in rewriting axiom"

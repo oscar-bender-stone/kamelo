@@ -155,10 +155,10 @@ let symbol_to_p_symbol : symbol -> attribut list -> p_symbol = fun s attr_l ->
   (* Merge qvar_l and p_l *)
   let f = fun b a -> [Some (Pos.none a)], Some (Pos.none P_Type), b in
   let qvar_l = List.map (f true) qvar_l in
-  let f = fun b a -> match a with | S x | Q x -> f b x in
-  let p_l = List.map (f false) p_l in
+  (* let f = fun b a -> match a with | S x | Q x -> f b x in
+     let p_l = List.map (f false) p_l in *)
   (* Transformation of p *)
-  let f p = match p with S x | Q x -> x in
+  (* let f p = match p with S x | Q x -> x in *)
   { p_sym_mod = get_modifier attr_l (* ; TODO modifiers *)
   ; p_sym_nam = Pos.none name
   ; p_sym_arg = qvar_l (* qvar_l @ p_l *)
