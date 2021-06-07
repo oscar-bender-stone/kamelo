@@ -137,6 +137,8 @@ let is_conditional_rule : axiom -> bool = fun a ->
   | Top _ -> false
   | _     -> true
 
+exception ConditionalRule of string
+
 let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
   let def = get_def aw in
@@ -148,7 +150,7 @@ let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
         match a with
         | And(_,a1,a2) ->
            if is_conditional_rule a1 then
-             failwith "Conditional rewriting rule not supported yet."
+             raise (ConditionalRule "Conditional rewriting rule not supported yet.")
            else
              ax_curry a2
         |  _ -> failwith "In LHS: Not yet implemented"
@@ -160,7 +162,7 @@ let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
     match ax with
     | Rewrites(_,_,And(_,a1,a2)) ->
        if is_conditional_rule a1 then
-         failwith "Conditional rewriting rule not supported yet."
+         raise (ConditionalRule "Conditional rewriting rule not supported yet.")
        else
          ax_curry a2
     |  _ -> failwith "In RHS: Not yet implemented"

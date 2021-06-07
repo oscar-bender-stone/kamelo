@@ -132,7 +132,7 @@ let is_constructor : symbol -> attribut list -> sort option = fun s attri_l ->
   | (false, _) -> None
   | (true, true)   -> Some (get_sort s)
   | (true, false)  ->
-     Printf.fprintf stdout "A constructor not injective! (%s)\n" (get_name s) ; None
+     Printf.fprintf stdout (yel "WARNING The symbol (%s) is declared 'constructor' but not 'injective'!\n") (get_name s) ; None
 
 
 

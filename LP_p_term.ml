@@ -1,8 +1,20 @@
 
 open Syntax
 
+let no_color = ref false
 
-let pretty_printing = true
+(** Format transformers (colors). *)
+let colorize k fmt =
+  if !no_color then fmt else "\027[" ^^ k ^^ "m" ^^ fmt ^^ "\027[0m%!"
+
+let red fmt = colorize "31" fmt
+let gre fmt = colorize "32" fmt
+let yel fmt = colorize "33" fmt
+let blu fmt = colorize "34" fmt
+let mag fmt = colorize "35" fmt
+let cya fmt = colorize "36" fmt
+
+let pretty_printing = ref false
 
 (* Meilleure complexité avec une map, mais moins lisible *)
 
@@ -46,7 +58,8 @@ let string_symbol_isomorphism =
   [ ("Lbl", "") ; (* ("Sort", "") ; ("Stop", ".") ; *) ("Unds", "_") ; ("'", "") ;  ("-LT-", "<") ; ("-GT-", ">") ;
     ("Pipe", "|") ; ("Eqls", "=") ; (* ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ;
     ("Comm", ",") ; ("Coln", ":") *) ]
-let pp = if pretty_printing then pretty_string string_symbol_isomorphism else fun x -> x
+(* Meilleure complexité avec une map, mais moins lisible *)
+let pp = if !pretty_printing then pretty_string string_symbol_isomorphism else fun x -> x
 
 
 
