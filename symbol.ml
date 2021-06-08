@@ -153,7 +153,7 @@ let rec sym_curry : symbol -> p_term = fun s ->
 let symbol_to_p_symbol : symbol -> attribut list -> p_symbol = fun s attr_l ->
   let name, qvar_l, p_l, p = s in
   (* Merge qvar_l and p_l *)
-  let f = fun b a -> [Some (Pos.none a)], Some (Pos.none P_Type), b in
+  let f = fun b a -> [Some (Pos.none a)], Some (create_ident "SortK"), b in
   let qvar_l = List.map (f true) qvar_l in
   (* let f = fun b a -> match a with | S x | Q x -> f b x in
      let p_l = List.map (f false) p_l in *)

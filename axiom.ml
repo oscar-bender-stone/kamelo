@@ -168,7 +168,7 @@ let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
            else
              (try ax_curry a2
               with KComputation _ ->
-                Format.printf (yel "WARNiNG KCOMPUTATION found\n") ; Pos.none P_Type)
+                Format.printf (yel "WARNING: K computation found\n") ; Pos.none P_Type)
                 (* _ -> failwith "LHS"*)
         |  _ -> failwith "In LHS: Not yet implemented"
        end

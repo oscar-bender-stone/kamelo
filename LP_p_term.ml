@@ -56,7 +56,7 @@ let pretty_string : (string * string) list -> string -> string = fun iso s ->
 
 let string_symbol_isomorphism =
   [ ("Lbl", "") ; (* ("Sort", "") ; ("Stop", ".") ; *) ("Unds", "_") ; ("'", "") ;  ("-LT-", "<") ; ("-GT-", ">") ;
-    ("Pipe", "|") ; ("Eqls", "=") ; (* ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ;
+    ("Pipe", "|") ; ("Eqls", "=") ; ("Hash", "#") ; (* ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ;
     ("Comm", ",") ; ("Coln", ":") *) ]
 (* Meilleure complexité avec une map, mais moins lisible *)
 let pp = if !pretty_printing then pretty_string string_symbol_isomorphism else fun x -> x
