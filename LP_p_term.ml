@@ -59,7 +59,7 @@ let string_symbol_isomorphism =
     ("Pipe", "|") ; ("Eqls", "=") ; ("Hash", "#") ; (* ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ;
     ("Comm", ",") ; ("Coln", ":") *) ]
 (* Meilleure complexité avec une map, mais moins lisible *)
-let pp = if !pretty_printing then pretty_string string_symbol_isomorphism else fun x -> x
+let pp s = if !pretty_printing then pretty_string string_symbol_isomorphism s else s
 
 
 

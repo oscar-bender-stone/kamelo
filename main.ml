@@ -66,7 +66,7 @@ let () =
      ("-v2", Unit (fun () -> verbose:=2), "reports stuff, and stuff");*)
      ("-i",           Unit (fun () -> check_induc:=true),  "generation of inductive types");
      ("--inductive",  Unit (fun () -> check_induc:=true),  "generation of inductive types");
-     ("-pp",  Unit (fun () -> pretty_printing:=true),  "print pretty strings");
+     ("--pp",  Unit (fun () -> pretty_printing:=true),  "print pretty strings");
 
      ("--no-color",  Unit (fun () -> no_color:=true),  "disable colors");
      ("--format",  Unit (fun () -> c_S:=true),  "output assembler dump")]
@@ -131,8 +131,8 @@ let () =
      | _, None -> () (* @TODO *)
      | al, Some(_,ax,_) ->
         try
-          incr real_rule ;
-          pp_command ppf (Pos.none (P_rules [create_rewriting_rule al ax]))
+          pp_command ppf (Pos.none (P_rules [create_rewriting_rule al ax])) ;
+          incr real_rule
         with ConditionalRule _ -> ()
   in
   let trans_axiom : Format.formatter -> quant_var list * axiom * attribut list -> unit =
@@ -171,6 +171,22 @@ let () =
      | [] -> []
      | t::q -> if t = a then q else t::(remove a q)
   in
+  let print_new_attribut : name -> attribut list -> unit = fun name attri_l ->
+    let rec aux = fun l acc ->
+      match l with
+       | [] -> acc
+       | t::q -> (match t with
+                   | Other(n,_) -> aux q (n::acc)
+                   | _ -> aux q acc)
+    in
+    let res = aux attri_l [] in
+    match res with
+     | [] -> ()
+     | t::q as l ->
+        Format.printf (yel "WARNING: The symbol %s has new attribut(s): ") name;
+        List.iter (fun n -> Format.printf (yel "%s ") n) l;
+        Format.printf (yel ".\n")
+  in
   let preprocessing :
         modu -> name * import list * sort list * (symbol list) Induc.t * (symbol * attribut list) list *
                   (alias * (quant_var list * axiom * attribut list) option) list *
@@ -181,18 +197,23 @@ let () =
        | [] -> acc
        | (c, attr_l)::q ->
           match c with
-           | Sort   s | H_sort   s -> incr nb_sort ; aux q (s::sort_l, induc_m, sym_l, alias_l, ax_l)
+           | Sort   s | H_sort   s ->
+              incr nb_sort ; print_new_attribut s attr_l ;
+              aux q (s::sort_l, induc_m, sym_l, alias_l, ax_l)
            | Symbol s | H_symbol s ->
-              if not(!check_induc) then (incr nb_symbol ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
-              else
-                (match is_constructor s attr_l with
-                  | Some sort ->
-                     let f new_v old_v = match old_v with
-                         None -> Some [new_v] | Some q -> Some (new_v::q) in
-                     let induc_m = Induc.update sort (f s) induc_m in
-                     aux q (remove sort sort_l, induc_m, sym_l, alias_l, ax_l)
-                  | None ->
-                     aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
+              begin
+                let name,_,_,_ = s in print_new_attribut name attr_l ;
+                if not(!check_induc) then (incr nb_symbol ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
+                else
+                  (match is_constructor s attr_l with
+                    | Some sort ->
+                       let f new_v old_v = match old_v with
+                           None -> Some [new_v] | Some q -> Some (new_v::q) in
+                       let induc_m = Induc.update sort (f s) induc_m in
+                       aux q (remove sort sort_l, induc_m, sym_l, alias_l, ax_l)
+                    | None ->
+                       aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
+              end
            | Alias al->
               (match q with
                 | [] -> incr nb_alias ; aux q (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l)
