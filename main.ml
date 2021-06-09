@@ -138,7 +138,8 @@ let () =
   let trans_axiom : Format.formatter -> quant_var list * axiom * attribute list -> unit =
     fun ppf (qv_l, a, attr_l) ->
     match attr_l with
-     | Unit _::nil | Comm _::nil | Assoc _::nil | Idem _::nil ->
+     | Unit _::nil | Assoc _::nil | Idem _::nil ->
+        (* if is_only_assoc a then @TODO *)
         incr real_rule ; pp_command ppf (Pos.none (P_rules [of_equality_axiom a]))
      | _ -> () (* @TODO *)
   in

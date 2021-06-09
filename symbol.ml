@@ -87,8 +87,8 @@ let get_modifier : attribute list -> p_modifier list = fun attr_l ->
               | Injective   _ -> aux q (set_injec acc true)
               | Assoc       _ -> aux q (set_assoc acc true)
               | Comm        _ -> aux q (set_comm  acc true)
-              | Left        _ -> aux q (set_left  acc true)
-              | Right       _ -> aux q (set_right acc true)
+              (*| Left        _ -> aux q (set_left  acc true)
+              | Right       _ -> aux q (set_right acc true)*)
               | _             -> aux q acc
   in
   let tmp = aux attr_l no_information in
@@ -99,7 +99,7 @@ let get_modifier : attribute list -> p_modifier list = fun attr_l ->
   let res = if get_injec tmp && not(get_constructor tmp) then f_prop(Injec)::res else res in
   let res = if get_assoc tmp && get_comm tmp then f_prop(AC(b))::res
             else
-              if get_assoc tmp then f_prop(Assoc(b))::res
+              if get_assoc tmp then res (* you need to generate the rule *)
               else
                 if get_comm tmp then f_prop(Commu)::res
                 else res
