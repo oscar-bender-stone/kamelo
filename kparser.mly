@@ -50,6 +50,8 @@
 %token COMM
 %token IDEM
 %token UNIT
+%token STRICT
+%token SEQSTRICT
 %token ELEMENT
 %token CONCAT
 %token OWISE
@@ -68,6 +70,7 @@
 %token TERMINALS
 %token INDEX
 %token SMTLIB
+%token SMTHOOK
 %token FORMAT
 %token STARTLINE
 %token STARTCOLUMN
@@ -211,6 +214,8 @@ attribute:
   | COMM           attri_params { let a1,a2 = $2 in Comm(a1, a2)         }
   | IDEM           attri_params { let a1,a2 = $2 in Idem(a1, a2)         }
   | UNIT           attri_params { let a1,a2 = $2 in Unit(a1, a2)         }
+  | STRICT         attri_params { let a1,a2 = $2 in Strict(a1, a2)       }
+  | SEQSTRICT      attri_params { let a1,a2 = $2 in Seqstrict(a1, a2)    }
   | ELEMENT        attri_params { let a1,a2 = $2 in Element(a1, a2)      }
   | CONCAT         attri_params { let a1,a2 = $2 in Concat(a1, a2)       }
   | OWISE          attri_params { let a1,a2 = $2 in Owise(a1, a2)        }
@@ -229,6 +234,7 @@ attribute:
   | TERMINALS      attri_params { let a1,a2 = $2 in Terminals(a1, a2)    }
   | INDEX          attri_params { let a1,a2 = $2 in Index(a1, a2)        }
   | SMTLIB         attri_params { let a1,a2 = $2 in SMTlib(a1, a2)       }
+  | SMTHOOK        attri_params { let a1,a2 = $2 in SMThook(a1, a2)      }
   | FORMAT         attri_params { let a1,a2 = $2 in Format(a1, a2)       }
   | STARTLINE      attri_params { let a1,a2 = $2 in StartLine(a1, a2)    }
   | STARTCOLUMN    attri_params { let a1,a2 = $2 in StartCol(a1, a2)     }

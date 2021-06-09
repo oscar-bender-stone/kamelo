@@ -51,6 +51,8 @@
   | COMM
   | IDEM
   | UNIT
+  | STRICT
+  | SEQSTRICT
   | ELEMENT
   | CONCAT
   | OWISE
@@ -69,6 +71,7 @@
   | TERMINALS
   | INDEX
   | SMTLIB
+  | SMTHOOK
   | FORMAT
   | STARTLINE
   | STARTCOLUMN
@@ -163,6 +166,8 @@ rule token = parse
   | "comm"               { COMM         }
   | "idem"               { IDEM         }
   | "unit"               { UNIT         }
+  | "strict"             { STRICT       }
+  | "seqstrict"          { SEQSTRICT    }
   | "element"            { ELEMENT      }
   | "concat"             { CONCAT       }
   | "owise"              { OWISE        }
@@ -181,6 +186,7 @@ rule token = parse
   | "terminals"          { TERMINALS    }
   | "index"              { INDEX        }
   | "smtlib"             { SMTLIB       }
+  | "smt-hook"           { SMTHOOK      }
   | "format"             { FORMAT       }
   | "contentStartLine"   { STARTLINE    }
   | "contentStartColumn" { STARTCOLUMN  }

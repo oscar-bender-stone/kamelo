@@ -20,6 +20,8 @@ type attribute =
  | Comm         of data_attr
  | Idem         of data_attr
  | Unit         of data_attr
+ | Strict       of data_attr
+ | Seqstrict    of data_attr
  | Element      of data_attr
  | Concat       of data_attr
  | Owise        of data_attr
@@ -38,6 +40,7 @@ type attribute =
  | Terminals    of data_attr
  | Index        of data_attr
  | SMTlib       of data_attr
+ | SMThook      of data_attr
  | Format       of data_attr
  | StartLine    of data_attr
  | StartCol     of data_attr
