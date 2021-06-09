@@ -59,6 +59,43 @@ let real_alias  = ref 0
 let real_rule   = ref 0
 let real_axiom  = ref 0
 
+let import_to_require_open : string list -> import -> p_command = fun chemin i ->
+  let filename = String.lowercase_ascii (fst i) in
+  Pos.none (P_require (true, [Pos.none (chemin @ [filename])]))
+
+let pp_import : Format.formatter -> string list -> import -> unit =
+  fun ppf path i -> incr real_import ; pp_command ppf (import_to_require_open path i)
+
+let get_sort_type : sort -> p_term = fun s ->
+  if s = "SortK" then Pos.none P_Type else create_ident "SortK"
+
+let sort_to_p_symbol : sort -> p_symbol = fun s ->
+  let sort_type = get_sort_type s in
+  { p_sym_mod = [] (* Const ? *)
+  ; p_sym_nam = Pos.none s
+  ; p_sym_arg = []   (* TODO *)
+  ; p_sym_typ = Some sort_type (* TODO, after ? TYPE ? K ? *)
+  ; p_sym_trm = None
+  ; p_sym_prf = None
+  ; p_sym_def = false }
+
+let pp_sort : Format.formatter -> sort -> unit =
+  fun ppf s -> incr real_sort ; pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol (pp s))))
+
+let induc_to_p_inductive : sort * symbol list -> p_inductive = fun (sort, s_l) ->
+  (* p_ident * p_term * (p_ident * p_term) list *)
+  let f s = (Pos.none (get_name s), sym_curry s) in
+  Pos.none (Pos.none sort, Pos.none P_Type, List.map f s_l)
+
+let pp_induc : Format.formatter -> sort * symbol list -> unit =
+  fun ppf i -> incr real_induc ; pp_command ppf (Pos.none (P_inductive([], [], [induc_to_p_inductive i])))
+
+let pp_symbol : Format.formatter -> symbol * attribute list -> unit =
+  fun ppf ((name, qv_l, p_l, p), attr_l) ->
+  let s = (pp name, qv_l, p_l, p) in
+  incr real_symbol ;
+  pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
+
 let () =
   parse
     [(*("-v",  Unit (fun () -> verbose:=1), "reports stuff");
@@ -84,47 +121,8 @@ let () =
   in
   print_c c;*)
 
-  let import_to_require_open : string list -> import -> p_command = fun chemin i ->
-    let filename = String.lowercase_ascii (fst i) in
-    Pos.none (P_require (true, [Pos.none (chemin @ [filename])]))
-  in
-  let get_sort_type : sort -> p_term = fun s ->
-     if s = "SortK" then Pos.none P_Type else create_ident "SortK"
-  in
-  let sort_to_p_symbol : sort -> p_symbol = fun s ->
-    let sort_type = get_sort_type s in
-    { p_sym_mod = [] (* Const ? *)
-    ; p_sym_nam = Pos.none s
-    ; p_sym_arg = []   (* TODO *)
-    ; p_sym_typ = Some sort_type (* TODO, after ? TYPE ? K ? *)
-    ; p_sym_trm = None
-    ; p_sym_prf = None
-    ; p_sym_def = false }
-  in
-
-  let induc_to_p_inductive : sort * symbol list -> p_inductive = fun (sort, s_l) ->
-    (* p_ident * p_term * (p_ident * p_term) list *)
-   let f s = (Pos.none (get_name s), sym_curry s) in
-   Pos.none (Pos.none sort, Pos.none P_Type, List.map f s_l)
-
   (* let param_to_p_params : param -> p_params = fun p -> *)
-  in
 
-  let trans_import : Format.formatter -> string list -> import -> unit =
-    fun ppf path i -> incr real_import ; pp_command ppf (import_to_require_open path i)
-  in
-  let trans_sort : Format.formatter -> sort -> unit =
-    fun ppf s -> incr real_sort ; pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol (pp s))))
-  in
-  let trans_induc : Format.formatter -> sort * symbol list -> unit =
-    fun ppf i -> incr real_induc ; pp_command ppf (Pos.none (P_inductive([], [], [induc_to_p_inductive i])))
-  in
-  let trans_symbol : Format.formatter -> symbol * attribute list -> unit =
-    fun ppf ((name, qv_l, p_l, p), attr_l) ->
-    let s = (pp name, qv_l, p_l, p) in
-    incr real_symbol ;
-    pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
-  in
   let trans_alias : Format.formatter -> alias * (quant_var list * axiom * attribute list) option -> unit =
     fun ppf v ->
     match v with
@@ -252,14 +250,14 @@ let () =
     if j = Some 0 && i = 0
     then ()
     else
-      if j = Some 1 || i < 2
+      if i < 2
       then Format.printf "%i / %s %s translated.\n" i denomi one
       else Format.printf "%i / %s %s translated.\n" i denomi several
   in
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
     nb_import := 0 ; nb_sort := 0 ; nb_symbol := 0 ;
-    nb_alias := 0 ; nb_rule := 0 ; nb_axiom := 0 ;
+    nb_alias  := 0 ; nb_rule := 0 ; nb_axiom := 0 ;
 
     real_import := 0 ; real_sort := 0 ; real_induc := 0 ; real_symbol := 0 ;
     real_alias  := 0 ; real_rule := 0 ; real_axiom := 0 ;
@@ -278,11 +276,11 @@ let () =
     let f  = open_out filename in
     let ff = Format.formatter_of_out_channel f in
 
-    List.iter (trans_import ff [lp_pkg]) import_l;
-    trans_import ff (lp_pkg::prelude_path) (prelude_name, []);
-    List.iter (trans_sort ff) sort_l;
-    List.iter (trans_induc ff) (List.rev (Induc.bindings induc_m));
-    List.iter (trans_symbol ff) sym_l;
+    List.iter (pp_import ff [lp_pkg]) import_l;
+    pp_import ff (lp_pkg::prelude_path) (prelude_name, []);
+    List.iter (pp_sort ff) sort_l;
+    List.iter (pp_induc ff) (List.rev (Induc.bindings induc_m));
+    List.iter (pp_symbol ff) sym_l;
     (*List.iter (trans_command ff) command_l;*)
     List.iter (trans_alias ff) alias_l;
     List.iter (trans_axiom ff) ax_l;

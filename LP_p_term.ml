@@ -54,10 +54,16 @@ let pretty_string : (string * string) list -> string -> string = fun iso s ->
   in
   aux iso s
 
+let skip_sign s = "_\\([A-Z-]*\\)" ^ s ^ "\\([A-Za-z_-]+\\)"
+
 let string_symbol_isomorphism =
-  [ ("Lbl", "") ; (* ("Sort", "") ; ("Stop", ".") ; *) ("Unds", "_") ; ("'", "") ;  ("-LT-", "<") ; ("-GT-", ">") ;
-    ("Pipe", "|") ; ("Eqls", "=") ; ("Hash", "#") (* ; ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ;
-    ("Comm", ",") ; ("Coln", ":") *) ; ("_\\([A-Z-]+\\)-SYNTAX.*$", "_") ]
+  [ ("Lbl", "") ; ("Var", "") ; (* ("Sort", "") ; ("Stop", ".") ; *) ("Unds", "_") ; ("'", "") ;  ("-LT-", "<") ; ("-GT-", ">") ;
+    ("Pipe", "|") ; ("Eqls", "=") ; ("Slsh", "/") ; ("Hash", "#") ; ("Tild", "~") ; ("Perc", "%") ; ("Star", "*") ; ("Quot", "'") ;
+    ("projectColn", "proj_") (*; ("project", "π") ; ("Plus", "+")
+    ; ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ; ("LBra", "{") ; ("RBra", "}") ;
+    ("Comm", ",") ; ("Coln", ":") ; ("SCln", ";") *) ; ("LPar_\\([Comm_]*\\)RPar", "")
+    ; (skip_sign "-SYNTAX", "_") ; (skip_sign "-COMMON", "")
+    ; (skip_sign "INT", "_INT") ; (skip_sign "LIST", "_LIST") ; (skip_sign "SET", "_SET") ; (skip_sign "MAP", "_MAP") ]
 (* Meilleure complexité avec une map, mais moins lisible *)
 let pp s = if !pretty_printing then pretty_string string_symbol_isomorphism s else s
 
@@ -71,7 +77,7 @@ let create_meta_var : string -> p_meta_ident = fun s ->
   Pos.none (Name s)
 
 let create_pattern_var : string -> p_term = fun s ->
-  Pos.none (P_Patt(Some (Pos.none s), None))
+  Pos.none (P_Patt(Some (Pos.none (pp s)), None))
 
 let create_explicit_arg : string -> p_term = fun s ->
   Pos.none (P_Expl(create_ident s))
