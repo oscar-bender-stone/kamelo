@@ -5,7 +5,7 @@ type param = S of sort | Q of quant_var
 
 type data_attr = param list * string list
 
-type attribut =
+type attribute =
  | Topcellinit  of data_attr
  | Left         of data_attr
  | Right        of data_attr
@@ -54,7 +54,7 @@ type attribut =
 
 type symbol = name * quant_var list * param list * param
 
-type predicat =
+type predicate =
  | Sym of name * param list * axiom list
  | Var of name * param
 and axiom =
@@ -69,7 +69,7 @@ and axiom =
  | Rewrites of param list * axiom * axiom
  | In of param list * (name * param) * axiom
  | Dom_val of sort * name
- | Predicat of predicat
+ | Predicat of predicate
 
 type def = A of axiom | D of name * quant_var
 
@@ -83,10 +83,10 @@ type command_aux =
  | Alias    of alias
  | Axiom    of quant_var list * axiom
 
-type command = command_aux * attribut list
+type command = command_aux * attribute list
 
-type import = name * attribut list
+type import = name * attribute list
 
-type modu = name * import list * command list * attribut list
+type kmodule = name * import list * command list * attribute list
 
-type file = attribut list * modu list
+type file = attribute list * kmodule list

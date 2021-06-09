@@ -49,7 +49,7 @@ let get_assoc       : t -> bool = fun v -> v.is_assoc
 let get_left        : t -> bool = fun v -> v.is_left
 let get_right       : t -> bool = fun v -> v.is_right
            (*
-  let find_ac : attribut list -> prop = fun a_l ->
+  let find_ac : attribute list -> prop = fun a_l ->
     let rec aux l acc = match l with
      | []  -> acc
      | t::q -> match t with
@@ -64,7 +64,7 @@ let get_right       : t -> bool = fun v -> v.is_right
   in
 
 
-  let kjrhf : attribut list -> p_modifier list * bool = fun a_l ->
+  let kjrhf : attribute list -> p_modifier list * bool = fun a_l ->
     match t with
      | []  -> []
      | t::q -> match t with
@@ -78,7 +78,7 @@ let get_right       : t -> bool = fun v -> v.is_right
 
  *)
 
-let get_modifier : attribut list -> p_modifier list = fun attr_l ->
+let get_modifier : attribute list -> p_modifier list = fun attr_l ->
   (* On collecte les informations que l'on peut avoir *)
   let rec aux l acc = match l with
     | [] -> acc
@@ -119,7 +119,7 @@ let get_sort : symbol -> sort = fun s ->
 let get_name : symbol -> name = fun s ->
   let (n, _, _, _) = s in n
 
-let is_constructor : symbol -> attribut list -> sort option = fun s attri_l ->
+let is_constructor : symbol -> attribute list -> sort option = fun s attri_l ->
   let rec aux l acc = match l with
     | []   -> acc
     | t::q -> match t with
@@ -150,7 +150,7 @@ let rec sym_curry : symbol -> p_term = fun s ->
     match a with | S x | Q x -> Pos.none (P_Arro(get_type x,b)) in
   List.fold_right f p_l (g p)
 
-let symbol_to_p_symbol : symbol -> attribut list -> p_symbol = fun s attr_l ->
+let symbol_to_p_symbol : symbol -> attribute list -> p_symbol = fun s attr_l ->
   let name, qvar_l, p_l, p = s in
   (* Merge qvar_l and p_l *)
   let f = fun b a -> [Some (Pos.none a)], Some (create_ident "SortK"), b in

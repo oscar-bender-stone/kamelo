@@ -119,13 +119,13 @@ let () =
   let trans_induc : Format.formatter -> sort * symbol list -> unit =
     fun ppf i -> incr real_induc ; pp_command ppf (Pos.none (P_inductive([], [], [induc_to_p_inductive i])))
   in
-  let trans_symbol : Format.formatter -> symbol * attribut list -> unit =
+  let trans_symbol : Format.formatter -> symbol * attribute list -> unit =
     fun ppf ((name, qv_l, p_l, p), attr_l) ->
     let s = (pp name, qv_l, p_l, p) in
     incr real_symbol ;
     pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
   in
-  let trans_alias : Format.formatter -> alias * (quant_var list * axiom * attribut list) option -> unit =
+  let trans_alias : Format.formatter -> alias * (quant_var list * axiom * attribute list) option -> unit =
     fun ppf v ->
     match v with
      | _, None -> () (* @TODO *)
@@ -135,7 +135,7 @@ let () =
           incr real_rule
         with ConditionalRule _ -> ()
   in
-  let trans_axiom : Format.formatter -> quant_var list * axiom * attribut list -> unit =
+  let trans_axiom : Format.formatter -> quant_var list * axiom * attribute list -> unit =
     fun ppf (qv_l, a, attr_l) ->
     match attr_l with
      | Unit _::nil | Comm _::nil | Assoc _::nil | Idem _::nil ->
@@ -171,7 +171,7 @@ let () =
      | [] -> []
      | t::q -> if t = a then q else t::(remove a q)
   in
-  let print_new_attribut : name -> attribut list -> unit = fun name attri_l ->
+  let print_new_attribute : name -> attribute list -> unit = fun name attri_l ->
     let rec aux = fun l acc ->
       match l with
        | [] -> acc
@@ -188,9 +188,9 @@ let () =
         Format.printf (yel ".\n")
   in
   let preprocessing :
-        modu -> name * import list * sort list * (symbol list) Induc.t * (symbol * attribut list) list *
-                  (alias * (quant_var list * axiom * attribut list) option) list *
-                  (quant_var list * axiom * attribut list) list =
+        kmodule -> name * import list * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
+                  (alias * (quant_var list * axiom * attribute list) option) list *
+                  (quant_var list * axiom * attribute list) list =
     fun (name, i_l, c_l, _) ->
     let rec aux l ((sort_l, induc_m, sym_l, alias_l, ax_l) as acc) =
       match l with
@@ -198,11 +198,11 @@ let () =
        | (c, attr_l)::q ->
           match c with
            | Sort   s | H_sort   s ->
-              incr nb_sort ; print_new_attribut s attr_l ;
+              incr nb_sort ; print_new_attribute s attr_l ;
               aux q (s::sort_l, induc_m, sym_l, alias_l, ax_l)
            | Symbol s | H_symbol s ->
               begin
-                let name,_,_,_ = s in print_new_attribut name attr_l ;
+                let name,_,_,_ = s in print_new_attribute name attr_l ;
                 if not(!check_induc) then (incr nb_symbol ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
                 else
                   (match is_constructor s attr_l with
@@ -255,7 +255,7 @@ let () =
       then Format.printf "%i / %s %s translated.\n" i denomi one
       else Format.printf "%i / %s %s translated.\n" i denomi several
   in
-  let module_to_file : modu -> unit = fun m ->
+  let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
     nb_import := 0 ; nb_sort := 0 ; nb_symbol := 0 ;
     nb_alias := 0 ; nb_rule := 0 ; nb_axiom := 0 ;

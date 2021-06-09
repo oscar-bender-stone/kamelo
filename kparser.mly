@@ -93,10 +93,10 @@
 %type <Type.sort> sort
 
 %type <Type.symbol> symbol
-%type <Type.attribut> attribut
+%type <Type.attribute> attribute
 %type <Type.command> command
 %type <Type.import> import
-%type <Type.modu list> modules
+%type <Type.kmodule list> modules
 //%type <Type.axiom> axiom
 
 %type <Type.file> file
@@ -150,7 +150,7 @@ op_quant:
   | L_CURLY_BRA param_list R_CURLY_BRA L_PAREN name COLON param COMMA axiom R_PAREN
      { ($2, ($5, $7) , $9) }
 
-predicat:
+predicate:
   | name L_CURLY_BRA param_list R_CURLY_BRA
          L_PAREN separated_list(COMMA, axiom) R_PAREN { Sym ($1, $3, $6) }
   | name COLON param                                  { Var ($1, $3)     }
@@ -170,21 +170,21 @@ axiom:
   //| name L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, axiom) R_PAREN
   //   { Sym ($1, $3, $6) }
   //| name COLON param { Var ($1, $3) }
-  | predicat           { Predicat $1 }
+  | predicate           { Predicat $1 }
 
 command:
-  | SORT     sort        attributs { Sort $2, $3 }
-  | H_SORT   sort        attributs { H_sort $2, $3 }
-  | SYMBOL   symbol      attributs { Symbol $2, $3 }
-  | H_SYMBOL symbol      attributs { H_symbol $2, $3 }
-  | ALIAS symbol WHERE def attributs { Alias ($2, $4), $5 }
-  | AXIOM L_CURLY_BRA quant_var_list R_CURLY_BRA axiom attributs { Axiom ($3, $5), $6 }
+  | SORT     sort        attributes { Sort $2, $3 }
+  | H_SORT   sort        attributes { H_sort $2, $3 }
+  | SYMBOL   symbol      attributes { Symbol $2, $3 }
+  | H_SYMBOL symbol      attributes { H_symbol $2, $3 }
+  | ALIAS symbol WHERE def attributes { Alias ($2, $4), $5 }
+  | AXIOM L_CURLY_BRA quant_var_list R_CURLY_BRA axiom attributes { Axiom ($3, $5), $6 }
 
 import:
-  | IMPORT name attributs { ($2, $3) }
+  | IMPORT name attributes { ($2, $3) }
 
 modules:
-  | MODULE name import* command* ENDMODULE attributs modules { ($2, $3, $4, $6) :: $7 }
+  | MODULE name import* command* ENDMODULE attributes modules { ($2, $3, $4, $6) :: $7 }
   | EOF                                                      {          []            }
 
 instance_symbol:
@@ -196,7 +196,7 @@ attri_params:
   | L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, instance_symbol) R_PAREN
       { ($2, $5) }
 
-attribut:
+attribute:
   | TOPCELLINIT    attri_params { let a1,a2 = $2 in Topcellinit (a1, a2) }
   | LEFT           attri_params { let a1,a2 = $2 in Left(a1, a2)         }
   | RIGHT          attri_params { let a1,a2 = $2 in Right(a1, a2)        }
@@ -243,9 +243,9 @@ attribut:
   | PRODUCTION     attri_params { let a1,a2 = $2 in Production(a1, a2)   }
   | name           attri_params { let a1,a2 = $2 in Other($1, (a1, a2))  }
 
-attributs:
-  | L_SQUARE_BRA separated_list(COMMA, attribut) R_SQUARE_BRA { $2 }
+attributes:
+  | L_SQUARE_BRA separated_list(COMMA, attribute) R_SQUARE_BRA { $2 }
 
 file:
-  | attributs modules { ($1, $2) }
+  | attributes modules { ($1, $2) }
   | EOF               { ([], []) }

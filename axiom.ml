@@ -97,7 +97,7 @@ let rec ax_curry : axiom -> p_term = fun a ->
   | Top    _ -> failwith "TOP"
   | Rewrites _ -> failwith "REWRITES" *)
   | And _ -> raise (KComputation "K computations not yet implemented.")
-  | _ -> failwith "Not yet implemented, if the axiom isn't a predicat."
+  | _ -> failwith "Not yet implemented, if the axiom isn't a predicate."
 
 
 
@@ -123,11 +123,11 @@ let of_command : command -> = fun (c, a_l) ->
 
 (* Il n'y a rien qui indique que l'axiome a été généré car un symbole
    est un prédicat : il faut peut-être le rajouter ?
-  let of_axiom : quant_var list * axiom * attribut list -> = fun qv_l a a_l ->*)
+  let of_axiom : quant_var list * axiom * attribute list -> = fun qv_l a a_l ->*)
 
-let of_axiom : quant_var list * axiom * attribut list -> attribut ->
-               (quant_var list * axiom * attribut list) list ->
-               (quant_var list * axiom * attribut list) list =
+let of_axiom : quant_var list * axiom * attribute list -> attribute ->
+               (quant_var list * axiom * attribute list) list ->
+               (quant_var list * axiom * attribute list) list =
   fun (qv_l,a,a_l) attri ax_l ->
   match attri with
   | Subsort     _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
