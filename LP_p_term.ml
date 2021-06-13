@@ -14,7 +14,7 @@ let blu fmt = colorize "34" fmt
 let mag fmt = colorize "35" fmt
 let cya fmt = colorize "36" fmt
 
-let pretty_printing = ref false
+let readable = ref false
 
 (* Meilleure complexité avec une map, mais moins lisible *)
 
@@ -65,7 +65,7 @@ let string_symbol_isomorphism =
     ; (skip_sign "-SYNTAX", "_") ; (skip_sign "-COMMON", "")
     ; (skip_sign "INT", "_INT") ; (skip_sign "LIST", "_LIST") ; (skip_sign "SET", "_SET") ; (skip_sign "MAP", "_MAP") ]
 (* Meilleure complexité avec une map, mais moins lisible *)
-let pp s = if !pretty_printing then pretty_string string_symbol_isomorphism s else s
+let pp s = if !readable then pretty_string string_symbol_isomorphism s else s
 
 
 

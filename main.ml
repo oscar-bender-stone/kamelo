@@ -96,21 +96,48 @@ let pp_symbol : Format.formatter -> symbol * attribute list -> unit =
   incr real_symbol ;
   pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
 
+type output_management = K | Kore | Dedukti
+
+let k_format = ref false
+let kore_format = ref true
+let dk_format = ref false
+
+let dk_output = ref false
+let lp_output = ref true
+
+let set_format o = if o = "K" || o = "k" then k_format := true
+                   else
+                     if o = "Kore" || o = "kore" then kore_format := true
+                     else
+                       if o = "Dedukti" || o = "dedukti" then dk_format := true
+                       else failwith ("The option" ^ o ^ "is unknow")
+
+let set_output o = if o = "Dedukti" || o = "dedukti" then dk_output := true
+                   else
+                     if o = "Lambdapi" || o = "lambdapi" then lp_output := true
+                     else failwith ("The option"^ o ^ "is unknow")
 let () =
+  let usage_msg = "usage: ./kamelo [-f (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi)] [--inductive] [--readable] [--no-color] kore_file" in
   parse
-    [(*("-v",  Unit (fun () -> verbose:=1), "reports stuff");
+    [("--format",  String (fun o -> set_format o),  "Change the ordering of commands");
+     ("-f",  String (fun o -> set_format o),  "Change the ordering of commands");
+     ("--output",  String (fun o -> set_output o), "Change the output: .dk file or .lp file");
+     ("-o", String (fun o -> set_output o), "Change the output: .dk file or .lp file");
+
+     ("--inductive",  Unit (fun () -> check_induc:=true),  "Use inductive types");
+     ("-i",           Unit (fun () -> check_induc:=true),  "Use inductive types");
+
+     ("--readable",  Unit (fun () -> readable:=true),  "Generate identifiers more readable");
+     ("-r",  Unit (fun () -> readable:=true),  "Generate identifiers more readable");
+     (*("-v",  Unit (fun () -> verbose:=1), "reports stuff");
      ("-v1", Unit (fun () -> verbose:=1), "reports stuff");
      ("-v2", Unit (fun () -> verbose:=2), "reports stuff, and stuff");*)
-     ("-i",           Unit (fun () -> check_induc:=true),  "generation of inductive types");
-     ("--inductive",  Unit (fun () -> check_induc:=true),  "generation of inductive types");
-     ("--pp",  Unit (fun () -> pretty_printing:=true),  "print pretty strings");
-
-     ("--no-color",  Unit (fun () -> no_color:=true),  "disable colors");
-     ("--format",  Unit (fun () -> c_S:=true),  "output assembler dump")]
+     ("--no-color",  Unit (fun () -> no_color:=true),  "Disable colors on the main message")]
     (fun s ->
       check_extension s;
       c_prefix := basename s;
-      input := open_in s) "compiles a .kore program"
+      input := open_in s;
+      Format.printf "%s" usage_msg) "compiles a .kore program"
 
 let () =
   let lexbuf = Lexing.from_channel (!input) in
