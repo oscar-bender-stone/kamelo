@@ -12,3 +12,11 @@ symbol Prop : TYPE;
 symbol P : Prop → TYPE;
 builtin "Prop" ≔ Prop;
 builtin "P" ≔ P;
+
+//inductive Bool : TYPE ≔
+//  | true  : Bool
+//  | false : Bool;
+
+symbol SortBool : SortK;
+symbol true : injK SortBool;
+symbol false : injK SortBool;

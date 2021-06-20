@@ -1,6 +1,13 @@
 
 open Syntax
 
+let _SORTK = "SortK"
+let _INJ = "injK"
+let _INJGEN = "injG"
+let _TOPCELL = "GeneratedTopCell"
+
+
+
 let no_color = ref false
 
 (** Format transformers (colors). *)
@@ -83,5 +90,5 @@ let create_explicit_arg : string -> p_term = fun s ->
   Pos.none (P_Expl(create_ident s))
 
 let get_type : string -> p_term = fun s ->
-  if s = "SortK" then create_ident s
-  else Pos.none (P_Appl(create_ident "injK", create_ident s))
+  if s = _SORTK then create_ident s
+  else Pos.none (P_Appl(create_ident _INJ, create_ident s))
