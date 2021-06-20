@@ -138,14 +138,16 @@ let print_info : int * int option * string * string -> unit = fun (i, j, one, se
     then Format.printf "%i / %s %s translated.\n" i denomi one
     else Format.printf "%i / %s %s translated.\n" i denomi several
 
-let print_count_data : count_data -> unit = fun cd -> List.iter print_info (extract_info cd);
+let print_count_data : count_data -> unit = fun cd -> List.iter print_info (extract_info cd)
 
-let print_header_kamelo = Format.printf (gre "-------------------- Welcome to Kamelo ---------------------\n");
-  let print_header_file filename =
-    Format.printf (blu "--- Translation of %s\n") filename
-let print_nb_total_commands len = Format.printf (red "There are %i commands\n") len;
+let print_header_kamelo : unit -> unit = fun () ->
+  Format.printf (gre "-------------------- Welcome to Kamelo ---------------------\n")
+let print_header_file filename =
+  Format.printf (blu "--- Translation of %s\n") filename
 
-let separator = "------------------------------------------------------------\n";
-let print_separator = Format.printf separator;
+let print_nb_total_commands nb = Format.printf (red "There are %i commands\n") nb
 
-let print_footer_kamelo = Format.printf (gre separator);
+let separator = "------------------------------------------------------------\n"
+let print_separator : unit -> unit = fun () -> Format.printf "%s" separator
+
+let print_footer_kamelo : unit -> unit = fun () -> Format.printf (gre "%s") separator

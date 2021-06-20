@@ -4,7 +4,7 @@ open Pos
 open Arg
 open Syntax
 
-open Printer
+open LP_printer
 
 open Axiom
 open Symbol
@@ -46,6 +46,10 @@ let lp_pkg = "tests"
 let prelude_path = ["Tests"] (* depuis lp_pkg *)
 let prelude_name = "prelude"
 
+let get_filename name =
+  let tmp = String.lowercase_ascii name in
+  if !lp_output then tmp ^ ".lp" else tmp ^ ".dk"
+
 let import_to_require_open : string list -> import -> p_command = fun chemin i ->
   let filename = String.lowercase_ascii (fst i) in
   Pos.none (P_require (true, [Pos.none (chemin @ [filename])]))
@@ -84,10 +88,6 @@ let pp_symbol : Format.formatter -> count_data -> symbol * attribute list -> uni
   pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
 
 type output_management = K | Kore | Dedukti
-
-let get_filename name =
-  let tmp = String.lowercase_ascii name in
-  if !lp_output then tmp ^ ".lp" else tmp ^ ".dk"
 
 let set_format o = if o = "K" || o = "k" then k_format := true
                    else
@@ -199,9 +199,9 @@ let () =
   in
   let preprocessing :
         kmodule -> count_data ->
-            name * import list * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
-                  (alias * (quant_var list * axiom * attribute list) option) list *
-                  (quant_var list * axiom * attribute list) list =
+        name * import list * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
+        (alias * (quant_var list * axiom * attribute list) option) list *
+        (quant_var list * axiom * attribute list) list =
     fun (name, i_l, c_l, _) cd ->
     let rec aux l ((sort_l, induc_m, sym_l, alias_l, ax_l) as acc) =
       match l with
@@ -215,16 +215,16 @@ let () =
            | Symbol s ->
               begin
                 let name,_,_,_ = s in print_new_attribute name attr_l ;
-                if not(!check_induc) then (incr_k_symbol cd ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
-                else
-                  (match is_constructor s attr_l with
-                    | Some sort ->
-                       let f new_v old_v = match old_v with
-                           None -> Some [new_v] | Some q -> Some (new_v::q) in
-                       let induc_m = Induc.update sort (f s) induc_m in
-                       aux q (remove sort sort_l, induc_m, sym_l, alias_l, ax_l)
-                    | None ->
-                       aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
+                                      if not(!check_induc) then (incr_k_symbol cd ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
+                                      else
+                                        (match is_constructor s attr_l with
+                                          | Some sort ->
+                                             let f new_v old_v = match old_v with
+                                                 None -> Some [new_v] | Some q -> Some (new_v::q) in
+                                             let induc_m = Induc.update sort (f s) induc_m in
+                                             aux q (remove sort sort_l, induc_m, sym_l, alias_l, ax_l)
+                                          | None ->
+                                             aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
               end
            | H_symbol s -> incr_k_hooked_symbol cd ; aux q acc
            | Alias al->
@@ -267,7 +267,7 @@ let () =
     let filename = get_filename name in
     print_header_file filename;
 
-    print_nb_total_commands (len k_command_l);
+    print_nb_total_commands (len kcommand_l);
 
     let _, import_l, sort_l, induc_m, sym_l, alias_l, ax_l = preprocessing m cd in
 
@@ -288,11 +288,11 @@ let () =
 
     print_count_data cd;
 
-    print_separator;
+    print_separator ();
     Format.pp_print_flush ff ();
     close_out f
   in
-  print_header_kamelo;
+  print_header_kamelo ();
   List.iter module_to_file (snd file);
-  print_footer_kamelo;
+  print_footer_kamelo ();
   flush stdout;;

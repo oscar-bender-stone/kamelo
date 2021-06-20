@@ -6,10 +6,10 @@
 
 # Compilation parameters:
 CAMLOBJS=type.cmo pos.cmo kparser.cmo klexer.cmo syntax.cmo display_console.cmo \
-		 LP_p_term.cmo printer.cmo output.cmo axiom.cmo symbol.cmo main.cmo
+		 LP_p_term.cmo LP_printer.cmo output.cmo axiom.cmo symbol.cmo main.cmo
 CAMLSRC=$(addsuffix .ml,$(basename $(CAMLOBJS)))
 FILES=klexer.mll type.ml pos.ml syntax.ml display_console.ml LP_p_term.ml \
-      axiom.ml symbol.ml printer.ml kparser.mly output.ml main.ml Makefile
+      axiom.ml symbol.ml LP_printer.ml kparser.mly output.ml main.ml Makefile
 
 all: kamelo
 
@@ -33,7 +33,7 @@ kparser.ml: kparser.mly klexer.ml
 	menhir --external-tokens Klexer kparser.mly
 	ocamlc -g -c kparser.mli
 
-main.ml: klexer.ml kparser.ml kparser.mli type.ml syntax.ml pos.ml LP_p_term.ml printer.ml
+main.ml: klexer.ml kparser.ml kparser.mli type.ml syntax.ml pos.ml LP_p_term.ml
 	ocamlc -g -c main.ml
 
 main.cmi: main.ml

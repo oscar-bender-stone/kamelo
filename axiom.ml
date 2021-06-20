@@ -2,7 +2,7 @@
 open LP_p_term
 open Type
 open Syntax
-open Printer
+open LP_printer
 
 open Display_console
 
