@@ -85,6 +85,10 @@ let pp_symbol : Format.formatter -> count_data -> symbol * attribute list -> uni
 
 type output_management = K | Kore | Dedukti
 
+let get_filename name =
+  let tmp = String.lowercase_ascii name in
+  if !lp_output then tmp ^ ".lp" else tmp ^ ".dk"
+
 let set_format o = if o = "K" || o = "k" then k_format := true
                    else
                      if o = "Kore" || o = "kore" then kore_format := true
@@ -92,7 +96,7 @@ let set_format o = if o = "K" || o = "k" then k_format := true
                        if o = "Dedukti" || o = "dedukti" then dk_format := true
                        else failwith ("The option" ^ o ^ "is unknow")
 
-let set_output o = if o = "Dedukti" || o = "dedukti" then dk_output := true
+let set_output o = if o = "Dedukti" || o = "dedukti" then lp_output := false
                    else
                      if o = "Lambdapi" || o = "lambdapi" then lp_output := true
                      else failwith ("The option"^ o ^ "is unknow")
@@ -258,7 +262,7 @@ let () =
 
     let name, kimport_l, kcommand_l, _ = m in
     cd.k_import := List.length (kimport_l) ;
-    let filename = (String.lowercase_ascii name) ^ ".lp" in
+    let filename = get_filename name in
     Format.printf (blu "--- Translation of %s\n") filename;
 
     let len = List.length in

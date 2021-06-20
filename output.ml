@@ -4,7 +4,6 @@ let k_format = ref false
 let kore_format = ref true
 let dk_format = ref false
 
-let dk_output = ref false
 let lp_output = ref true
 
 
