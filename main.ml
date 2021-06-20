@@ -258,15 +258,16 @@ let () =
 
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
+    let len = List.length in
+
     let cd = reset_count_data 0 in
 
     let name, kimport_l, kcommand_l, _ = m in
-    cd.k_import := List.length (kimport_l) ;
+    cd.k_import := len (kimport_l) ;
     let filename = get_filename name in
-    Format.printf (blu "--- Translation of %s\n") filename;
+    print_header_file filename;
 
-    let len = List.length in
-    Format.printf (red "There are %i commands\n") (len kcommand_l);
+    print_nb_total_commands (len k_command_l);
 
     let _, import_l, sort_l, induc_m, sym_l, alias_l, ax_l = preprocessing m cd in
 
@@ -287,11 +288,11 @@ let () =
 
     print_count_data cd;
 
-    Format.printf "------------------------------------------------------------\n";
+    print_separator;
     Format.pp_print_flush ff ();
     close_out f
   in
-  Format.printf (gre "-------------------- Welcome to Kamelo ---------------------\n");
+  print_header_kamelo;
   List.iter module_to_file (snd file);
-  Format.printf (gre "------------------------------------------------------------\n");
+  print_footer_kamelo;
   flush stdout;;

@@ -54,6 +54,7 @@ type count_data = { k_import : int ref        ; real_import : int ref
                   ; k_axiom : int ref         ; real_axiom  : int ref }
 
 let get_k_import cd = !(cd.k_import)
+let set_k_import cd i = cd.k_import := i
 let incr_k_import cd = incr cd.k_import
 
 let get_real_import cd = !(cd.real_import)
@@ -138,3 +139,13 @@ let print_info : int * int option * string * string -> unit = fun (i, j, one, se
     else Format.printf "%i / %s %s translated.\n" i denomi several
 
 let print_count_data : count_data -> unit = fun cd -> List.iter print_info (extract_info cd);
+
+let print_header_kamelo = Format.printf (gre "-------------------- Welcome to Kamelo ---------------------\n");
+  let print_header_file filename =
+    Format.printf (blu "--- Translation of %s\n") filename
+let print_nb_total_commands len = Format.printf (red "There are %i commands\n") len;
+
+let separator = "------------------------------------------------------------\n";
+let print_separator = Format.printf separator;
+
+let print_footer_kamelo = Format.printf (gre separator);
