@@ -5,11 +5,11 @@
 	ocamlc -g -c $<
 
 # Compilation parameters:
-CAMLOBJS=type.cmo pos.cmo kparser.cmo klexer.cmo syntax.cmo LP_p_term.cmo \
-         printer.cmo axiom.cmo symbol.cmo main.cmo
+CAMLOBJS=type.cmo pos.cmo kparser.cmo klexer.cmo syntax.cmo display_console.cmo \
+		 LP_p_term.cmo printer.cmo output.cmo axiom.cmo symbol.cmo main.cmo
 CAMLSRC=$(addsuffix .ml,$(basename $(CAMLOBJS)))
-FILES=klexer.mll type.ml pos.ml syntax.ml LP_p_term.ml \
-      axiom.ml symbol.ml printer.ml kparser.mly main.ml Makefile
+FILES=klexer.mll type.ml pos.ml syntax.ml display_console.ml LP_p_term.ml \
+      axiom.ml symbol.ml printer.ml kparser.mly output.ml main.ml Makefile
 
 all: kamelo
 

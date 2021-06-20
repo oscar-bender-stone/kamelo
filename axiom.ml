@@ -4,6 +4,8 @@ open Type
 open Syntax
 open Printer
 
+open Display_console
+
 type t = axiom
 
 let rec is_predicate_axiom : axiom -> bool = fun a ->

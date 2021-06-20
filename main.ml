@@ -10,6 +10,9 @@ open Axiom
 open Symbol
 open LP_p_term
 
+open Display_console
+open Output
+
 let input = ref stdin
 let c_prefix = ref "a.out"
 let c_D = ref false
@@ -43,31 +46,15 @@ let lp_pkg = "tests"
 let prelude_path = ["Tests"] (* depuis lp_pkg *)
 let prelude_name = "prelude"
 
-let nb_import = ref 0
-let nb_sort   = ref 0
-let nb_symbol = ref 0
-let nb_alias  = ref 0
-let nb_rule   = ref 0
-let nb_axiom  = ref 0
-
-let real_import = ref 0
-let real_sort   = ref 0
-let real_induc  = ref 0
-let real_symbol = ref 0
-let real_induc  = ref 0
-let real_alias  = ref 0
-let real_rule   = ref 0
-let real_axiom  = ref 0
-
 let import_to_require_open : string list -> import -> p_command = fun chemin i ->
   let filename = String.lowercase_ascii (fst i) in
   Pos.none (P_require (true, [Pos.none (chemin @ [filename])]))
 
-let pp_import : Format.formatter -> string list -> import -> unit =
-  fun ppf path i -> incr real_import ; pp_command ppf (import_to_require_open path i)
+let pp_import : Format.formatter -> count_data -> string list -> import -> unit =
+  fun ppf cd path i -> incr_real_import cd ; pp_command ppf (import_to_require_open path i)
 
 let get_sort_type : sort -> p_term = fun s ->
-  if s = "SortK" then Pos.none P_Type else create_ident "SortK"
+  if s = _SORTK then Pos.none P_Type else create_ident _SORTK
 
 let sort_to_p_symbol : sort -> p_symbol = fun s ->
   let sort_type = get_sort_type s in
@@ -79,31 +66,24 @@ let sort_to_p_symbol : sort -> p_symbol = fun s ->
   ; p_sym_prf = None
   ; p_sym_def = false }
 
-let pp_sort : Format.formatter -> sort -> unit =
-  fun ppf s -> incr real_sort ; pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol (pp s))))
+let pp_sort : Format.formatter -> count_data -> sort -> unit =
+  fun ppf cd s -> incr_real_sort cd ; pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol (pp s))))
 
 let induc_to_p_inductive : sort * symbol list -> p_inductive = fun (sort, s_l) ->
   (* p_ident * p_term * (p_ident * p_term) list *)
   let f s = (Pos.none (get_name s), sym_curry s) in
   Pos.none (Pos.none sort, Pos.none P_Type, List.map f s_l)
 
-let pp_induc : Format.formatter -> sort * symbol list -> unit =
-  fun ppf i -> incr real_induc ; pp_command ppf (Pos.none (P_inductive([], [], [induc_to_p_inductive i])))
+let pp_induc : Format.formatter -> count_data -> sort * symbol list -> unit =
+  fun ppf cd i -> incr_real_induc cd ; pp_command ppf (Pos.none (P_inductive([], [], [induc_to_p_inductive i])))
 
-let pp_symbol : Format.formatter -> symbol * attribute list -> unit =
-  fun ppf ((name, qv_l, p_l, p), attr_l) ->
+let pp_symbol : Format.formatter -> count_data -> symbol * attribute list -> unit =
+  fun ppf cd ((name, qv_l, p_l, p), attr_l) ->
   let s = (pp name, qv_l, p_l, p) in
-  incr real_symbol ;
+  incr_real_symbol cd ;
   pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
 
 type output_management = K | Kore | Dedukti
-
-let k_format = ref false
-let kore_format = ref true
-let dk_format = ref false
-
-let dk_output = ref false
-let lp_output = ref true
 
 let set_format o = if o = "K" || o = "k" then k_format := true
                    else
@@ -136,8 +116,8 @@ let () =
     (fun s ->
       check_extension s;
       c_prefix := basename s;
-      input := open_in s;
-      Format.printf "%s" usage_msg) "compiles a .kore program"
+      input := open_in s)
+    ("During compilation of a .kore program:\n" ^ usage_msg)  (* Format.printf "%s" usage_msg "During compilation of a .kore program"*)
 
 let () =
   let lexbuf = Lexing.from_channel (!input) in
@@ -150,22 +130,22 @@ let () =
 
   (* let param_to_p_params : param -> p_params = fun p -> *)
 
-  let trans_alias : Format.formatter -> alias * (quant_var list * axiom * attribute list) option -> unit =
-    fun ppf v ->
+  let trans_alias : Format.formatter -> count_data -> alias * (quant_var list * axiom * attribute list) option -> unit =
+    fun ppf cd v ->
     match v with
      | _, None -> () (* @TODO *)
      | al, Some(_,ax,_) ->
         try
           pp_command ppf (Pos.none (P_rules [create_rewriting_rule al ax])) ;
-          incr real_rule
+          incr_real_rule cd
         with ConditionalRule _ -> ()
   in
-  let trans_axiom : Format.formatter -> quant_var list * axiom * attribute list -> unit =
-    fun ppf (qv_l, a, attr_l) ->
+  let trans_axiom : Format.formatter -> count_data -> quant_var list * axiom * attribute list -> unit =
+    fun ppf cd (qv_l, a, attr_l) ->
     match attr_l with
      | Unit _::nil | Assoc _::nil | Idem _::nil ->
         (* if is_only_assoc a then @TODO *)
-        incr real_rule ; pp_command ppf (Pos.none (P_rules [of_equality_axiom a]))
+        incr_real_rule cd ; pp_command ppf (Pos.none (P_rules [of_equality_axiom a]))
      | _ -> () (* @TODO *)
   in
   (*let trans_axiom : Format.formatter -> axiom -> unit =*)
@@ -214,22 +194,24 @@ let () =
         Format.printf (yel ".\n")
   in
   let preprocessing :
-        kmodule -> name * import list * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
+        kmodule -> count_data ->
+            name * import list * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
                   (alias * (quant_var list * axiom * attribute list) option) list *
                   (quant_var list * axiom * attribute list) list =
-    fun (name, i_l, c_l, _) ->
+    fun (name, i_l, c_l, _) cd ->
     let rec aux l ((sort_l, induc_m, sym_l, alias_l, ax_l) as acc) =
       match l with
        | [] -> acc
        | (c, attr_l)::q ->
           match c with
-           | Sort   s | H_sort   s ->
-              incr nb_sort ; print_new_attribute s attr_l ;
+           | Sort   s ->
+              incr_k_sort cd ; print_new_attribute s attr_l ;
               aux q (s::sort_l, induc_m, sym_l, alias_l, ax_l)
-           | Symbol s | H_symbol s ->
+           | H_sort s -> incr_k_hooked_sort cd ; aux q acc
+           | Symbol s ->
               begin
                 let name,_,_,_ = s in print_new_attribute name attr_l ;
-                if not(!check_induc) then (incr nb_symbol ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
+                if not(!check_induc) then (incr_k_symbol cd ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
                 else
                   (match is_constructor s attr_l with
                     | Some sort ->
@@ -240,22 +222,23 @@ let () =
                     | None ->
                        aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
               end
+           | H_symbol s -> incr_k_hooked_symbol cd ; aux q acc
            | Alias al->
               (match q with
-                | [] -> incr nb_alias ; aux q (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l)
+                | [] -> incr_k_alias cd ; aux q (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l)
                 | h::tl ->
                    (match h with
                      | Axiom(qv,a), attr_l ->
                         if is_rule_axiom a
                         then
-                          (incr nb_rule ;
+                          (incr_k_rule cd ;
                            aux tl (sort_l, induc_m, sym_l, (al, Some(qv,a,attr_l))::alias_l, ax_l))
                         else
-                          (incr nb_alias ;
+                          (incr_k_alias cd ;
                            aux q  (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l))
-                     | _ -> incr nb_alias ; aux q  (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l)))
+                     | _ -> incr_k_alias cd ; aux q  (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l)))
            | Axiom(qv,a) ->
-              incr nb_axiom ;
+              incr_k_axiom cd ;
               match attr_l with
                | [] -> if is_predicate_axiom a
                        then aux q acc
@@ -268,60 +251,37 @@ let () =
     let sort_l, induc_m, sym_l, alias_l, ax_l = aux c_l ([], Induc.empty, [], [], []) in
     (name, List.rev i_l, List.rev sort_l, induc_m, List.rev sym_l, List.rev alias_l, List.rev ax_l)
   in
-  let print_info : int * int option * string * string -> unit = fun (i, j, one, several) ->
-    (* Format.fprintf (colorize Format.std_formatter) "Hello!" *)
-    let denomi = match j with
-     | None -> "?"
-     | Some x -> string_of_int x
-    in
-    if j = Some 0 && i = 0
-    then ()
-    else
-      if i < 2
-      then Format.printf "%i / %s %s translated.\n" i denomi one
-      else Format.printf "%i / %s %s translated.\n" i denomi several
-  in
+
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
-    nb_import := 0 ; nb_sort := 0 ; nb_symbol := 0 ;
-    nb_alias  := 0 ; nb_rule := 0 ; nb_axiom := 0 ;
-
-    real_import := 0 ; real_sort := 0 ; real_induc := 0 ; real_symbol := 0 ;
-    real_alias  := 0 ; real_rule := 0 ; real_axiom := 0 ;
+    let cd = reset_count_data 0 in
 
     let name, kimport_l, kcommand_l, _ = m in
+    cd.k_import := List.length (kimport_l) ;
     let filename = (String.lowercase_ascii name) ^ ".lp" in
     Format.printf (blu "--- Translation of %s\n") filename;
 
     let len = List.length in
     Format.printf (red "There are %i commands\n") (len kcommand_l);
 
-    let _, import_l, sort_l, induc_m, sym_l, alias_l, ax_l = preprocessing m in
+    let _, import_l, sort_l, induc_m, sym_l, alias_l, ax_l = preprocessing m cd in
 
     (* let import_l = if Induc.is_empty induc_m then import_l else ("prelude", [])::import_l in *)
 
     let f  = open_out filename in
     let ff = Format.formatter_of_out_channel f in
 
-    List.iter (pp_import ff [lp_pkg]) import_l;
-    pp_import ff (lp_pkg::prelude_path) (prelude_name, []);
-    List.iter (pp_sort ff) sort_l;
-    List.iter (pp_induc ff) (List.rev (Induc.bindings induc_m));
-    List.iter (pp_symbol ff) sym_l;
+    List.iter (pp_import ff cd [lp_pkg]) import_l;
+    pp_import ff  cd (lp_pkg::prelude_path) (prelude_name, []);
+    List.iter (pp_sort ff cd) sort_l;
+    List.iter (pp_induc ff cd) (List.rev (Induc.bindings induc_m));
+    List.iter (pp_symbol ff cd) sym_l;
     (*List.iter (trans_command ff) command_l;*)
-    List.iter (trans_alias ff) alias_l;
-    List.iter (trans_axiom ff) ax_l;
+    List.iter (trans_alias ff cd) alias_l;
+    List.iter (trans_axiom ff cd) ax_l;
     (*List.iter (trans_command Format.std_formatter) command_l;*)
 
-    let info_l = [ (!real_import, Some (len kimport_l), "import", "imports")
-                 ; (!real_sort,   Some !nb_sort,   "sort", "sorts")
-                 ; (!real_induc,  Some 0,          "inductive type", "inductive types")
-                 ; (!real_symbol, Some !nb_symbol, "symbol", "symbols")
-                 ; (!real_alias,  Some !nb_alias,  "alias", "alias")
-                 ; (!real_rule,   Some !nb_rule,   "rule", "rules")
-                 ; (!real_axiom,  Some !nb_axiom,  "axiom", "axioms") ]
-    in
-    List.iter print_info info_l;
+    print_count_data cd;
 
     Format.printf "------------------------------------------------------------\n";
     Format.pp_print_flush ff ();
