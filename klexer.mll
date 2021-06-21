@@ -7,10 +7,11 @@
   | MODULE
   | ENDMODULE
   | IMPORT
-  | SYMBOL
-  | H_SYMBOL
+
   | SORT
   | H_SORT
+  | SYMBOL
+  | H_SYMBOL
   | ALIAS
   | WHERE
   | AXIOM
@@ -37,53 +38,84 @@
   | IN
   | DOM_VAL
 
-  | TOPCELLINIT
-  | LEFT
-  | RIGHT
-  | PRIORITIES
-  | SUBSORT
-  | FUNCTIONAL
-  | FUNCTION
-  | CONSTRUCTOR
-  | INJECTIVE
-  | PREDICATE
   | ASSOC
   | COMM
   | IDEM
   | UNIT
+
   | STRICT
   | SEQSTRICT
-  | ELEMENT
-  | CONCAT
+
+  | COOL
+  | COOLLIKE
+  | HEAT
+
+  | SIMPLIFICATION
+
+  | LEFT
+  | RIGHT
+  | PRIORITIES
+
+  | CONSTRUCTOR
+  | INJECTIVE
+  | PREDICATE
+
+  | FUNCTIONAL
+  | FUNCTION
+
   | OWISE
+
+  | SUBSORT
+  | PROJECTION
+  | INITIALIZER
+
+  | TOPCELLINIT
   | TOPCELL
   | CELL
   | MAINCELL
   | CELLNAME
   | CELLFRAGMENT
   | CELLOPTABST
-  | COLOR
+
+  | EQEQK
+  | NOTEQEQK
+  | BOOLOP
+  | USERLIST
+
+  | IMPURE
+  | CONCRETE
+
   | LATEX
+  | COLOR
+  | COLORS
+  | PREFER
   | NOTHREAD
   | HOOK
+
+  | SMTLIB
+  | SMTHOOK
+  | FORMAT
+
+  | STARTLINE
+  | STARTCOLUMN
+
   | TOKEN
   | KLABEL
   | TERMINALS
   | INDEX
-  | SMTLIB
-  | SMTHOOK
-  | FORMAT
-  | STARTLINE
-  | STARTCOLUMN
-  | PROJECTION
-  | INITIALIZER
-  | SORTINJECT
-  | HASDOMAINVAL
+  | FRESHGENERATOR
+
   | KEYWORD
   | UNIQUE
   | LOCATION
   | SOURCE
   | PRODUCTION
+
+  | ELEMENT
+  | CONCAT
+
+  | SORTINJECT
+  | HASDOMAINVAL
 
 (** [locate loc] converts the pair of position [loc] of the Lexing library
     into a quadruplet (start_line, start_col, end_line, end_col). *)
@@ -119,88 +151,119 @@ rule token = parse
   | [' ' '\t' '\n']      { token lexbuf   }    (* skip blanks *)
   | "//"                 { comment lexbuf }
 
-  | "module"             { MODULE       }
-  | "endmodule"          { ENDMODULE    }
-  | "import"             { IMPORT       }
-  | "symbol"             { SYMBOL       }
-  | "hooked-symbol"      { H_SYMBOL     }
-  | "sort"               { SORT         }
-  | "hooked-sort"        { H_SORT       }
-  | "alias"              { ALIAS        }
-  | "where"              { WHERE        }
-  | "axiom"              { AXIOM        }
+  | "module"             { MODULE         }
+  | "endmodule"          { ENDMODULE      }
+  | "import"             { IMPORT         }
 
-  | '{'                  { L_CURLY_BRA  }
-  | '}'                  { R_CURLY_BRA  }
-  | '['                  { L_SQUARE_BRA }
-  | ']'                  { R_SQUARE_BRA }
-  | '('                  { L_PAREN      }
-  | ')'                  { R_PAREN      }
-  | ':'                  { COLON        }
-  | ','                  { COMMA        }
-  | ":="                 { DEF          }
+  | "sort"               { SORT           }
+  | "hooked-sort"        { H_SORT         }
+  | "symbol"             { SYMBOL         }
+  | "hooked-symbol"      { H_SYMBOL       }
+  | "alias"              { ALIAS          }
+  | "where"              { WHERE          }
+  | "axiom"              { AXIOM          }
 
-  | "\\equals"           { EQUALS       }
-  | "\\exists"           { EXISTS       }
-  | "\\and"              { AND          }
-  | "\\or"               { OR           }
-  | "\\not"              { NOT          }
-  | "\\implies"          { IMPLIES      }
-  | "\\bottom"           { BOTTOM       }
-  | "\\top"              { TOP          }
-  | "\\rewrites"         { REWRITES     }
-  | "\\in"               { IN           }
-  | "\\dv"               { DOM_VAL      }
+  | '{'                  { L_CURLY_BRA    }
+  | '}'                  { R_CURLY_BRA    }
+  | '['                  { L_SQUARE_BRA   }
+  | ']'                  { R_SQUARE_BRA   }
+  | '('                  { L_PAREN        }
+  | ')'                  { R_PAREN        }
+  | ':'                  { COLON          }
+  | ','                  { COMMA          }
+  | ":="                 { DEF            }
 
-  | "topCellInitializer" { TOPCELLINIT }
-  | "left"               { LEFT         }
-  | "right"              { RIGHT        }
-  | "priorities"         { PRIORITIES   }
-  | "subsort"            { SUBSORT      }
-  | "functional"         { FUNCTIONAL   }
-  | "function"           { FUNCTION     }
-  | "constructor"        { CONSTRUCTOR  }
-  | "injective"          { INJECTIVE    }
-  | "predicate"          { PREDICATE    }
-  | "assoc"              { ASSOC        }
-  | "comm"               { COMM         }
-  | "idem"               { IDEM         }
-  | "unit"               { UNIT         }
-  | "strict"             { STRICT       }
-  | "seqstrict"          { SEQSTRICT    }
-  | "element"            { ELEMENT      }
-  | "concat"             { CONCAT       }
-  | "owise"              { OWISE        }
-  | "topcell"            { TOPCELL      }
-  | "cell"               { CELL         }
-  | "maincell"           { MAINCELL     }
-  | "cellName"           { CELLNAME     }
-  | "cellFragment"       { CELLFRAGMENT }
-  | "cellOptAbsent"      { CELLOPTABST  }
-  | "color"              { COLOR        }
-  | "latex"              { LATEX        }
-  | "noThread"           { NOTHREAD     }
-  | "hook"               { HOOK         }
-  | "token"              { TOKEN        }
-  | "klabel"             { KLABEL       }
-  | "terminals"          { TERMINALS    }
-  | "index"              { INDEX        }
-  | "smtlib"             { SMTLIB       }
-  | "smt-hook"           { SMTHOOK      }
-  | "format"             { FORMAT       }
-  | "contentStartLine"   { STARTLINE    }
-  | "contentStartColumn" { STARTCOLUMN  }
-  | "UNIQUE'Unds'ID"     { UNIQUE       }
-  | "projection"         { PROJECTION   }
-  | "initializer"        { INITIALIZER  }
-  | "sortInjection"      { SORTINJECT   }
-  | "hasDomainValues"    { HASDOMAINVAL }
+  | "\\equals"           { EQUALS         }
+  | "\\exists"           { EXISTS         }
+  | "\\and"              { AND            }
+  | "\\or"               { OR             }
+  | "\\not"              { NOT            }
+  | "\\implies"          { IMPLIES        }
+  | "\\bottom"           { BOTTOM         }
+  | "\\top"              { TOP            }
+  | "\\rewrites"         { REWRITES       }
+  | "\\in"               { IN             }
+  | "\\dv"               { DOM_VAL        }
 
-  | "symbol'Kywd'"       { KEYWORD      }
+  | "assoc"              { ASSOC          }
+  | "comm"               { COMM           }
+  | "idem"               { IDEM           }
+  | "unit"               { UNIT           }
 
-  | location             { LOCATION     }
-  | source               { SOURCE       }
-  | production           { PRODUCTION   }
+  | "strict"             { STRICT         }
+  | "seqstrict"          { SEQSTRICT      }
+
+  | "cool"               { COOL           }
+  | "cool-like"          { COOLLIKE       }
+  | "heat"               { HEAT           }
+
+  | "simplification"     { SIMPLIFICATION }
+
+  | "left"               { LEFT           }
+  | "right"              { RIGHT          }
+  | "priorities"         { PRIORITIES     }
+
+  | "constructor"        { CONSTRUCTOR    }
+  | "injective"          { INJECTIVE      }
+  | "predicate"          { PREDICATE      }
+
+  | "functional"         { FUNCTIONAL     }
+  | "function"           { FUNCTION       }
+
+  | "owise"              { OWISE          }
+
+  | "subsort"            { SUBSORT        }
+  | "projection"         { PROJECTION     }
+  | "initializer"        { INITIALIZER    }
+
+  | "topCellInitializer" { TOPCELLINIT    }
+  | "topcell"            { TOPCELL        }
+  | "cell"               { CELL           }
+  | "maincell"           { MAINCELL       }
+  | "cellName"           { CELLNAME       }
+  | "cellFragment"       { CELLFRAGMENT   }
+  | "cellOptAbsent"      { CELLOPTABST    }
+
+  | "equalEqualK"        { EQEQK          }
+  | "notEqualEqualK"     { NOTEQEQK       }
+  | "boolOperation"      { BOOLOP         }
+  | "userList"           { USERLIST       }
+
+  | "impure"             { IMPURE         }
+  | "concrete"           { CONCRETE       }
+
+  | "latex"              { LATEX          }
+  | "color"              { COLOR          }
+  | "colors"             { COLORS         }
+  | "prefer"             { PREFER         }
+  | "noThread"           { NOTHREAD       }
+  | "hook"               { HOOK           }
+
+  | "smtlib"             { SMTLIB         }
+  | "smt-hook"           { SMTHOOK        }
+  | "format"             { FORMAT         }
+
+  | "contentStartLine"   { STARTLINE      }
+  | "contentStartColumn" { STARTCOLUMN    }
+
+  | "token"              { TOKEN          }
+  | "klabel"             { KLABEL         }
+  | "terminals"          { TERMINALS      }
+  | "index"              { INDEX          }
+  | "freshGenerator"     { FRESHGENERATOR }
+
+  | "symbol'Kywd'"       { KEYWORD        }
+  | "UNIQUE'Unds'ID"     { UNIQUE         }
+
+  | location             { LOCATION       }
+  | source               { SOURCE         }
+  | production           { PRODUCTION     }
+
+  | "element"            { ELEMENT        }
+  | "concat"             { CONCAT         }
+
+  | "sortInjection"      { SORTINJECT     }
+  | "hasDomainValues"    { HASDOMAINVAL   }
 
   | '"'             { quote (Buffer.create 200) lexbuf }
   | ident           { let yytext = Lexing.lexeme lexbuf in

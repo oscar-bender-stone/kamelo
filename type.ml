@@ -6,53 +6,79 @@ type param = S of sort | Q of quant_var
 type data_attr = param list * string list
 
 type attribute =
- | Topcellinit  of data_attr
- | Left         of data_attr
- | Right        of data_attr
- | Priorities   of data_attr
- | Subsort      of data_attr
- | Functional   of data_attr
- | Function     of data_attr
- | Constructor  of data_attr
- | Injective    of data_attr
- | Predicate    of data_attr
+ (* USEFUL attributes *)
  | Assoc        of data_attr
  | Comm         of data_attr
  | Idem         of data_attr
  | Unit         of data_attr
+
  | Strict       of data_attr
  | Seqstrict    of data_attr
- | Element      of data_attr
- | Concat       of data_attr
+
+ | Cool         of data_attr
+ | CoolLike     of data_attr
+ | Heat         of data_attr
+
+ | Simpl        of data_attr
+
+ | Left         of data_attr
+ | Right        of data_attr
+ | Priorities   of data_attr
+
+ | Constructor  of data_attr
+ | Injective    of data_attr
+ | Predicate    of data_attr
+
+ | Functional   of data_attr
+ | Function     of data_attr
+
  | Owise        of data_attr
+
+ | Subsort      of data_attr
+ | Projection   of data_attr
+ | Initializer  of data_attr
+
+
+ (* USELESS attributes
+ | Topcellinit  of data_attr
  | Topcell      of data_attr
  | Cell         of data_attr
  | Maincell     of data_attr
  | Cellname     of data_attr
  | Cellfragment of data_attr
  | Celloptabst  of data_attr
- | Color        of data_attr
+ (* ... *)
  | Latex        of data_attr
+ | Color        of data_attr
+ | Colors       of data_attr
+ | Prefer       of data_attr
  | Nothread     of data_attr
  | Hook         of data_attr
+
+ | SMTlib       of data_attr
+ | SMThook      of data_attr
+ | Format       of data_attr
+
+ | StartLine    of data_attr
+ | StartCol     of data_attr
+
  | Token        of data_attr
  | Klabel       of data_attr
  | Terminals    of data_attr
  | Index        of data_attr
- | SMTlib       of data_attr
- | SMThook      of data_attr
- | Format       of data_attr
- | StartLine    of data_attr
- | StartCol     of data_attr
- | Projection   of data_attr
- | Initializer  of data_attr
- | Sortinject   of data_attr
+
  | Keyword      of data_attr
- | Hasdomainval of data_attr
  | Unique       of data_attr
  | Location     of data_attr
  | Source       of data_attr
  | Production   of data_attr
+
+ | Element      of data_attr
+ | Concat       of data_attr
+
+ | Sortinject   of data_attr
+ | Hasdomainval of data_attr *)
+
  | Other        of string * data_attr
 
 type symbol = name * quant_var list * param list * param

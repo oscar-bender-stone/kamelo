@@ -28,7 +28,11 @@ clean:
 	rm -f *~
 
 klexer.ml: pos.ml klexer.mll
-	ocamllex klexer.mll
+	ocamllex -ml klexer.mll
+      # I need the option "-ml" because of
+      # 534 states, 38895 transitions,
+      # table size 158784 bytes File "klexer.mll":
+      # transition table overflow, automaton is too big
 	ocamlc -g -c klexer.ml
 
 kparser.ml: kparser.mly klexer.ml

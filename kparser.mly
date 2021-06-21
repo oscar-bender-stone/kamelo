@@ -36,53 +36,86 @@
 %token IN
 %token DOM_VAL
 
-%token TOPCELLINIT
-%token LEFT
-%token RIGHT
-%token PRIORITIES
-%token SUBSORT
-%token FUNCTIONAL
-%token FUNCTION
-%token CONSTRUCTOR
-%token INJECTIVE
-%token PREDICATE
+// USEFUL attributes
 %token ASSOC
 %token COMM
 %token IDEM
 %token UNIT
+
 %token STRICT
 %token SEQSTRICT
-%token ELEMENT
-%token CONCAT
+
+%token COOL
+%token COOLLIKE
+%token HEAT
+
+%token SIMPLIFICATION
+
+%token LEFT
+%token RIGHT
+%token PRIORITIES
+
+%token CONSTRUCTOR
+%token INJECTIVE
+%token PREDICATE
+
+%token FUNCTIONAL
+%token FUNCTION
+
 %token OWISE
+
+%token SUBSORT
+%token PROJECTION
+%token INITIALIZER
+
+// USELESS attributes
+%token TOPCELLINIT
 %token TOPCELL
 %token CELL
 %token MAINCELL
 %token CELLNAME
 %token CELLFRAGMENT
 %token CELLOPTABST
-%token COLOR
+
+%token EQEQK
+%token NOTEQEQK
+%token BOOLOP
+%token USERLIST
+
+%token IMPURE
+%token CONCRETE
+
 %token LATEX
+%token COLOR
+%token COLORS
+%token PREFER
 %token NOTHREAD
 %token HOOK
+
+%token SMTLIB
+%token SMTHOOK
+%token FORMAT
+
+%token STARTLINE
+%token STARTCOLUMN
+
 %token TOKEN
 %token KLABEL
 %token TERMINALS
 %token INDEX
-%token SMTLIB
-%token SMTHOOK
-%token FORMAT
-%token STARTLINE
-%token STARTCOLUMN
-%token PROJECTION
-%token INITIALIZER
-%token SORTINJECT
-%token HASDOMAINVAL
+%token FRESHGENERATOR
+
 %token KEYWORD
 %token UNIQUE
 %token LOCATION
 %token SOURCE
 %token PRODUCTION
+
+%token ELEMENT
+%token CONCAT
+
+%token SORTINJECT
+%token HASDOMAINVAL
 
 %token <string> IDENT       // Identifiant
 %token <string> STRING
@@ -188,7 +221,7 @@ import:
 
 modules:
   | MODULE name import* command* ENDMODULE attributes modules { ($2, $3, $4, $6) :: $7 }
-  | EOF                                                      {          []            }
+  | EOF                                                       {          []            }
 
 instance_symbol:
   | name L_CURLY_BRA R_CURLY_BRA L_PAREN R_PAREN { $1 }
@@ -199,59 +232,101 @@ attri_params:
   | L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, instance_symbol) R_PAREN
       { ($2, $5) }
 
+useless_attribute:
+  | TOPCELLINIT    attri_params {  } // { let a1,a2 = $2 in Topcellinit (a1, a2) }
+  | TOPCELL        attri_params {  } // { let a1,a2 = $2 in Topcell(a1, a2)      }
+  | CELL           attri_params {  } // { let a1,a2 = $2 in Cell(a1, a2)         }
+  | MAINCELL       attri_params {  } // { let a1,a2 = $2 in Maincell(a1, a2)     }
+  | CELLNAME       attri_params {  } // { let a1,a2 = $2 in Cellname(a1, a2)     }
+  | CELLFRAGMENT   attri_params {  } // { let a1,a2 = $2 in Cellfragment(a1, a2) }
+  | CELLOPTABST    attri_params {  } // { let a1,a2 = $2 in Celloptabst(a1, a2)  }
+
+  | NOTEQEQK       attri_params {  }
+  | EQEQK          attri_params {  }
+  | BOOLOP         attri_params {  }
+  | USERLIST       attri_params {  }
+
+  | IMPURE         attri_params {  }
+  | CONCRETE       attri_params {  }
+
+  | LATEX          attri_params {  } // { let a1,a2 = $2 in Latex(a1, a2)        }
+  | COLOR          attri_params {  } // { let a1,a2 = $2 in Color(a1, a2)        }
+  | COLORS         attri_params {  } // { let a1,a2 = $2 in Colors(a1, a2)       }
+  | PREFER         attri_params {  } // { let a1,a2 = $2 in Prefer(a1, a2)       }
+  | NOTHREAD       attri_params {  } // { let a1,a2 = $2 in Nothread(a1, a2)     }
+  | HOOK           attri_params {  } // { let a1,a2 = $2 in Hook(a1, a2)         }
+
+  | SMTLIB         attri_params {  } // { let a1,a2 = $2 in SMTlib(a1, a2)       }
+  | SMTHOOK        attri_params {  } // { let a1,a2 = $2 in SMThook(a1, a2)      }
+  | FORMAT         attri_params {  } // { let a1,a2 = $2 in Format(a1, a2)       }
+
+  | STARTLINE      attri_params {  } // { let a1,a2 = $2 in StartLine(a1, a2)    }
+  | STARTCOLUMN    attri_params {  } // { let a1,a2 = $2 in StartCol(a1, a2)     }
+
+  | TOKEN          attri_params {  } // { let a1,a2 = $2 in Token(a1, a2)        }
+  | KLABEL         attri_params {  } // { let a1,a2 = $2 in Klabel(a1, a2)       }
+  | TERMINALS      attri_params {  } // { let a1,a2 = $2 in Terminals(a1, a2)    }
+  | INDEX          attri_params {  } // { let a1,a2 = $2 in Index(a1, a2)        }
+  | FRESHGENERATOR attri_params {  }
+
+  | KEYWORD        attri_params {  } // { let a1,a2 = $2 in Keyword(a1, a2)      }
+  | UNIQUE         attri_params {  } // { let a1,a2 = $2 in Unique(a1, a2)       }
+  | LOCATION       attri_params {  } // { let a1,a2 = $2 in Location(a1, a2)     }
+  | SOURCE         attri_params {  } // { let a1,a2 = $2 in Source(a1, a2)       }
+  | PRODUCTION     attri_params {  } // { let a1,a2 = $2 in Production(a1, a2)   }
+
+  | ELEMENT        attri_params {  } // { let a1,a2 = $2 in Element(a1, a2)      }
+  | CONCAT         attri_params {  } // { let a1,a2 = $2 in Concat(a1, a2)       }
+
+  | SORTINJECT     attri_params {  } // { let a1,a2 = $2 in Sortinject(a1, a2)   }
+  | HASDOMAINVAL   attri_params {  } // { let a1,a2 = $2 in Hasdomainval(a1, a2) }
+
 attribute:
-  | TOPCELLINIT    attri_params { let a1,a2 = $2 in Topcellinit (a1, a2) }
-  | LEFT           attri_params { let a1,a2 = $2 in Left(a1, a2)         }
-  | RIGHT          attri_params { let a1,a2 = $2 in Right(a1, a2)        }
-  | PRIORITIES     attri_params { let a1,a2 = $2 in Priorities(a1, a2)   }
-  | SUBSORT        attri_params { let a1,a2 = $2 in Subsort(a1, a2)      }
-  | FUNCTIONAL     attri_params { let a1,a2 = $2 in Functional(a1, a2)   }
-  | FUNCTION       attri_params { let a1,a2 = $2 in Function(a1, a2)     }
-  | CONSTRUCTOR    attri_params { let a1,a2 = $2 in Constructor(a1, a2)  }
-  | INJECTIVE      attri_params { let a1,a2 = $2 in Injective(a1, a2)    }
-  | PREDICATE      attri_params { let a1,a2 = $2 in Predicate(a1, a2)    }
   | ASSOC          attri_params { let a1,a2 = $2 in Assoc(a1, a2)        }
   | COMM           attri_params { let a1,a2 = $2 in Comm(a1, a2)         }
   | IDEM           attri_params { let a1,a2 = $2 in Idem(a1, a2)         }
   | UNIT           attri_params { let a1,a2 = $2 in Unit(a1, a2)         }
+
   | STRICT         attri_params { let a1,a2 = $2 in Strict(a1, a2)       }
   | SEQSTRICT      attri_params { let a1,a2 = $2 in Seqstrict(a1, a2)    }
-  | ELEMENT        attri_params { let a1,a2 = $2 in Element(a1, a2)      }
-  | CONCAT         attri_params { let a1,a2 = $2 in Concat(a1, a2)       }
+
+  | COOL           attri_params { let a1,a2 = $2 in Cool(a1, a2)         }
+  | COOLLIKE       attri_params { let a1,a2 = $2 in CoolLike(a1, a2)     }
+  | HEAT           attri_params { let a1,a2 = $2 in Heat(a1, a2)         }
+
+  | SIMPLIFICATION attri_params { let a1,a2 = $2 in Simpl(a1, a2)        }
+
+  | LEFT           attri_params { let a1,a2 = $2 in Left(a1, a2)         }
+  | RIGHT          attri_params { let a1,a2 = $2 in Right(a1, a2)        }
+  | PRIORITIES     attri_params { let a1,a2 = $2 in Priorities(a1, a2)   }
+
+  | CONSTRUCTOR    attri_params { let a1,a2 = $2 in Constructor(a1, a2)  }
+  | INJECTIVE      attri_params { let a1,a2 = $2 in Injective(a1, a2)    }
+  | PREDICATE      attri_params { let a1,a2 = $2 in Predicate(a1, a2)    }
+
+  | FUNCTIONAL     attri_params { let a1,a2 = $2 in Functional(a1, a2)   }
+  | FUNCTION       attri_params { let a1,a2 = $2 in Function(a1, a2)     }
+
   | OWISE          attri_params { let a1,a2 = $2 in Owise(a1, a2)        }
-  | TOPCELL        attri_params { let a1,a2 = $2 in Topcell(a1, a2)      }
-  | CELL           attri_params { let a1,a2 = $2 in Cell(a1, a2)         }
-  | MAINCELL       attri_params { let a1,a2 = $2 in Maincell(a1, a2)     }
-  | CELLNAME       attri_params { let a1,a2 = $2 in Cellname(a1, a2)     }
-  | CELLFRAGMENT   attri_params { let a1,a2 = $2 in Cellfragment(a1, a2) }
-  | CELLOPTABST    attri_params { let a1,a2 = $2 in Celloptabst(a1, a2)  }
-  | COLOR          attri_params { let a1,a2 = $2 in Color(a1, a2)        }
-  | LATEX          attri_params { let a1,a2 = $2 in Latex(a1, a2)        }
-  | NOTHREAD       attri_params { let a1,a2 = $2 in Nothread(a1, a2)     }
-  | HOOK           attri_params { let a1,a2 = $2 in Hook(a1, a2)         }
-  | TOKEN          attri_params { let a1,a2 = $2 in Token(a1, a2)        }
-  | KLABEL         attri_params { let a1,a2 = $2 in Klabel(a1, a2)       }
-  | TERMINALS      attri_params { let a1,a2 = $2 in Terminals(a1, a2)    }
-  | INDEX          attri_params { let a1,a2 = $2 in Index(a1, a2)        }
-  | SMTLIB         attri_params { let a1,a2 = $2 in SMTlib(a1, a2)       }
-  | SMTHOOK        attri_params { let a1,a2 = $2 in SMThook(a1, a2)      }
-  | FORMAT         attri_params { let a1,a2 = $2 in Format(a1, a2)       }
-  | STARTLINE      attri_params { let a1,a2 = $2 in StartLine(a1, a2)    }
-  | STARTCOLUMN    attri_params { let a1,a2 = $2 in StartCol(a1, a2)     }
+
+  | SUBSORT        attri_params { let a1,a2 = $2 in Subsort(a1, a2)      }
   | PROJECTION     attri_params { let a1,a2 = $2 in Projection(a1, a2)   }
   | INITIALIZER    attri_params { let a1,a2 = $2 in Initializer(a1, a2)  }
-  | SORTINJECT     attri_params { let a1,a2 = $2 in Sortinject(a1, a2)   }
-  | HASDOMAINVAL   attri_params { let a1,a2 = $2 in Hasdomainval(a1, a2) }
-  | KEYWORD        attri_params { let a1,a2 = $2 in Keyword(a1, a2)      }
-  | UNIQUE         attri_params { let a1,a2 = $2 in Unique(a1, a2)       }
-  | LOCATION       attri_params { let a1,a2 = $2 in Location(a1, a2)     }
-  | SOURCE         attri_params { let a1,a2 = $2 in Source(a1, a2)       }
-  | PRODUCTION     attri_params { let a1,a2 = $2 in Production(a1, a2)   }
-  | name           attri_params { let a1,a2 = $2 in Other($1, (a1, a2))  }
+
+  | name           attri_params { Format.printf "WARNING: Attribute named %s is new!\n" $1;
+                                  let a1,a2 = $2 in Other($1, (a1, a2))  }
+
+core_attributes:
+  | attribute                               {  [$1]  }
+  | attribute COMMA core_attributes         { $1::$3 }
+  | useless_attribute                       {   []   }
+  | useless_attribute COMMA core_attributes {   $3   }
 
 attributes:
-  | L_SQUARE_BRA separated_list(COMMA, attribute) R_SQUARE_BRA { $2 }
+  //| L_SQUARE_BRA separated_list(COMMA, attribute) R_SQUARE_BRA { $2 }
+  | L_SQUARE_BRA                 R_SQUARE_BRA { [] }
+  | L_SQUARE_BRA core_attributes R_SQUARE_BRA { $2 }
 
 file:
   | attributes modules { ($1, $2) }
-  | EOF               { ([], []) }
+  | EOF                { ([], []) }
