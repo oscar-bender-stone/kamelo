@@ -1,10 +1,10 @@
 open Type
-
-open Display_console
+open Color
 
 open Symbol
 open Axiom
 
+open Display_console
 open Printer
 
 let old = ref false

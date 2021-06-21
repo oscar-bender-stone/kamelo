@@ -4,7 +4,7 @@ open Type
 open Syntax
 open LP_printer
 
-   open Display_console
+open Color
 
 type t = axiom
 

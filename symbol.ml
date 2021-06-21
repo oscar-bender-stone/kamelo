@@ -2,7 +2,7 @@ open Type
 open Syntax
 open LP_p_term
 
-open Display_console
+open Color
 
 let has_no_param : symbol -> bool = fun (_, _, p_l, _) ->
   match p_l with

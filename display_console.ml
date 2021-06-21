@@ -1,18 +1,5 @@
 
-(**open Syntax*)
-
-let no_color = ref false
-
-(** Format transformers (colors). *)
-let colorize k fmt =
-  if !no_color then fmt else "\027[" ^^ k ^^ "m" ^^ fmt ^^ "\027[0m%!"
-
-let red fmt = colorize "31" fmt
-let gre fmt = colorize "32" fmt
-let yel fmt = colorize "33" fmt
-let blu fmt = colorize "34" fmt
-let mag fmt = colorize "35" fmt
-let cya fmt = colorize "36" fmt
+open Color
 
 type count_data = { k_import : int ref        ; real_import : int ref
                   ; k_sort   : int ref

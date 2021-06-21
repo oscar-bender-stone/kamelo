@@ -2,6 +2,7 @@
 open Arg
 
 open Type
+open Color
 
 open Axiom
 open Symbol
