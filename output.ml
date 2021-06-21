@@ -1,10 +1,15 @@
 
 type format_management = K | Kore | Dedukti
-type output_management = LP | Dedukti
-
 let format = ref Kore
+
+type output_management = LP | Dedukti
 let output = ref LP
 
+let get_filename name =
+  let tmp = String.lowercase_ascii name in
+  match !output with
+  | Dedukti -> tmp ^ ".dk"
+  | LP      -> tmp ^ ".lp"
 
 let readable = ref false
 

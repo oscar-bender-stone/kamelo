@@ -8,12 +8,13 @@
 CAMLOBJS=color.cmo type.cmo pos.cmo kparser.cmo klexer.cmo syntax.cmo \
          output.cmo display_console.cmo \
          LP_p_term.cmo LP_printer.cmo axiom.cmo symbol.cmo \
-         translate.cmo printer.cmo preprocessing.cmo cmd_line.cmo main.cmo
+         translate.cmo printer.cmo import.cmo preprocessing.cmo cmd_line.cmo main.cmo
 CAMLSRC=$(addsuffix .ml,$(basename $(CAMLOBJS)))
-FILES=color.ml klexer.mll type.ml pos.ml syntax.ml \
-      output.ml display_console.ml LP_p_term.ml \
-      axiom.ml symbol.ml LP_printer.ml kparser.mly \
-      translate.ml printer.ml cmd_line.ml preprocessing.ml cmd_line.cmo main.ml Makefile
+FILES=color.ml kparser.mly klexer.mll type.ml pos.ml syntax.ml \
+      output.ml display_console.ml LP_p_term.ml LP_printer.ml \
+      axiom.ml symbol.ml \
+      translate.ml printer.ml import.ml \
+      cmd_line.ml preprocessing.ml cmd_line.cmo main.ml Makefile
 
 all: kamelo
 

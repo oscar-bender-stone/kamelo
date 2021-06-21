@@ -106,6 +106,12 @@ let print_header_file filename =
 let print_nb_total_commands nb = Format.printf (red "There are %i commands\n") nb
 
 let separator = "------------------------------------------------------------\n"
-let print_separator : unit -> unit = fun () -> Format.printf "%s" separator
+let print_footer_file : unit -> unit = fun () -> Format.printf "%s" separator
 
 let print_footer_kamelo : unit -> unit = fun () -> Format.printf (gre "%s") separator
+
+let print_module_message : string -> int -> count_data -> unit = fun filename nb cd ->
+  print_header_file filename;
+  print_nb_total_commands nb;
+  print_count_data cd;
+  print_footer_file ();
