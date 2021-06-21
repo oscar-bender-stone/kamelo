@@ -7,11 +7,11 @@
 # Compilation parameters:
 CAMLOBJS=type.cmo pos.cmo kparser.cmo klexer.cmo syntax.cmo output.cmo display_console.cmo \
          LP_p_term.cmo LP_printer.cmo axiom.cmo symbol.cmo \
-         translate.cmo printer.cmo main.cmo
+         translate.cmo printer.cmo preprocessing.cmo main.cmo
 CAMLSRC=$(addsuffix .ml,$(basename $(CAMLOBJS)))
 FILES=klexer.mll type.ml pos.ml syntax.ml output.ml display_console.ml LP_p_term.ml \
       axiom.ml symbol.ml LP_printer.ml kparser.mly \
-      translate.ml printer.ml main.ml Makefile
+      translate.ml printer.ml preprocessing.ml main.ml Makefile
 
 all: kamelo
 
