@@ -5,6 +5,8 @@ open Display_console
 open Symbol
 open Axiom
 
+open Printer
+
 let old = ref false
 
 module Sort = struct
@@ -45,10 +47,10 @@ let print_new_attribute : name -> attribute list -> unit = fun name attri_l ->
 
 let preprocessing :
       kmodule -> count_data ->
-      name * import list * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
+      name * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
         (alias * (quant_var list * axiom * attribute list) option) list *
           (quant_var list * axiom * attribute list) list =
-  fun (name, i_l, c_l, _) cd ->
+  fun (name, _, c_l, _) cd ->
   let rec aux l ((sort_l, induc_m, sym_l, alias_l, ax_l) as acc) =
     match l with
     | [] -> acc
@@ -99,4 +101,18 @@ let preprocessing :
           | _ -> aux q (sort_l, induc_m, sym_l, alias_l, (qv,a,attr_l)::ax_l)  (* failwith "Not yet implemented" *)
   in
   let sort_l, induc_m, sym_l, alias_l, ax_l = aux c_l ([], Induc.empty, [], [], []) in
-  (name, List.rev i_l, List.rev sort_l, induc_m, List.rev sym_l, List.rev alias_l, List.rev ax_l)
+  (name, List.rev sort_l, induc_m, List.rev sym_l, List.rev alias_l, List.rev ax_l)
+
+let old : Format.formatter -> kmodule -> count_data -> unit = fun ff m cd ->
+
+  let _, sort_l, induc_m, sym_l, alias_l, ax_l = preprocessing m cd in
+
+  (* let import_l = if Induc.is_empty induc_m then import_l else ("prelude", [])::import_l in *)
+
+  List.iter (pp_sort ff cd) sort_l;
+  List.iter (pp_induc ff cd) (List.rev (Induc.bindings induc_m));
+  List.iter (pp_symbol ff cd) sym_l;
+  (*List.iter (trans_command ff) command_l;*)
+  List.iter (pp_alias ff cd) alias_l;
+  List.iter (pp_axiom ff cd) ax_l;
+  (*List.iter (trans_command Format.std_formatter) command_l;*)

@@ -1,10 +1,9 @@
 
+type format_management = K | Kore | Dedukti
+type output_management = LP | Dedukti
 
-let k_format = ref false
-let kore_format = ref true
-let dk_format = ref false
-
-let lp_output = ref true
+let format = ref Kore
+let output = ref LP
 
 
 let readable = ref false

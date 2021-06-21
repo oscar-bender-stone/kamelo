@@ -35,21 +35,20 @@ let prelude_name = "prelude"
 
 let get_filename name =
   let tmp = String.lowercase_ascii name in
-  if !lp_output then tmp ^ ".lp" else tmp ^ ".dk"
+  match !output with
+  | Dedukti -> tmp ^ ".dk"
+  | LP      -> tmp ^ ".lp"
 
-
-type output_management = K | Kore | Dedukti
-
-let set_format o = if o = "K" || o = "k" then k_format := true
+let set_format o = if o = "K" || o = "k" then format := K
                    else
-                     if o = "Kore" || o = "kore" then kore_format := true
+                     if o = "Kore" || o = "kore" then format := Kore
                      else
-                       if o = "Dedukti" || o = "dedukti" then dk_format := true
+                       if o = "Dedukti" || o = "dedukti" then format := Dedukti
                        else failwith ("The option" ^ o ^ "is unknow")
 
-let set_output o = if o = "Dedukti" || o = "dedukti" then lp_output := false
+let set_output o = if o = "Dedukti" || o = "dedukti" then output := Dedukti
                    else
-                     if o = "Lambdapi" || o = "lambdapi" then lp_output := true
+                     if o = "Lambdapi" || o = "lambdapi" then output := LP
                      else failwith ("The option"^ o ^ "is unknow")
 let () =
   let usage_msg = "usage: ./kamelo [-f (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi)] [--inductive] [--readable] [--no-color] kore_file" in
@@ -79,17 +78,6 @@ let () =
 let () =
   let lexbuf = Lexing.from_channel (!input) in
   let file = Kparser.file Klexer.token lexbuf in
-  (*let rec print_c c = match c with
-    | [] -> Format.fprintf Format.std_formatter "\n"
-    | a::t -> Format.fprintf Format.std_formatter "%a" pp_command a; print_c t
-  in
-  print_c c;*)
-
-  (* let param_to_p_params : param -> p_params = fun p -> *)
-
-
-
-
 
   (*let trans_axiom : Format.formatter -> axiom -> unit =*)
 
@@ -108,10 +96,6 @@ let () =
          | _ -> ()
   in *)
 
-
-
-
-
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
     let len = List.length in
@@ -125,26 +109,24 @@ let () =
 
     print_nb_total_commands (len kcommand_l);
 
-    let _, import_l, sort_l, induc_m, sym_l, alias_l, ax_l =
-      if !old then Preprocessing.preprocessing m cd
-      else "truc", [], [], Induc.empty, [], [], []
-    in
-
-    (* let import_l = if Induc.is_empty induc_m then import_l else ("prelude", [])::import_l in *)
-
     let f  = open_out filename in
     let ff = Format.formatter_of_out_channel f in
 
-    List.iter (pp_import ff cd [lp_pkg]) import_l;
+    List.iter (pp_import ff cd [lp_pkg]) (List.rev kimport_l);
     pp_import ff  cd (lp_pkg::prelude_path) (prelude_name, []);
-    List.iter (pp_sort ff cd) sort_l;
-    List.iter (pp_induc ff cd) (List.rev (Induc.bindings induc_m));
-    List.iter (pp_symbol ff cd) sym_l;
-    (*List.iter (trans_command ff) command_l;*)
-    List.iter (pp_alias ff cd) alias_l;
-    List.iter (pp_axiom ff cd) ax_l;
-    (*List.iter (trans_command Format.std_formatter) command_l;*)
 
+    if !old then Preprocessing.old ff m cd
+    else
+      begin
+        let printing = match !output with
+          | LP      -> Printer.pp_command ff cd
+          | Dedukti -> Printer.pp_command ff cd
+        in
+        match !format with
+        | Kore    -> List.iter printing kcommand_l
+        | K       -> ()
+        | Dedukti -> ()
+      end;
     print_count_data cd;
 
     print_separator ();
