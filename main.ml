@@ -5,6 +5,7 @@ open Arg
 open Syntax
 
 open LP_printer
+open Printer
 
 open Axiom
 open Symbol
@@ -50,42 +51,6 @@ let get_filename name =
   let tmp = String.lowercase_ascii name in
   if !lp_output then tmp ^ ".lp" else tmp ^ ".dk"
 
-let import_to_require_open : string list -> import -> p_command = fun chemin i ->
-  let filename = String.lowercase_ascii (fst i) in
-  Pos.none (P_require (true, [Pos.none (chemin @ [filename])]))
-
-let pp_import : Format.formatter -> count_data -> string list -> import -> unit =
-  fun ppf cd path i -> incr_real_import cd ; pp_command ppf (import_to_require_open path i)
-
-let get_sort_type : sort -> p_term = fun s ->
-  if s = _SORTK then Pos.none P_Type else create_ident _SORTK
-
-let sort_to_p_symbol : sort -> p_symbol = fun s ->
-  let sort_type = get_sort_type s in
-  { p_sym_mod = [] (* Const ? *)
-  ; p_sym_nam = Pos.none s
-  ; p_sym_arg = []   (* TODO *)
-  ; p_sym_typ = Some sort_type (* TODO, after ? TYPE ? K ? *)
-  ; p_sym_trm = None
-  ; p_sym_prf = None
-  ; p_sym_def = false }
-
-let pp_sort : Format.formatter -> count_data -> sort -> unit =
-  fun ppf cd s -> incr_real_sort cd ; pp_command ppf (Pos.none (P_symbol (sort_to_p_symbol (pp s))))
-
-let induc_to_p_inductive : sort * symbol list -> p_inductive = fun (sort, s_l) ->
-  (* p_ident * p_term * (p_ident * p_term) list *)
-  let f s = (Pos.none (get_name s), sym_curry s) in
-  Pos.none (Pos.none sort, Pos.none P_Type, List.map f s_l)
-
-let pp_induc : Format.formatter -> count_data -> sort * symbol list -> unit =
-  fun ppf cd i -> incr_real_induc cd ; pp_command ppf (Pos.none (P_inductive([], [], [induc_to_p_inductive i])))
-
-let pp_symbol : Format.formatter -> count_data -> symbol * attribute list -> unit =
-  fun ppf cd ((name, qv_l, p_l, p), attr_l) ->
-  let s = (pp name, qv_l, p_l, p) in
-  incr_real_symbol cd ;
-  pp_command ppf (Pos.none (P_symbol (symbol_to_p_symbol s attr_l)))
 
 type output_management = K | Kore | Dedukti
 
@@ -134,24 +99,10 @@ let () =
 
   (* let param_to_p_params : param -> p_params = fun p -> *)
 
-  let trans_alias : Format.formatter -> count_data -> alias * (quant_var list * axiom * attribute list) option -> unit =
-    fun ppf cd v ->
-    match v with
-     | _, None -> () (* @TODO *)
-     | al, Some(_,ax,_) ->
-        try
-          pp_command ppf (Pos.none (P_rules [create_rewriting_rule al ax])) ;
-          incr_real_rule cd
-        with ConditionalRule _ -> ()
-  in
-  let trans_axiom : Format.formatter -> count_data -> quant_var list * axiom * attribute list -> unit =
-    fun ppf cd (qv_l, a, attr_l) ->
-    match attr_l with
-     | Unit _::nil | Assoc _::nil | Idem _::nil ->
-        (* if is_only_assoc a then @TODO *)
-        incr_real_rule cd ; pp_command ppf (Pos.none (P_rules [of_equality_axiom a]))
-     | _ -> () (* @TODO *)
-  in
+
+
+
+
   (*let trans_axiom : Format.formatter -> axiom -> unit =*)
 
   (* let trans_command : Format.formatter -> command -> unit =
@@ -282,8 +233,8 @@ let () =
     List.iter (pp_induc ff cd) (List.rev (Induc.bindings induc_m));
     List.iter (pp_symbol ff cd) sym_l;
     (*List.iter (trans_command ff) command_l;*)
-    List.iter (trans_alias ff cd) alias_l;
-    List.iter (trans_axiom ff cd) ax_l;
+    List.iter (pp_alias ff cd) alias_l;
+    List.iter (pp_axiom ff cd) ax_l;
     (*List.iter (trans_command Format.std_formatter) command_l;*)
 
     print_count_data cd;

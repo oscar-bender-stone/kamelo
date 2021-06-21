@@ -72,18 +72,15 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
 exception KComputation of string
 
 let rec ax_curry : axiom -> p_term = fun a ->
-  let f = fun (a:p_term) (b:axiom) : p_term ->
-              Pos.none (P_Appl(a, ax_curry b))
-  in
+  let f = fun (a:p_term) (b:axiom) : p_term -> create_appl a (ax_curry b) in
   match a with
   | Predicat p ->
     begin
      match p with
      | Sym("inj", qv_l, a_l) ->
-        let g p = match p with S x | Q x -> create_explicit_arg x in
+        let g p = match p with S x | Q x -> create_implicit_arg x in
         let tmp = List.map g qv_l in
-        let appl a b = Pos.none (P_Appl(a, b)) in
-        let res = List.fold_left appl (create_ident "injG") tmp in
+        let res = List.fold_left create_appl (create_ident "injG") tmp in
         List.fold_left f res a_l
      | Sym(n, _, a_l) -> List.fold_left f (create_ident n) a_l
      | Var(n, p) -> create_pattern_var n
@@ -108,7 +105,7 @@ let of_equality_axiom : axiom -> p_rule = fun a ->
   match a with
   | Equals(_, a1, a2) ->
      (try
-        Pos.none (ax_curry a1, ax_curry a2)
+        no_pos (ax_curry a1, ax_curry a2)
       with _ -> failwith "Unit, Idem, comm, assoc")
   | _ -> failwith "The current axiom isn't an equality one.\n
                    Please, raise an issue."
@@ -170,7 +167,7 @@ let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
            else
              (try ax_curry a2
               with KComputation _ ->
-                Format.printf (yel "WARNING: K computation found\n") ; Pos.none P_Type)
+                Format.printf (yel "WARNING: K computation found\n") ; _TYPE)
                 (* _ -> failwith "LHS"*)
         |  _ -> failwith "In LHS: Not yet implemented"
        end
@@ -186,4 +183,4 @@ let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
          ax_curry a2
     |  _ -> failwith "In RHS: Not yet implemented"
   in
-  Pos.none (lhs, rhs)
+  no_pos (lhs, rhs)

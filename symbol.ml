@@ -95,14 +95,13 @@ let get_modifier : attribute list -> p_modifier list = fun attr_l ->
   let tmp = aux attr_l no_information in
   (* On traduit ces informations en p_modifier list *)
   let b = get_left tmp in
-  let f_prop x = Pos.none (P_prop x) in
   let res = [] in
-  let res = if get_injec tmp && not(get_constructor tmp) then f_prop(Injec)::res else res in
-  let res = if get_assoc tmp && get_comm tmp then f_prop(AC(b))::res
+  let res = if get_injec tmp && not(get_constructor tmp) then create_prop(Injec)::res else res in
+  let res = if get_assoc tmp && get_comm tmp then create_prop(AC(b))::res
             else
               if get_assoc tmp then res (* you need to generate the rule *)
               else
-                if get_comm tmp then f_prop(Commu)::res
+                if get_comm tmp then create_prop(Commu)::res
                 else res
   in
   (* @TODO Const ? *)
@@ -135,36 +134,17 @@ let is_constructor : symbol -> attribute list -> sort option = fun s attri_l ->
   | (true, false)  ->
      Printf.fprintf stdout (yel "WARNING The symbol (%s) is declared 'constructor' but not 'injective'!\n") (get_name s) ; None
 
-
-
+let get_type : string -> p_term = fun s ->
+  if s = _SORTK then create_ident s
+  else create_appl (create_ident _INJ) (create_ident s)
 
 let rec sym_curry : symbol -> p_term = fun s ->
   let _, _, p_l, p = s in
-  (**let f = fun (a:p_term) (b:axiom) : p_term ->
-                        Pos.none (P_Arro(a, sym_curry b))
-        in*)
+  (**let f = fun (a:p_term) (b:axiom) : p_term -> create_arrow a (sym_curry b) in*)
   let g = fun a ->
     match a with
     | S x | Q x -> get_type x
   in
   let f = fun a b ->
-    match a with | S x | Q x -> Pos.none (P_Arro(get_type x,b)) in
+    match a with | S x | Q x -> create_arrow (get_type x) b in
   List.fold_right f p_l (g p)
-
-let symbol_to_p_symbol : symbol -> attribute list -> p_symbol = fun s attr_l ->
-  let name, qvar_l, p_l, p = s in
-  (* Merge qvar_l and p_l *)
-  let f = fun b a -> [Some (Pos.none a)], Some (create_ident "SortK"), b in
-  let qvar_l = List.map (f true) qvar_l in
-  (* let f = fun b a -> match a with | S x | Q x -> f b x in
-     let p_l = List.map (f false) p_l in *)
-  (* Transformation of p *)
-  (* let f p = match p with S x | Q x -> x in *)
-  { p_sym_mod = get_modifier attr_l (* ; TODO modifiers *)
-  ; p_sym_nam = Pos.none name
-  ; p_sym_arg = qvar_l (* qvar_l @ p_l *)
-  ; p_sym_typ = Some (sym_curry s)
-  (* Some (Pos.none (P_Iden (Pos.none ([""], f p), false)))*)
-  ; p_sym_trm = None (* TODO ? *)
-  ; p_sym_prf = None
-  ; p_sym_def = false }

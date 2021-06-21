@@ -14,35 +14,6 @@ let blu fmt = colorize "34" fmt
 let mag fmt = colorize "35" fmt
 let cya fmt = colorize "36" fmt
 
-
-
-let readable = ref false
-
-let pretty_string : (string * string) list -> string -> string = fun iso s ->
-  let rec aux l s = match l with
-     | [] -> s
-     | (pattern, new_s)::t ->
-        aux t (Str.global_replace (Str.regexp pattern) new_s s)
-  in
-  aux iso s
-
-let skip_sign s = "_\\([A-Z-]*\\)" ^ s ^ "\\([A-Za-z_-]+\\)"
-
-let string_symbol_isomorphism =
-  [ ("Lbl", "") ; ("Var", "") ; (* ("Sort", "") ; ("Stop", ".") ; *) ("Unds", "_") ; ("'", "") ;  ("-LT-", "<") ; ("-GT-", ">") ;
-    ("Pipe", "|") ; ("Eqls", "=") ; ("Slsh", "/") ; ("Hash", "#") ; ("Tild", "~") ; ("Perc", "%") ; ("Star", "*") ; ("Quot", "'") ;
-    ("projectColn", "proj_") (*; ("project", "π") ; ("Plus", "+")
-    ; ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ; ("LBra", "{") ; ("RBra", "}") ;
-    ("Comm", ",") ; ("Coln", ":") ; ("SCln", ";") *) ; ("LPar_\\([Comm_]*\\)RPar", "")
-    ; (skip_sign "-SYNTAX", "_") ; (skip_sign "-COMMON", "")
-    ; (skip_sign "INT", "_INT") ; (skip_sign "LIST", "_LIST") ; (skip_sign "SET", "_SET") ; (skip_sign "MAP", "_MAP") ]
-
-let pp s = if !readable then pretty_string string_symbol_isomorphism s else s
-
-
-
-
-
 type count_data = { k_import : int ref        ; real_import : int ref
                   ; k_sort   : int ref
                   ; k_hooked_sort : int ref   ; real_sort   : int ref
