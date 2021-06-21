@@ -1,25 +1,17 @@
 
-open Type
-open Pos
 open Arg
-open Syntax
 
-open LP_printer
-open Printer
+open Type
 
 open Axiom
 open Symbol
-open LP_p_term
 
 open Display_console
 open Output
+open Printer
 
 let input = ref stdin
 let c_prefix = ref "a.out"
-let c_D = ref false
-let c_A = ref false
-let c_C = ref false
-let c_S = ref false
 
 let basename s =
   try String.sub s 0 (String.rindex s '.')
