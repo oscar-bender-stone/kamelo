@@ -1,13 +1,6 @@
-
 open Type
-open Color
-
-open Axiom
-open Symbol
-
 open Display_console
 open Output
-open Printer
 
 let () =
   (* STEP A: Parse the command-line *)
@@ -34,11 +27,11 @@ let () =
       begin
         let printing = match !output with
           | LP      -> Printer.pp_command ff cd
-          | Dedukti -> Printer.pp_command ff cd
+          | Dedukti -> Printer.pp_command ff cd (* @TODO *)
         in
         match !format with
-        | Kore    -> List.iter printing kcommand_l
-        | K       -> ()
+        | Kore    -> (**List.iter printing kcommand_l*) Printer.pp_command_bis ff cd kcommand_l
+        | K       -> List.iter printing kcommand_l
         | Dedukti -> ()
       end;
     (* STEP 4: Printing count data *)

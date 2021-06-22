@@ -2,7 +2,6 @@
 open LP_p_term
 open Type
 open Syntax
-open LP_printer
 
 open Color
 
