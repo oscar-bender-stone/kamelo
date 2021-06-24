@@ -1,49 +1,11 @@
-%.cmo: %.ml
-	ocamlc -g -c $<
+all:
+	dune build @install
 
-%.cmi: %.mli
-	ocamlc -g -c $<
+test:
+	dune runtest
 
-# Compilation parameters:
-CAMLOBJS=color.cmo type.cmo pos.cmo kparser.cmo klexer.cmo syntax.cmo \
-         output.cmo display_console.cmo \
-         LP_p_term.cmo LP_printer.cmo axiom.cmo symbol.cmo \
-         translate.cmo printer.cmo import.cmo preprocessing.cmo cmd_line.cmo main.cmo
-CAMLSRC=$(addsuffix .ml,$(basename $(CAMLOBJS)))
-FILES=color.ml kparser.mly klexer.mll type.ml pos.ml syntax.ml \
-      output.ml display_console.ml LP_p_term.ml LP_printer.ml \
-      axiom.ml symbol.ml \
-      translate.ml printer.ml import.ml \
-      cmd_line.ml preprocessing.ml cmd_line.cmo main.ml Makefile
-
-all: kamelo
-
-kamelo: $(CAMLOBJS)
-	ocamlc -g -o kamelo unix.cma str.cma $(CAMLOBJS)
+doc:
+	dune build @doc
 
 clean:
-	rm -f *.cmi *.cmo
-	rm -f kamelo
-	rm -f klexer.ml
-	rm -f kparser.ml kparser.mli
-	rm -f kparser.output
-	rm -f *.lp
-	rm -f *~
-
-klexer.ml: pos.ml klexer.mll
-	ocamllex -ml klexer.mll
-      # I need the option "-ml" because of
-      # 534 states, 38895 transitions,
-      # table size 158784 bytes File "klexer.mll":
-      # transition table overflow, automaton is too big
-	ocamlc -g -c klexer.ml
-
-kparser.ml: kparser.mly klexer.ml
-	menhir --external-tokens Klexer kparser.mly
-	ocamlc -g -c kparser.mli
-
-main.ml: klexer.ml kparser.ml kparser.mli type.ml syntax.ml pos.ml LP_p_term.ml
-	ocamlc -g -c main.ml
-
-main.cmi: main.ml
-main.cmo: main.ml main.cmi
+	dune clean

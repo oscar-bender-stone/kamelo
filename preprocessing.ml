@@ -7,8 +7,6 @@ open Axiom
 open Display_console
 open Printer
 
-let old = ref false
-
 module Sort = struct
   type t = sort
   let compare = String.compare
@@ -40,7 +38,7 @@ let print_new_attribute : name -> attribute list -> unit = fun name attri_l ->
   let res = aux attri_l [] in
   match res with
   | [] -> ()
-  | t::q as l ->
+  | _::_ as l ->
      Format.printf (yel "WARNING: The symbol %s has new attribut(s): ") name;
      List.iter (fun n -> Format.printf (yel "%s ") n) l;
      Format.printf (yel ".\n")
@@ -59,7 +57,7 @@ let preprocessing :
        | Sort   s ->
           incr_k_sort cd ; print_new_attribute s attr_l ;
           aux q (s::sort_l, induc_m, sym_l, alias_l, ax_l)
-       | H_sort s -> incr_k_hooked_sort cd ; aux q acc
+       | H_sort _ -> incr_k_hooked_sort cd ; aux q acc
        | Symbol s ->
           begin
             let name,_,_,_ = s in
@@ -74,7 +72,7 @@ let preprocessing :
                | None ->
                   aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
           end
-       | H_symbol s -> incr_k_hooked_symbol cd ; aux q acc
+       | H_symbol _ -> incr_k_hooked_symbol cd ; aux q acc
        | Alias al->
           (match q with
            | [] -> incr_k_alias cd ; aux q (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l)

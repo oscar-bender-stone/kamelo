@@ -138,9 +138,9 @@ let get_type : string -> p_term = fun s ->
   if s = _SORTK then create_ident s
   else create_appl (create_ident _INJ) (create_ident s)
 
-let rec sym_curry : symbol -> p_term = fun s ->
+let sym_curry : symbol -> p_term = fun s ->
   let _, _, p_l, p = s in
-  (**let f = fun (a:p_term) (b:axiom) : p_term -> create_arrow a (sym_curry b) in*)
+  (* let f = fun (a:p_term) (b:axiom) : p_term -> create_arrow a (sym_curry b) in *)
   let g = fun a ->
     match a with
     | S x | Q x -> get_type x

@@ -21,7 +21,7 @@ let rec is_predicate_axiom : axiom -> bool = fun a ->
   | In(_,_,a)        -> is_predicate_axiom a
   | Dom_val  _ -> false
   | Predicat p -> match p with
-                  | Sym(n,_,a_l) -> (* @TODO a_l ? *)
+                  | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
                      begin
                       try
                         let res = String.sub n 0 5 in String.equal res "Lblis"
@@ -82,9 +82,9 @@ let rec ax_curry : axiom -> p_term = fun a ->
         let res = List.fold_left create_appl (create_ident "injG") tmp in
         List.fold_left f res a_l
      | Sym(n, _, a_l) -> List.fold_left f (create_ident n) a_l
-     | Var(n, p) -> create_pattern_var n
+     | Var(n, _) -> create_pattern_var n
     end
-  | Dom_val(sort, name) -> create_ident name
+  | Dom_val(_, name) -> create_ident name
   (*| In _ -> failwith "OK, guys"
   | Equals _ -> failwith "EQUALS"
   | Exists _ -> failwith "EXISTS"
@@ -151,7 +151,7 @@ let is_conditional_rule : axiom -> bool = fun a ->
 
 exception ConditionalRule of string
 
-let rec create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
+let create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
   let def = get_def aw in
   (* Create the LHS thanks to the alias *)

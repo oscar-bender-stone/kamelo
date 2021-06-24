@@ -1,6 +1,5 @@
 
 open Syntax
-open Type
 open Output
 
 let _SORTK = "SortK"
@@ -13,16 +12,21 @@ let no_pos = Pos.none
 
 let create_prop : prop -> p_modifier = fun p -> no_pos (P_prop p)
 
-(** [create_path s_l] creates a path thanks to a list *)
+(** [create_path s_l] creates a path thanks to a list of string. *)
 let create_path : string list -> path = fun x -> x
-(** [create_qident x] *)
+
+(** [create_qident x] creates a qualified identifier thanks to a path
+    and a name. *)
 let create_qident : path * string -> qident = fun x -> x
-(** [] *)
+
+(** [create_p_ident s] creates an identifier without position. *)
 let create_p_ident : string -> p_ident = fun s -> no_pos s
-(** [] *)
+
+(** [create_p_path x] creates a path without position. *)
 let create_p_path : string list -> p_path = fun x ->
   no_pos (create_path x)
-(** [] *)
+
+(** [create_p_qident x] creates a qualified identifier without position. *)
 let create_p_qident : path * string -> p_qident = fun x ->
   no_pos (create_qident x)
 

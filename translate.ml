@@ -49,7 +49,7 @@ let sort_to_p_symbol : sort -> p_command = fun s ->
 
 (** Symbol *)
 let symbol_to_p_symbol : symbol -> attribute list -> p_command = fun s attr_l ->
-  let name, qvar_l, p_l, p = s in
+  let name, qvar_l, _, _ = s in
   let param_l = create_p_params qvar_l in
   let res = common_p_symbol (get_modifier attr_l) name param_l (Some (sym_curry s)) in
   no_pos (P_symbol res)

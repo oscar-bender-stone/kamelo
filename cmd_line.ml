@@ -2,7 +2,6 @@ open Arg
 
 open Color
 open Output
-open Display_console
 open Preprocessing
 
 let input = ref stdin
