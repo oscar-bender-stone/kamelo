@@ -22,9 +22,9 @@
 ;; For parsing
 
 ;;(ocamllex klexer)
-;;(menhir
-;; (flags (--external-tokens Klexer))
-;; (modules kparser))
+(menhir
+ (flags (--external-tokens Klexer))
+ (modules kparser))
 
 ;;(library
 ;;  (name kamelo)
