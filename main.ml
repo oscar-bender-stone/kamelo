@@ -12,7 +12,7 @@ let () =
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
     let name, kimport_l, kcommand_l, _ = m in
-
+    Dependency_graph.link := Dependency_graph.Link.empty ; (* @TODO arg *)
     (* STEP 0: Reset count data *)
     let cd = reset_count_data 0 in
     (* STEP 1: Create the new file *)
@@ -32,7 +32,18 @@ let () =
         match !format with
         | Kore    -> (* List.iter printing kcommand_l *) Printer.pp_command_bis ff cd kcommand_l
         | K       -> List.iter printing kcommand_l
-        | Dedukti -> ()
+        | Dedukti ->
+           let empty = Dependency_graph.Gname.empty in
+           let g =
+             Dependency_graph.create_dependence_graph empty kcommand_l
+           in
+           let tmp node =
+             try
+               Some (Dependency_graph.Link.find node !Dependency_graph.link)
+             with Not_found -> Format.printf (Color.yel "WARNING: %s need to be defined in prelude.lp\n") node ; None
+           in
+           let f node = match tmp node with | Some x -> printing x | None -> () in
+           Dependency_graph.T.iter f g
       end;
     (* STEP 4: Printing count data *)
     print_module_message filename (List.length kcommand_l) cd;
