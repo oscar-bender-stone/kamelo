@@ -33,9 +33,8 @@ let () =
         | Kore    -> Printer.pp_command_bis ff cd kcommand_l
         | K       -> ()
         | Dedukti ->
-           let empty = Dependency_graph.Gname.empty in
            let g =
-             Dependency_graph.create_dependence_graph empty kcommand_l
+             Dependency_graph.create_dependence_graph cd kcommand_l
            in
            let tmp node =
              try

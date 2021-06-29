@@ -51,15 +51,16 @@ let pp_command : Format.formatter -> count_data -> command -> unit = fun ppf cd 
   | Alias    _ -> incr_k_alias cd (* @TODO : aller voir la suite de la liste *)
   | Axiom(qv_l, ax) -> incr_k_axiom cd ; pp_axiom ppf cd (qv_l, ax, attr_l)
 
-let f_axiom : Format.formatter -> count_data -> attribute list -> quant_var list * axiom -> unit =
-  fun ppf cd attr_l (qv_l, ax) ->
-  match attr_l with
-  | [] -> if Axiom.is_predicate_axiom ax then ()
-          else pp_axiom ppf cd (qv_l, ax, attr_l)
-  | _ -> pp_axiom ppf cd (qv_l, ax, attr_l)
-
 let pp_command_bis  : Format.formatter -> count_data -> command list -> unit = fun ppf cd command_l ->
+  let f_axiom :
+        Format.formatter -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
+    fun ppf cd attr_l _ (qv_l, ax) ->
+    match attr_l with
+    | [] -> if Axiom.is_predicate_axiom ax then ()
+            else pp_axiom ppf cd (qv_l, ax, attr_l)
+    | _ -> pp_axiom ppf cd (qv_l, ax, attr_l)
+  in
   kore_command_iter cd command_l ()
-    (fun _ s -> pp_sort ppf cd s) (fun _ s -> pp_sort ppf cd s)
-    (fun attr_l s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l s -> pp_symbol ppf cd (s, attr_l))
-    (fun _ _ -> ()) (fun attr_l ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l))) (f_axiom ppf cd)
+    (fun _ _ s -> pp_sort ppf cd s) (fun _ _ s -> pp_sort ppf cd s)
+    (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
+    (fun _ _ _ -> ()) (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l))) (f_axiom ppf cd)

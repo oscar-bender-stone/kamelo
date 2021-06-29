@@ -123,33 +123,33 @@ type common_data = Format.formatter * count_data * attribute list
 (* Main algorithm : compute the number of ... + create or not the dependency graph *)
 
 let kore_command_iter (cd : count_data) (l : command list) (neutral_el : 'a)
-      (f_sort :          attribute list -> sort    -> 'a)
-      (f_hooked_sort :   attribute list -> sort    -> 'a)
-      (f_symbol :        attribute list -> symbol  -> 'a)
-      (f_hooked_symbol : attribute list -> symbol  -> 'a)
-      (f_alias :         attribute list -> alias   -> 'a)
-      (f_rewrite :       attribute list -> rewrite -> 'a)
-      (f_axiom :         attribute list -> quant_var list * axiom   -> 'a) : 'a =
+      (f_sort :          attribute list -> 'a -> sort    -> 'a)
+      (f_hooked_sort :   attribute list -> 'a -> sort    -> 'a)
+      (f_symbol :        attribute list -> 'a -> symbol  -> 'a)
+      (f_hooked_symbol : attribute list -> 'a -> symbol  -> 'a)
+      (f_alias :         attribute list -> 'a -> alias   -> 'a)
+      (f_rewrite :       attribute list -> 'a -> rewrite -> 'a)
+      (f_axiom :         attribute list -> 'a -> quant_var list * axiom -> 'a) : 'a =
   let rec aux l acc = match l with
     | [] -> acc
     | (c, attr_l)::q ->
        let res = match c with
-         | Sort     s -> incr_k_sort cd        ; f_sort attr_l s
-         | H_sort   s -> incr_k_hooked_sort cd ; f_hooked_sort attr_l s
-         | Symbol   s -> incr_k_symbol cd        ; f_symbol attr_l s
-         | H_symbol s -> incr_k_hooked_symbol cd ; f_hooked_symbol attr_l s
+         | Sort     s -> incr_k_sort cd        ; f_sort attr_l acc s
+         | H_sort   s -> incr_k_hooked_sort cd ; f_hooked_sort attr_l acc s
+         | Symbol   s -> incr_k_symbol cd        ; f_symbol attr_l acc s
+         | H_symbol s -> incr_k_hooked_symbol cd ; f_hooked_symbol attr_l acc s
          | Alias al ->
             (match q with
-             | [] -> (incr_k_alias cd ; f_alias attr_l al)
+             | [] -> (incr_k_alias cd ; f_alias attr_l acc al)
              | h::_ ->
                 (match h with
                  | Axiom(qv_l, ax), attr_l_ax ->
                     let xattr_l = attr_l@attr_l_ax in
                     if Axiom.is_rule_axiom ax
-                    then (incr_k_rule  cd ; f_rewrite xattr_l { lhs = al ; rhs = (qv_l, ax) })
-                    else (incr_k_alias cd ; f_alias xattr_l al)
-                 | _  -> (incr_k_alias cd ; f_alias  attr_l al)))
-         | Axiom(qv_l, ax) -> (incr_k_axiom cd ; f_axiom attr_l (qv_l, ax))
+                    then (incr_k_rule  cd ; f_rewrite xattr_l acc { lhs = al ; rhs = (qv_l, ax) })
+                    else (incr_k_alias cd ; f_alias xattr_l acc al)
+                 | _  -> (incr_k_alias cd ; f_alias  attr_l acc al)))
+         | Axiom(qv_l, ax) -> (incr_k_axiom cd ; f_axiom attr_l acc (qv_l, ax))
        in
        aux q res
   in aux l neutral_el

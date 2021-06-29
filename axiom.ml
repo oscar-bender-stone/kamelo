@@ -151,9 +151,9 @@ let is_conditional_rule : axiom -> bool = fun a ->
 
 exception ConditionalRule of string
 
-let create_rewriting_rule : alias -> axiom -> p_rule = fun aw ax ->
+let create_rewriting_rule : alias -> axiom -> p_rule = fun al ax ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
-  let def = get_def aw in
+  let def = get_def al in
   (* Create the LHS thanks to the alias *)
   let lhs =
     match def with

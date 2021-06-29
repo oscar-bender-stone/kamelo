@@ -117,20 +117,25 @@ let add_axiom g qv_l ax attr_l =
 
 let deleted : command Link.t ref = ref Link.empty
 
-let create_dependence_graph g l =
-  let rec aux g l = match l with
-    | [] -> g
-    | ((Sort      s), _)::q -> aux (add_sort g s) q
-    | ((H_sort    _), _)::q -> aux g q
-    | ((Symbol    s), _)::q -> aux (add_symbol g s) q
-    | ((H_symbol  s), attr_l)::q ->
-       deleted := Link.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted ;
-       aux g q
-    | ((Alias     _), _)::q -> aux g q
-    | ((Axiom(qv_l,ax)), attr_l)::q -> aux (add_axiom g qv_l ax attr_l) q
+open Display_console
+
+let create_dependence_graph cd l =
+  let init_graph = Gname.empty in
+  let f_hooked_symbol attr_l g s =
+    deleted := Link.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted ;
+    g
   in
-  aux g l
-(*
+  let f_rewrite attr_l g ({lhs=_;rhs=(qv_l,ax)}) =
+      add_axiom g qv_l ax attr_l (* @TODO forget alias *)
+  in
+  let do_nothing = fun _ g _ -> g in
+  kore_command_iter cd l init_graph
+    (fun _ g s -> add_sort   g s) do_nothing
+    (fun _ g s -> add_symbol g s) f_hooked_symbol
+    do_nothing f_rewrite
+    (fun attr_l g (qv_l, ax) -> add_axiom g qv_l ax attr_l)
+
+      (*
 let () =
 
   H.iter (fun _ -> Format.printf "Hello") g (* ([1,2;4,5;5,1])**)
