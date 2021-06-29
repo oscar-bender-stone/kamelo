@@ -115,3 +115,43 @@ let print_module_message : string -> int -> count_data -> unit = fun filename nb
   print_nb_total_commands nb;
   print_count_data cd;
   print_footer_file ();
+
+open Type
+
+type rewrite = { lhs : alias ; rhs : quant_var list * axiom }
+type common_data = Format.formatter * count_data * attribute list
+(* Main algorithm : compute the number of ... + create or not the dependency graph *)
+
+let kore_command_iter (cd : count_data) (l : command list) (neutral_el : 'a)
+      (f_sort :          attribute list -> sort    -> 'a)
+      (f_hooked_sort :   attribute list -> sort    -> 'a)
+      (f_symbol :        attribute list -> symbol  -> 'a)
+      (f_hooked_symbol : attribute list -> symbol  -> 'a)
+      (f_alias :         attribute list -> alias   -> 'a)
+      (f_rewrite :       attribute list -> rewrite -> 'a)
+      (f_axiom :         attribute list -> quant_var list * axiom   -> 'a) : 'a =
+  let rec aux l acc = match l with
+    | [] -> acc
+    | (c, attr_l)::q ->
+       let res = match c with
+         | Sort     s -> incr_k_sort cd        ; f_sort attr_l s
+         | H_sort   s -> incr_k_hooked_sort cd ; f_hooked_sort attr_l s
+         | Symbol   s -> incr_k_symbol cd        ; f_symbol attr_l s
+         | H_symbol s -> incr_k_hooked_symbol cd ; f_hooked_symbol attr_l s
+         | Alias al ->
+            (match q with
+             | [] -> (incr_k_alias cd ; f_alias attr_l al)
+             | h::_ ->
+                (match h with
+                 | Axiom(qv_l, ax), attr_l_ax ->
+                    let xattr_l = attr_l@attr_l_ax in
+                    if Axiom.is_rule_axiom ax
+                    then (incr_k_rule  cd ; f_rewrite xattr_l { lhs = al ; rhs = (qv_l, ax) })
+                    else (incr_k_alias cd ; f_alias xattr_l al)
+                 | _  -> (incr_k_alias cd ; f_alias  attr_l al)))
+         | Axiom(qv_l, ax) -> (incr_k_axiom cd ; f_axiom attr_l (qv_l, ax))
+       in
+       aux q res
+  in aux l neutral_el
+
+(* kcommand_iter ppf cd kcommand_l () () () () () () *)

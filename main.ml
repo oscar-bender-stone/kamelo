@@ -30,8 +30,8 @@ let () =
           | Dedukti -> Printer.pp_command ff cd (* @TODO *)
         in
         match !format with
-        | Kore    -> (* List.iter printing kcommand_l *) Printer.pp_command_bis ff cd kcommand_l
-        | K       -> List.iter printing kcommand_l
+        | Kore    -> Printer.pp_command_bis ff cd kcommand_l
+        | K       -> ()
         | Dedukti ->
            let empty = Dependency_graph.Gname.empty in
            let g =

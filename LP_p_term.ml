@@ -5,7 +5,6 @@ open Output
 let _SORTK = "SortK"
 let _INJ = "injK"
 let _INJGEN = "injG"
-let _TOPCELL = "GeneratedTopCell"
 
 (** [no_pos alpha] creates nothing without position. *)
 let no_pos = Pos.none
