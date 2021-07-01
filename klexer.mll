@@ -49,6 +49,7 @@
   | COOL
   | COOLLIKE
   | HEAT
+  | STRUCTURAL
 
   | SIMPLIFICATION
 
@@ -63,6 +64,7 @@
   | FUNCTIONAL
   | FUNCTION
 
+  | ANYWHERE
   | OWISE
 
   | SUBSORT
@@ -95,6 +97,12 @@
   | SMTLIB
   | SMTHOOK
   | FORMAT
+  | MACRO
+  | RESULT
+
+  | EXIT
+  | AVOID
+  | RETURNSUNIT
 
   | STARTLINE
   | STARTCOLUMN
@@ -196,6 +204,7 @@ rule token = parse
   | "cool"               { COOL           }
   | "cool-like"          { COOLLIKE       }
   | "heat"               { HEAT           }
+  | "structural"         { STRUCTURAL     }
 
   | "simplification"     { SIMPLIFICATION }
 
@@ -210,6 +219,7 @@ rule token = parse
   | "functional"         { FUNCTIONAL     }
   | "function"           { FUNCTION       }
 
+  | "anywhere"           { ANYWHERE       }
   | "owise"              { OWISE          }
 
   | "subsort"            { SUBSORT        }
@@ -242,6 +252,13 @@ rule token = parse
   | "smtlib"             { SMTLIB         }
   | "smt-hook"           { SMTHOOK        }
   | "format"             { FORMAT         }
+  | "macro"              { MACRO          }
+  | "result"             { RESULT         }
+
+  | "exit"               { EXIT           }
+  | "avoid"              { AVOID          }
+  | "returnsUnit"        { RETURNSUNIT    }
+
 
   | "contentStartLine"   { STARTLINE      }
   | "contentStartColumn" { STARTCOLUMN    }

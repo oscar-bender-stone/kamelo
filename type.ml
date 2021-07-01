@@ -18,6 +18,7 @@ type attribute =
  | Cool         of data_attr
  | CoolLike     of data_attr
  | Heat         of data_attr
+ | Structural   of data_attr
 
  | Simpl        of data_attr
 
@@ -32,6 +33,7 @@ type attribute =
  | Functional   of data_attr
  | Function     of data_attr
 
+ | Anywhere     of data_attr
  | Owise        of data_attr
 
  | Subsort      of data_attr

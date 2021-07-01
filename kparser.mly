@@ -48,6 +48,7 @@
 %token COOL
 %token COOLLIKE
 %token HEAT
+%token STRUCTURAL
 
 %token SIMPLIFICATION
 
@@ -62,6 +63,7 @@
 %token FUNCTIONAL
 %token FUNCTION
 
+%token ANYWHERE
 %token OWISE
 
 %token SUBSORT
@@ -95,6 +97,12 @@
 %token SMTLIB
 %token SMTHOOK
 %token FORMAT
+%token MACRO
+%token RESULT
+
+%token EXIT
+%token AVOID
+%token RETURNSUNIT
 
 %token STARTLINE
 %token STARTCOLUMN
@@ -259,6 +267,12 @@ useless_attribute:
   | SMTLIB         attri_params {  } // { let a1,a2 = $2 in SMTlib(a1, a2)       }
   | SMTHOOK        attri_params {  } // { let a1,a2 = $2 in SMThook(a1, a2)      }
   | FORMAT         attri_params {  } // { let a1,a2 = $2 in Format(a1, a2)       }
+  | MACRO          attri_params {  }
+  | RESULT         attri_params {  }
+
+  | EXIT           attri_params {  }
+  | AVOID          attri_params {  }
+  | RETURNSUNIT    attri_params {  }
 
   | STARTLINE      attri_params {  } // { let a1,a2 = $2 in StartLine(a1, a2)    }
   | STARTCOLUMN    attri_params {  } // { let a1,a2 = $2 in StartCol(a1, a2)     }
@@ -293,6 +307,7 @@ attribute:
   | COOL           attri_params { let a1,a2 = $2 in Cool(a1, a2)         }
   | COOLLIKE       attri_params { let a1,a2 = $2 in CoolLike(a1, a2)     }
   | HEAT           attri_params { let a1,a2 = $2 in Heat(a1, a2)         }
+  | STRUCTURAL     attri_params { let a1,a2 = $2 in Structural(a1, a2)   }
 
   | SIMPLIFICATION attri_params { let a1,a2 = $2 in Simpl(a1, a2)        }
 
@@ -307,6 +322,7 @@ attribute:
   | FUNCTIONAL     attri_params { let a1,a2 = $2 in Functional(a1, a2)   }
   | FUNCTION       attri_params { let a1,a2 = $2 in Function(a1, a2)     }
 
+  | ANYWHERE       attri_params { let a1,a2 = $2 in Anywhere(a1, a2)     }
   | OWISE          attri_params { let a1,a2 = $2 in Owise(a1, a2)        }
 
   | SUBSORT        attri_params { let a1,a2 = $2 in Subsort(a1, a2)      }
