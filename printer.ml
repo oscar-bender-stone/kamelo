@@ -107,7 +107,7 @@ let pp_list : output -> string -> (output -> 'a -> unit) -> 'a list -> string ->
   let prints = printing ppf "%s" in
   prints first ;
   let rec aux l = match l with
-    | [] -> prints " "
+    | []  -> prints " "
     | [t] -> f ppf t
     | t1::t2::q -> f ppf t1 ; prints separator ; aux (t2::q)
   in
@@ -123,6 +123,9 @@ let pp_kore_quant_var_list : output -> quant_var list -> unit = fun ppf qv_l ->
 
 let pp_kore_param_list : output -> param list -> unit = fun ppf p_l ->
   pp_list ppf "(" pp_kore_param p_l  "," ")"
+
+let pp_kore_param_list_bis : output -> param list -> unit = fun ppf p_l ->
+  pp_list ppf "{" pp_kore_param p_l  "," "}"
 
 let pp_kore_attribute : output -> attribute -> unit = fun ppf attr ->
   let print = printing ppf "%s" in
@@ -180,7 +183,7 @@ let rec pp_kore_axiom : output -> int -> axiom -> unit = fun ppf step ax ->
   let tmp : param list -> int -> axiom -> axiom -> unit =
     fun p_l step ax1 ax2 ->
     pp_kore_param_list ppf p_l ;
-    prints "\n" ;
+    pp_endline ppf ;
     alignment ppf step ; pp_kore_axiom ppf (step+1) ax1 ;
     prints ",\n" ;
     alignment ppf step ; pp_kore_axiom ppf (step+1) ax2
@@ -188,7 +191,7 @@ let rec pp_kore_axiom : output -> int -> axiom -> unit = fun ppf step ax ->
   let tmp2 : param list -> name -> param -> int -> axiom -> unit =
     fun p_l n p step ax ->
     pp_kore_param_list ppf p_l ;
-    prints "\n" ;
+    pp_endline ppf ;
     alignment ppf step ; print "%s : " (pp n) ; pp_kore_param ppf p ;
     print "%s" ",\n" ;
     alignment ppf step ; pp_kore_axiom ppf (step+1) ax
@@ -204,13 +207,13 @@ let rec pp_kore_axiom : output -> int -> axiom -> unit = fun ppf step ax ->
      prints "#OR(" ; tmp p_l step ax1 ax2 ; pp_paren ppf
   | Not(p_l, ax) ->
      prints "#NOT(" ; pp_kore_param_list ppf p_l ;
-     pp_kore_axiom ppf step ax ; pp_paren ppf
+     pp_endline ppf ; alignment ppf step ; pp_kore_axiom ppf (step+1) ax ; pp_paren ppf
   | Implies(p_l, ax1, ax2) ->
      prints "#IMPLIES(" ; tmp p_l step ax1 ax2 ; pp_paren ppf
   | Bottom p_l ->
-     prints "#BOTTOM(" ; pp_kore_param_list ppf p_l ; pp_paren ppf
+     prints "#BOTTOM" ; pp_kore_param_list_bis ppf p_l
   | Top p_l ->
-     prints "#TOP(" ; pp_kore_param_list ppf p_l ; pp_paren ppf
+     prints "#TOP" ; pp_kore_param_list_bis ppf p_l
   | Rewrites(p_l, ax1, ax2) ->
      prints "#REWRITES(" ; tmp p_l step ax1 ax2 ; pp_paren ppf
   | In(p_l, (n,p), ax) ->
@@ -220,20 +223,20 @@ let rec pp_kore_axiom : output -> int -> axiom -> unit = fun ppf step ax ->
   | Predicat p -> if !verbose then pp_kore_predicat_verbose ppf step p else pp_kore_predicat ppf step p
 and pp_kore_predicat_verbose ppf step p = match p with
   | Sym(n, p_l, ax_l) ->
-     printing ppf "#SYM(%s" (pp n) ; pp_kore_param_list ppf p_l ;
-     let f ppf ax = pp_kore_axiom ppf step ax in
-     pp_list ppf "(" f ax_l "," ")"
+     printing ppf "#SYM(%s" (pp n) ; pp_kore_param_list_bis ppf p_l ;
+     let f ppf ax = pp_endline ppf ; alignment ppf step ; pp_kore_axiom ppf (step+1) ax in
+     pp_list ppf "(" f ax_l "," ")" ; pp_paren ppf
   | Var(n, p) -> printing ppf "#VAR(%s : " (pp n) ; pp_kore_param ppf p ; pp_paren ppf
 and pp_kore_predicat ppf step p = match p with
   | Sym(n, p_l, ax_l) ->
-     printing ppf "%s" (pp n) ; pp_kore_param_list ppf p_l ;
-     let f ppf ax = pp_kore_axiom ppf step ax in
+     printing ppf "%s" (pp n) ; pp_kore_param_list_bis ppf p_l ;
+     let f ppf ax = pp_endline ppf ; alignment ppf step ; pp_kore_axiom ppf (step+1) ax in
      pp_list ppf "(" f ax_l "," ")"
-  | Var(n, p) -> printing ppf "%s : " (pp n) ; pp_kore_param ppf p ; pp_paren ppf
+  | Var(n, p) -> printing ppf "%s : " (pp n) ; pp_kore_param ppf p
 
 let pp_kore_def : output -> def -> unit = fun ppf def ->
   match def with
-  | A ax     -> space ppf ; pp_kore_axiom ppf 2 ax
+  | A ax     -> pp_endline ppf ; space ppf ; pp_kore_axiom ppf 2 ax
   | D(n, qv) -> printing ppf "%s : %s" (pp n) (pp qv)
 
 let pp_kore_alias : output -> symbol -> (name * quant_var list * (name * param) list * def) -> unit =
@@ -242,7 +245,7 @@ let pp_kore_alias : output -> symbol -> (name * quant_var list * (name * param) 
   printing ppf "where %s" (pp n) ;
   pp_kore_quant_var_list ppf qv_l ;
   let f ppf (n,p) = printing ppf "%s : " (pp n) ; pp_kore_param ppf p in
-  pp_list ppf "(" f p_l ", " ") :=\n" ;
+  pp_list ppf "(" f p_l ", " ") :=" ;
   pp_kore_def ppf def
 
 let pp_kore_import : output -> count_data -> import -> unit = fun ppf cd (n, attr_l) ->
