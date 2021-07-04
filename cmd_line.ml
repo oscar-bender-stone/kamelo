@@ -2,6 +2,7 @@ open Arg
 
 open Color
 open Output
+open Printer
 open Preprocessing
 
 let input = ref stdin
@@ -29,14 +30,17 @@ let set_format o = if List.mem o k_format then format := K
 
 let dk_output = dk_format
 let lp_output = ["LP"; "Lambdapi"; "lambdapi"; "lp"; "Dedukti3"; "dedukti3"; "DK3"; "Dk3"; "dk3"]
+let kore_output = kore_format
 
 let set_output o = if List.mem o dk_output then output := Dedukti
                    else
-                     if List.mem o lp_output then output := LP
-                     else failwith ("The option"^ o ^ "is unknow")
+                     if List.mem o kore_output then output := Kore
+                     else
+                       if List.mem o lp_output then output := LP
+                       else failwith ("The option"^ o ^ "is unknow")
 
 let parse : unit -> unit = fun () ->
-  let usage_msg = "usage: ./kamelo [--format (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi)] [--inductive] [--readable] [--no-color] kore_file" in
+  let usage_msg = "usage: ./kamelo [--format (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)] [--inductive] [--readable] [--no-color] kore_file" in
   parse
     [("--format", String (fun o -> set_format o), "Change the ordering of commands");
      ("-f",       String (fun o -> set_format o), "Change the ordering of commands");
@@ -50,8 +54,8 @@ let parse : unit -> unit = fun () ->
 
      ("--readable", Unit (fun () -> readable:=true),  "Generate identifiers more readable");
      ("-r",         Unit (fun () -> readable:=true),  "Generate identifiers more readable");
-     (*("-v",  Unit (fun () -> verbose:=1), "reports stuff");
-     ("-v1", Unit (fun () -> verbose:=1), "reports stuff");
+     ("-v",  Unit (fun () -> verbose:=true), "Print #Var and #Sym in Kore output mode");
+     (*("-v1", Unit (fun () -> verbose:=1), "reports stuff");
      ("-v2", Unit (fun () -> verbose:=2), "reports stuff, and stuff");*)
      ("--no-color", Unit (fun () -> no_color:=true),  "Disable colors on the main message")]
     (fun s ->

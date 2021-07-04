@@ -2,7 +2,7 @@
 type format_management = K | Kore | Dedukti
 let format = ref Kore
 
-type output_management = LP | Dedukti
+type output_management = LP | Dedukti | Kore
 let output = ref LP
 
 let get_filename name =
@@ -10,6 +10,7 @@ let get_filename name =
   match !output with
   | Dedukti -> tmp ^ ".dk"
   | LP      -> tmp ^ ".lp"
+  | Kore    -> tmp ^ ".mykore"
 
 let readable = ref false
 

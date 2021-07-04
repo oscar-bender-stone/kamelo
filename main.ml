@@ -28,10 +28,11 @@ let () =
         let printing = match !output with
           | LP      -> Printer.pp_command ff cd
           | Dedukti -> Printer.pp_command ff cd (* @TODO *)
+          | Kore    -> Printer.pp_kore_command ff cd
         in
         match !format with
         | Kore    -> Printer.pp_command_bis ff cd kcommand_l
-        | K       -> ()
+        | K       -> List.iter printing kcommand_l
         | Dedukti ->
            let g =
              Dependency_graph.create_dependence_graph cd kcommand_l
