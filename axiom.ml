@@ -112,16 +112,6 @@ let of_equality_axiom : axiom -> p_rule = fun a ->
       with _ -> failwith "Unit, Idem, comm, assoc")
   | _ -> failwith "The current axiom isn't an equality one.\n
                    Please, raise an issue."
-(*
-let of_command : command -> = fun (c, a_l) ->
-  match c with
-  | Sort s | H_sort s ->
-  | Symbol s | H_symbol s ->
-  | Alias ->
-  | Axiom(qv_l, a) ->
-;;
- *)
-
 
 (* Il n'y a rien qui indique que l'axiome a été généré car un symbole
    est un prédicat : il faut peut-être le rajouter ?
@@ -133,6 +123,7 @@ let of_axiom : quant_var list * axiom * attribute list -> attribute ->
   fun (qv_l,a,a_l) attri ax_l ->
   match attri with
   | Subsort     _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
+  | Projection  _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
   | Functional  _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
   | Constructor _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
   | Assoc _ -> (qv_l,a,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
@@ -141,13 +132,8 @@ let of_axiom : quant_var list * axiom * attribute list -> attribute ->
   | Unit  _ -> (qv_l,a,a_l)::ax_l
   | Initializer _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
   | Owise       _ -> if is_predicate_axiom a then ax_l else (qv_l,a,a_l)::ax_l
-  | Projection  _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
   | _ -> (qv_l,a,a_l)::ax_l
-(*
-type def = A of axiom | D of name * quant_var
 
-type alias = symbol * (name * quant_var list * (name * param) list * def)
-             *)
 let is_conditional_rule : axiom -> bool = fun a ->
   match a with
   | Top _ -> false
@@ -155,35 +141,37 @@ let is_conditional_rule : axiom -> bool = fun a ->
 
 exception ConditionalRule of string
 
-let create_rewriting_rule : alias -> axiom -> p_rule = fun al ax ->
+(** [create_LHS al] creates a LHS of a rewriting rule thanks to an alias. *)
+let create_LHS : alias -> p_term = fun al ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
   let def = get_def al in
-  (* Create the LHS thanks to the alias *)
-  let lhs =
-    match def with
-    | A a ->
-       begin
-        match a with
-        | And(_,a1,a2) ->
-           if is_conditional_rule a1 then
-             raise (ConditionalRule "Conditional rewriting rule not supported yet.")
-           else
-             (try curry_pattern a2
-              with KComputation _ ->
-                Format.printf (yel "WARNING: K computation found\n") ; _TYPE)
-                (* _ -> failwith "LHS"*)
-        |  _ -> failwith "In LHS: Not yet implemented"
-       end
-    | D _ -> failwith "Not possible in rewriting axiom"
-  in
-  (* Create the RHS thanks to the axiom *)
-  let rhs =
-    match ax with
-    | Rewrites(_,_,And(_,a1,a2)) ->
-       if is_conditional_rule a1 then
-         raise (ConditionalRule "Conditional rewriting rule not supported yet.")
-       else
-         curry_pattern a2
-    |  _ -> failwith "In RHS: Not yet implemented"
-  in
+  match def with
+  | A a ->
+     begin
+      match a with
+      | And(_,a1,a2) ->
+         if is_conditional_rule a1 then
+           raise (ConditionalRule "Conditional rewriting rule not supported yet.")
+         else
+           (try curry_pattern a2
+            with KComputation _ ->
+              Format.printf (yel "WARNING: K computation found\n") ; _TYPE)
+      (* _ -> failwith "LHS"*)
+      |  _ -> failwith "In LHS: Not yet implemented"
+     end
+  | D _ -> failwith "Not possible in rewriting axiom"
+
+(** [create_RHS ax] creates a RHS of a rewriting rule thanks to an axiom. *)
+let create_RHS : axiom -> p_term = fun ax ->
+  match ax with
+  | Rewrites(_,_,And(_,a1,a2)) ->
+     if is_conditional_rule a1 then
+       raise (ConditionalRule "Conditional rewriting rule not supported yet.")
+     else
+       curry_pattern a2
+  |  _ -> failwith "In RHS: Not yet implemented"
+
+let create_rewriting_rule : alias -> axiom -> p_rule = fun al ax ->
+  let lhs = create_LHS al in
+  let rhs = create_RHS ax in
   no_pos (lhs, rhs)
