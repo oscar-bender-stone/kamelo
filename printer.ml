@@ -1,7 +1,8 @@
 
 open Type
+open Count_data
+open Display_console (* @TODO improve *)
 open LP_printer
-open Display_console
 open Output
 
 (** Lambdapi printer *)

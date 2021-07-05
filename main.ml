@@ -14,7 +14,7 @@ let () =
     let name, kimport_l, kcommand_l, _ = m in
     Dependency_graph.link := Dependency_graph.Link.empty ; (* @TODO arg *)
     (* STEP 0: Reset count data *)
-    let cd = reset_count_data 0 in
+    let cd = Count_data.reset_count_data 0 in
     (* STEP 1: Create the new file *)
     let filename = get_filename name in
     let f  = open_out filename in

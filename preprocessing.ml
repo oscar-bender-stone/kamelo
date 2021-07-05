@@ -4,7 +4,7 @@ open Color
 open Symbol
 open Axiom
 
-open Display_console
+open Count_data
 open Printer
 
 module Sort = struct

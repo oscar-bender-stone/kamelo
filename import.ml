@@ -1,5 +1,5 @@
 open Type
-open Display_console
+open Count_data
 open Printer
 
 let lp_pkg = "tests"
