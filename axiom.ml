@@ -70,68 +70,45 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
 
 exception KComputation of string
 
-let rec curry : (string -> p_term) -> axiom -> p_term = fun f ax ->
-  let fiter = fun (a:p_term) (b:axiom) : p_term -> create_appl a (curry f b) in
-  match ax with
-  | Predicat p ->
-    begin
-     match p with
-     | Sym("inj", qv_l, a_l) ->
-        let g p = match p with S x | Q x -> create_implicit_arg x in
-        let tmp = List.map g qv_l in
-        let res = List.fold_left create_appl (create_ident "injG") tmp in
-        List.fold_left fiter res a_l
-     | Sym(n, _, a_l) -> List.fold_left fiter (create_ident n) a_l
-     | Var(n, _) -> f n
-    end
-  | Dom_val(_, name) -> create_ident name
-  (*| In _ -> failwith "OK, guys"
-  | Equals _ -> failwith "EQUALS"
-  | Exists _ -> failwith "EXISTS"
-  | Or _ -> failwith "OR"
-  | Not _ -> failwith "NOT"
-  | Implies _ -> failwith "IMPLIES"
-  | Bottom _ -> failwith "BOTTOM"
-  | Top    _ -> failwith "TOP"
-  | Rewrites _ -> failwith "REWRITES" *)
-  | And _ -> raise (KComputation "K computations not yet implemented.")
-  | _ -> failwith "Not yet implemented, if the axiom isn't a predicate."
+let curry : (string -> p_term) -> axiom -> p_term = fun f_var ax ->
+  let rec aux : axiom -> p_term = fun ax ->
+    let f_sym = fun (a:p_term) (b:axiom) : p_term -> create_appl a (aux b) in
+    match ax with
+    | Predicat p ->
+       begin
+        match p with
+        | Sym("inj", qv_l, a_l) ->
+           let g p = match p with S x | Q x -> create_implicit_arg x in
+           let tmp = List.map g qv_l in
+           let res = List.fold_left create_appl (create_ident _INJGEN) tmp in
+           List.fold_left f_sym res a_l
+        | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
+        | Var(n, _) -> f_var n
+       end
+    | Dom_val(_, name) -> create_ident name
+    (*| In _ -> failwith "OK, guys"
+      | Equals _ -> failwith "EQUALS"
+      | Exists _ -> failwith "EXISTS"
+      | Or _ -> failwith "OR"
+      | Not _ -> failwith "NOT"
+      | Implies _ -> failwith "IMPLIES"
+      | Bottom _ -> failwith "BOTTOM"
+      | Top    _ -> failwith "TOP"
+      | Rewrites _ -> failwith "REWRITES" *)
+    | And _ -> raise (KComputation "K computations not yet implemented.")
+    | _ -> failwith "Not yet implemented, if the axiom isn't a predicate."
+  in
+  aux ax
 
-let rec ax_curry : axiom -> p_term = fun a ->
-  let f = fun (a:p_term) (b:axiom) : p_term -> create_appl a (ax_curry b) in
-  match a with
-  | Predicat p ->
-    begin
-     match p with
-     | Sym("inj", qv_l, a_l) ->
-        let g p = match p with S x | Q x -> create_implicit_arg x in
-        let tmp = List.map g qv_l in
-        let res = List.fold_left create_appl (create_ident "injG") tmp in
-        List.fold_left f res a_l
-     | Sym(n, _, a_l) -> List.fold_left f (create_ident n) a_l
-     | Var(n, _) -> create_pattern_var n
-    end
-  | Dom_val(_, name) -> create_ident name
-  (*| In _ -> failwith "OK, guys"
-  | Equals _ -> failwith "EQUALS"
-  | Exists _ -> failwith "EXISTS"
-  | Or _ -> failwith "OR"
-  | Not _ -> failwith "NOT"
-  | Implies _ -> failwith "IMPLIES"
-  | Bottom _ -> failwith "BOTTOM"
-  | Top    _ -> failwith "TOP"
-  | Rewrites _ -> failwith "REWRITES" *)
-  | And _ -> raise (KComputation "K computations not yet implemented.")
-  | _ -> failwith "Not yet implemented, if the axiom isn't a predicate."
-
-
+let curry_ident = curry create_ident
+let curry_pattern = curry create_pattern_var
 
 (* Unit, Idem, comm, assoc *)
 let of_equality_axiom : axiom -> p_rule = fun a ->
   match a with
   | Equals(_, a1, a2) ->
      (try
-        no_pos (curry create_pattern_var a1, curry create_pattern_var a2)
+        no_pos (curry_pattern a1, curry_pattern a2)
       with _ -> failwith "Unit, Idem, comm, assoc")
   | _ -> failwith "The current axiom isn't an equality one.\n
                    Please, raise an issue."
@@ -191,7 +168,7 @@ let create_rewriting_rule : alias -> axiom -> p_rule = fun al ax ->
            if is_conditional_rule a1 then
              raise (ConditionalRule "Conditional rewriting rule not supported yet.")
            else
-             (try ax_curry a2
+             (try curry_pattern a2
               with KComputation _ ->
                 Format.printf (yel "WARNING: K computation found\n") ; _TYPE)
                 (* _ -> failwith "LHS"*)
@@ -206,7 +183,7 @@ let create_rewriting_rule : alias -> axiom -> p_rule = fun al ax ->
        if is_conditional_rule a1 then
          raise (ConditionalRule "Conditional rewriting rule not supported yet.")
        else
-         ax_curry a2
+         curry_pattern a2
     |  _ -> failwith "In RHS: Not yet implemented"
   in
   no_pos (lhs, rhs)

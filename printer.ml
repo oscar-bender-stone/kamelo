@@ -53,7 +53,7 @@ let pp_axiom_bis : Format.formatter -> count_data -> quant_var list * axiom -> u
        if Axiom.is_conditional_rule a1 then
          raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")
        else
-         pp_command ppf (LP_p_term.no_pos (Syntax.P_rules [LP_p_term.no_pos (Axiom.ax_curry lhs, Axiom.ax_curry a2)]))
+         pp_command ppf (LP_p_term.no_pos (Syntax.P_rules [LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
     |  _ -> failwith "In RHS: Not yet implemented"
 
 let pp_command : Format.formatter -> count_data -> command -> unit = fun ppf cd (c, attr_l) ->

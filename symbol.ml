@@ -159,7 +159,7 @@ let def_to_p_term : def -> p_term = fun d ->
             (* raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")*)
             _TYPE
           else
-            (try Axiom.curry create_ident a2
+            (try Axiom.curry_ident a2
              with Axiom.KComputation _ ->
                Format.printf (yel "WARNING: K computation found\n") ; _TYPE)
        | Predicat p -> (match p with Sym _ -> _TYPE | Var _ -> _TYPE)
