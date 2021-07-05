@@ -21,7 +21,7 @@ let () =
     let ff = Format.formatter_of_out_channel f in
     (* STEP 2: Import management *)
     Import.with_prelude ff kimport_l cd;
-    (* STEP 3:  Main translation *)
+    (* STEP 3: Main translation *)
     if !Cmd_line.old then Preprocessing.old ff m cd
     else
       begin
@@ -31,7 +31,7 @@ let () =
           | Kore    -> Printer.pp_kore_command ff cd
         in
         match !format with
-        | Kore    -> Printer.pp_command_bis ff cd kcommand_l
+        | Kore    -> Printer.pp_command_ter ff cd kcommand_l
         | K       -> List.iter printing kcommand_l
         | Dedukti ->
            let g =

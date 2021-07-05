@@ -69,3 +69,14 @@ let create_arrow : p_term -> p_term -> p_term = fun t1 t2 ->
 let create_implicit_arg : string -> p_term = fun s ->
   no_pos (P_Expl(create_ident s))
 (* P_Expl -> P_Impl? @TODO *)
+
+(** [create_p_params s_l] creates implicit parameters, which have the type _SORTK,
+    without position. Note: p_params = p_ident option list * p_term option * bool. *)
+let create_p_params : string list -> p_params list = fun s_l ->
+  match s_l with
+  | []   -> []
+  | _::_ ->
+     let unique_name s = Some (no_pos s)  in
+     let typ = Some (create_ident _SORTK) in
+     let is_implicit = true in
+     [ List.map unique_name s_l, typ, is_implicit ]

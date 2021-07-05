@@ -148,3 +148,49 @@ let sym_curry : symbol -> p_term = fun s ->
   let f = fun a b ->
     match a with | S x | Q x -> create_arrow (get_type x) b in
   List.fold_right f p_l (g p)
+
+let def_to_p_term : def -> p_term = fun d ->
+  match d with
+  | A ax    ->
+     begin
+       match ax with
+       | And(_,a1,a2) ->
+          if Axiom.is_conditional_rule a1 then
+            (* raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")*)
+            _TYPE
+          else
+            (try Axiom.curry create_ident a2
+             with Axiom.KComputation _ ->
+               Format.printf (yel "WARNING: K computation found\n") ; _TYPE)
+       | Predicat p -> (match p with Sym _ -> _TYPE | Var _ -> _TYPE)
+       |  _ -> failwith "In LHS: Not yet implemented"
+     end
+  | D (n,_) -> create_ident n
+
+let param_to_p_term p = match p with S s -> get_type s | Q _ -> _TYPE
+
+(** [create_p_params_expl l] creates explicit parameters, which have the current given type,
+    without position. Note: p_params = p_ident option list * p_term option * bool. *)
+let create_p_params_expl : (name * param) list -> p_params list = fun s_l ->
+  let is_implicit = false in
+  let f (n,p) = ([Some (create_p_ident n)], Some (param_to_p_term p), is_implicit)  in
+  List.map f s_l
+
+let alias_to_definition : alias -> p_command = fun al ->
+  let (name, qv_l, _, p), (name_bis, qv_l_bis, expl_l, def) = al in
+  let _ =
+    if not(name = name_bis) (* && qv_l = qv_l_bis) *) then qv_l else qv_l_bis
+  in
+  (* STEP 0: Get the signature *)
+
+  (* STEP 1: Get the definition of the symbol *)
+  let body = def_to_p_term def in
+  (* STEP 2: Build the p_symbol *)
+  no_pos (P_symbol
+            ({ p_sym_mod = []
+  ; p_sym_nam = create_p_ident name
+  ; p_sym_arg = create_p_params qv_l @ (create_p_params_expl expl_l)
+  ; p_sym_typ = Some (param_to_p_term p)
+  ; p_sym_trm = Some body
+  ; p_sym_prf = None
+  ; p_sym_def = true }))
