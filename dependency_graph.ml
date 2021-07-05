@@ -1,5 +1,6 @@
 
 open Type
+open Iterator
 
 open Graph
 (*open Pack.Digraph*)
@@ -116,8 +117,6 @@ let add_axiom g qv_l ax attr_l =
   add_axiom_aux (add_node g ax_node) ax
 
 let deleted : command Link.t ref = ref Link.empty
-
-open Display_console
 
 let create_dependence_graph cd l =
   let init_graph = Gname.empty in

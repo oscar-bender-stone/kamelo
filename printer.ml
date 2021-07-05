@@ -1,7 +1,7 @@
 
 open Type
 open Count_data
-open Display_console (* @TODO improve *)
+open Iterator   (* @TODO improve? *)
 open LP_printer
 open Output
 
