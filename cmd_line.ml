@@ -28,9 +28,9 @@ let set_mimic o = if List.mem o k_mimic then mimic := K
                        if List.mem o dk_mimic then mimic := Dedukti
                        else failwith ("The option" ^ o ^ "is unknow.")
 
-let dk_output = dk_mimic
-let lp_output = ["LP"; "Lambdapi"; "lambdapi"; "lp"; "Dedukti3"; "dedukti3"; "DK3"; "Dk3"; "dk3"]
-let kore_output = kore_mimic
+let dk_output = [".dk"]
+let lp_output = [".lp"] (* ["LP"; "Lambdapi"; "lambdapi"; "lp"; "Dedukti3"; "dedukti3"; "DK3"; "Dk3"; "dk3"] *)
+let kore_output = [".mykore"]
 
 let set_output o = if List.mem o dk_output then output := Dedukti
                    else
@@ -44,8 +44,8 @@ let parse : unit -> unit = fun () ->
   parse
     [("--mimic",  String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
      ("-m",       String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
-     ("--output", String (fun o -> set_output o), "Change the output: .dk file or .lp file");
-     ("-o",       String (fun o -> set_output o), "Change the output: .dk file or .lp file");
+     ("--output", String (fun o -> set_output o), "Generate files with the extension .dk, .lp or .mykore");
+     ("-o",       String (fun o -> set_output o), "Generate files with the extension .dk, .lp or .mykore");
 
      ("--inductive", Unit (fun () -> check_induc:=true),  "Use inductive types");
      ("-i",          Unit (fun () -> check_induc:=true),  "Use inductive types");
