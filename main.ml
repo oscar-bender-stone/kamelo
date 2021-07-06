@@ -30,7 +30,7 @@ let () =
           | Dedukti -> Printer.pp_command ff cd (* @TODO *)
           | Kore    -> Printer.pp_kore_command ff cd
         in
-        match !format with
+        match !mimic with
         | Kore    -> Printer.pp_command_ter ff cd kcommand_l
         | K       -> List.iter printing kcommand_l
         | Dedukti ->

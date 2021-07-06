@@ -1,6 +1,6 @@
 
-type format_management = K | Kore | Dedukti
-let format = ref Kore
+type mimic_management = K | Kore | Dedukti
+let mimic = ref Kore
 
 type output_management = LP | Dedukti | Kore
 let output = ref LP

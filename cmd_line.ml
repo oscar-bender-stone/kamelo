@@ -17,20 +17,20 @@ let check_extension s =
   else
     raise (Invalid_argument "Name file very short")
 
-let k_format    = ["K"; "k"]
-let kore_format = ["Kore"; "kore"]
-let dk_format   = ["DK"; "Dedukti"; "Dk"; "dedukti"; "dk"]
+let k_mimic    = ["K"; "k"]
+let kore_mimic = ["Kore"; "kore"]
+let dk_mimic   = ["DK"; "Dedukti"; "Dk"; "dedukti"; "dk"]
 
-let set_format o = if List.mem o k_format then format := K
+let set_mimic o = if List.mem o k_mimic then mimic := K
                    else
-                     if List.mem o kore_format then format := Kore
+                     if List.mem o kore_mimic then mimic := Kore
                      else
-                       if List.mem o dk_format then format := Dedukti
-                       else failwith ("The option" ^ o ^ "is unknow")
+                       if List.mem o dk_mimic then mimic := Dedukti
+                       else failwith ("The option" ^ o ^ "is unknow.")
 
-let dk_output = dk_format
+let dk_output = dk_mimic
 let lp_output = ["LP"; "Lambdapi"; "lambdapi"; "lp"; "Dedukti3"; "dedukti3"; "DK3"; "Dk3"; "dk3"]
-let kore_output = kore_format
+let kore_output = kore_mimic
 
 let set_output o = if List.mem o dk_output then output := Dedukti
                    else
@@ -40,10 +40,10 @@ let set_output o = if List.mem o dk_output then output := Dedukti
                        else failwith ("The option"^ o ^ "is unknow")
 
 let parse : unit -> unit = fun () ->
-  let usage_msg = "usage: ./kamelo [--format (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)] [--inductive] [--readable] [--no-color] kore_file" in
+  let usage_msg = "usage: ./kamelo [--mimic (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)] [--inductive] [--readable] [--no-color] kore_file" in
   parse
-    [("--format", String (fun o -> set_format o), "Change the ordering of commands");
-     ("-f",       String (fun o -> set_format o), "Change the ordering of commands");
+    [("--mimic",  String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
+     ("-m",       String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
      ("--output", String (fun o -> set_output o), "Change the output: .dk file or .lp file");
      ("-o",       String (fun o -> set_output o), "Change the output: .dk file or .lp file");
 
