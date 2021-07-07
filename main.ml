@@ -26,8 +26,8 @@ let () =
     else
       begin
         let printing = match !output with
-          | LP      -> Printer.pp_command ff cd
-          | Dedukti -> Printer.pp_command ff cd (* @TODO *)
+          | LP      -> Printer.pp_command_kore ff cd
+          | Dedukti -> Printer.pp_command_kore ff cd (* @TODO *)
           | Kore    -> Printer.pp_kore_command ff cd
         in
         match !mimic with

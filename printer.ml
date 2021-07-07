@@ -14,12 +14,13 @@ let pp_import : output -> count_data -> string list -> import -> unit =
   incr_real_import cd ;
   pp_command ppf (Translate.import_to_require_open path i)
 
-let pp_sort : output -> count_data -> sort -> unit =
-  fun ppf cd s -> incr_real_sort cd ;
-                  pp_command ppf (Translate.sort_to_p_symbol (pp s))
+let pp_sort : output -> count_data -> sort -> unit = fun ppf cd s ->
+  incr_real_sort cd ; pp_command ppf (Translate.sort_to_p_symbol (pp s))
 
 let pp_induc : output -> count_data -> sort * symbol list -> unit =
-  fun ppf cd i -> incr_real_induc cd ; pp_command ppf (Translate.create_inductive_type i)
+  fun ppf cd i ->
+  incr_real_induc cd ;
+  pp_command ppf (Translate.create_inductive_type i)
 
 let pp_symbol : output -> count_data -> symbol * attribute list -> unit =
   fun ppf cd ((name, qv_l, p_l, p), attr_l) ->
@@ -49,6 +50,11 @@ let pp_axiom : output -> count_data -> quant_var list * axiom * attribute list -
      pp_command ppf (Translate.equality_axiom_to_p_rule ax)
   | _ -> () (* @TODO *)
 
+let pp_equality_axiom : output -> count_data -> quant_var list * axiom -> unit =
+  fun ppf cd (_, ax) ->
+  incr_real_rule cd ;
+  pp_command ppf (Translate.equality_axiom_to_p_rule ax)
+
 let pp_axiom_bis : output -> count_data -> quant_var list * axiom -> unit =
   fun ppf _ (_,ax) ->
   match ax with
@@ -59,7 +65,7 @@ let pp_axiom_bis : output -> count_data -> quant_var list * axiom -> unit =
          pp_command ppf (LP_p_term.no_pos (Syntax.P_rules [LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
     |  _ -> failwith "In RHS: Not yet implemented"
 
-let pp_command : output -> count_data -> command -> unit = fun ppf cd (c, attr_l) ->
+let pp_command_kore : output -> count_data -> command -> unit = fun ppf cd (c, attr_l) ->
   match c with
   | Sort     s -> incr_k_sort cd        ; pp_sort ppf cd s
   | H_sort   s -> incr_k_hooked_sort cd ; pp_sort ppf cd s
@@ -70,6 +76,7 @@ let pp_command : output -> count_data -> command -> unit = fun ppf cd (c, attr_l
 
 let pp_command_bis  : output -> count_data -> command list -> unit = fun ppf cd command_l ->
   let do_nothing = fun _ _ -> () in
+  let equality_axiom = fun _ (qv_l, ax) -> pp_equality_axiom ppf cd (qv_l, ax) in
   let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
     fun ppf cd attr_l _ (qv_l, ax) ->
     match attr_l with
@@ -82,12 +89,13 @@ let pp_command_bis  : output -> count_data -> command list -> unit = fun ppf cd 
   (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
   (fun _ _ _ -> ()) (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l)))
   (f_axiom ppf cd)
-  (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
-   do_nothing, do_nothing, do_nothing, do_nothing, do_nothing)
+  (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
+   equality_axiom, equality_axiom, equality_axiom, equality_axiom,
+   do_nothing, do_nothing)
 
 let pp_command_ter : output -> count_data -> command list -> unit  = fun ppf cd command_l ->
   let do_nothing : 'a -> quant_var list * axiom -> 'a = fun acc _ -> acc in
-  let equality_axiom = fun _ (qv_l, ax) -> pp_axiom ppf cd (qv_l, ax, []) in
+  let equality_axiom = fun _ (qv_l, ax) -> pp_equality_axiom ppf cd (qv_l, ax) in
    let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
     fun ppf cd attr_l _ (qv_l, ax) ->
     match attr_l with
