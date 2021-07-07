@@ -54,7 +54,7 @@ module Gname = Persistent.Digraph.Concrete(Name)
 module T = Graph.Topological.Make(Gname)
 
 module Link = Map.Make(String)
-let link : command Link.t ref = ref Link.empty
+let link : kommand Link.t ref = ref Link.empty
 
 let add_node = Gname.add_vertex
 let add_egde g n1 n2 =
@@ -116,7 +116,7 @@ let add_axiom g qv_l ax attr_l =
   link := Link.add ax_node (Axiom (qv_l,ax), attr_l) !link ; (* @TODO FIX*)
   add_axiom_aux (add_node g ax_node) ax
 
-let deleted : command Link.t ref = ref Link.empty
+let deleted : kommand Link.t ref = ref Link.empty
 
 let create_dependence_graph cd l =
   let init_graph = Gname.empty in
@@ -129,7 +129,7 @@ let create_dependence_graph cd l =
   in
   let do_nothing_3 = fun _ g _ -> g in
   let do_nothing = fun g _ -> g in
-  kore_command_iter cd l init_graph
+  kommand_iter cd l init_graph
     (fun _ g s -> add_sort   g s) do_nothing_3
     (fun _ g s -> add_symbol g s) f_hooked_symbol
     do_nothing_3 f_rewrite

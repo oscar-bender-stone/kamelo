@@ -11,7 +11,7 @@ let () =
   (* STEP C: Generate a file for each Kore module *)
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
-    let name, kimport_l, kcommand_l, _ = m in
+    let name, kimport_l, kommand_l, _ = m in
     Dependency_graph.link := Dependency_graph.Link.empty ; (* @TODO arg *)
     (* STEP 0: Reset count data *)
     let cd = Count_data.reset_count_data 0 in
@@ -26,16 +26,16 @@ let () =
     else
       begin
         let printing = match !output with
-          | LP      -> Printer.pp_command_kore ff cd
-          | Dedukti -> Printer.pp_command_kore ff cd (* @TODO *)
-          | Kore    -> Printer.pp_kore_command ff cd
+          | LP      -> Printer.pp_kommand ff cd
+          | Dedukti -> Printer.pp_kommand ff cd (* @TODO *)
+          | Kore    -> Printer.pp_kore_kommand ff cd
         in
         match !mimic with
-        | Kore    -> Printer.pp_command_ter ff cd kcommand_l
-        | K       -> List.iter printing kcommand_l
+        | Kore    -> Printer.pp_kommand_ter ff cd kommand_l
+        | K       -> List.iter printing kommand_l
         | Dedukti ->
            let g =
-             Dependency_graph.create_dependence_graph cd kcommand_l
+             Dependency_graph.create_dependence_graph cd kommand_l
            in
            let tmp node =
              try
@@ -46,7 +46,7 @@ let () =
            Dependency_graph.T.iter f g
       end;
     (* STEP 4: Printing count data *)
-    print_module_message filename (List.length kcommand_l) cd;
+    print_module_message filename (List.length kommand_l) cd;
     Format.pp_print_flush ff ();
     close_out f
   in

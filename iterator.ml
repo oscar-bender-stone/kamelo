@@ -58,7 +58,7 @@ let axiom_cases (cd : count_data) (attr : attribute) (acc : 'a) (qv_l : quant_va
    | _ -> (* Format.printf (Color.yel "WARNING: %s is the only one for a rule") attr * ; @TODO *)
       incr_k_ax_with_one_attr cd ; acc)
 
-let kore_command_iter (cd : count_data) (l : command list) (neutral_el : 'a)
+let kommand_iter (cd : count_data) (l : kommand list) (neutral_el : 'a)
       (f_sort :          attribute list -> 'a -> sort    -> 'a)
       (f_hooked_sort :   attribute list -> 'a -> sort    -> 'a)
       (f_symbol :        attribute list -> 'a -> symbol  -> 'a)
@@ -114,7 +114,7 @@ let kore_command_iter (cd : count_data) (l : command list) (neutral_el : 'a)
        aux q res
   in aux l neutral_el
 
-let kore_command_iter_bis (cd : count_data) (l : command list) (neutral_el : 'a)
+let kommand_iter_bis (cd : count_data) (l : kommand list) (neutral_el : 'a)
       (f_sort           : attribute list -> 'a -> sort    -> 'a)
       (f_hooked_sort    : attribute list -> 'a -> sort    -> 'a)
       (f_symbol         : attribute list -> 'a -> symbol  -> 'a)

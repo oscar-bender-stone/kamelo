@@ -138,10 +138,10 @@
 
 %type <Type.symbol> symbol
 %type <Type.attribute> attribute
-%type <Type.command> command
+%type <Type.kommand> kommand
 %type <Type.import> import
-%type <Type.kmodule list> modules
-//%type <Type.axiom> axiom
+%type <Type.kmodule list> kmodules
+%type <Type.axiom> axiom
 
 %type <Type.file> file
 %%
@@ -216,7 +216,7 @@ axiom:
   //| name COLON param { Var ($1, $3) }
   | predicate           { Predicat $1 }
 
-command:
+kommand:
   | SORT     sort        attributes { Sort $2, $3 }
   | H_SORT   sort        attributes { H_sort $2, $3 }
   | SYMBOL   symbol      attributes { Symbol $2, $3 }
@@ -227,9 +227,9 @@ command:
 import:
   | IMPORT name attributes { ($2, $3) }
 
-modules:
-  | MODULE name import* command* ENDMODULE attributes modules { ($2, $3, $4, $6) :: $7 }
-  | EOF                                                       {          []            }
+kmodules:
+  | MODULE name import* kommand* ENDMODULE attributes kmodules { ($2, $3, $4, $6) :: $7 }
+  | EOF                                                        {          []            }
 
 instance_symbol:
   | name L_CURLY_BRA R_CURLY_BRA L_PAREN R_PAREN { $1 }
@@ -344,5 +344,5 @@ attributes:
   | L_SQUARE_BRA core_attributes R_SQUARE_BRA { $2 }
 
 file:
-  | attributes modules { ($1, $2) }
+  | attributes kmodules { ($1, $2) }
   | EOF                { ([], []) }

@@ -34,7 +34,7 @@ let is_rule_axiom : axiom -> bool = fun a ->
   | Rewrites _ -> true
   | _ -> false
 
-let is_rule_command : command -> bool = fun (c,_) ->
+let is_rule_kommand : kommand -> bool = fun (c,_) ->
   match c with
   | Axiom(_,ax) ->
      (match ax with

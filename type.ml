@@ -106,7 +106,7 @@ type def = A of axiom | D of name * quant_var
 
 type alias = symbol * (name * quant_var list * (name * param) list * def)
 
-type command_aux =
+type kommand_aux =
  | Sort     of sort
  | H_sort   of sort
  | Symbol   of symbol
@@ -114,10 +114,10 @@ type command_aux =
  | Alias    of alias
  | Axiom    of quant_var list * axiom
 
-type command = command_aux * attribute list
+type kommand = kommand_aux * attribute list
 
 type import = name * attribute list
 
-type kmodule = name * import list * command list * attribute list
+type kmodule = name * import list * kommand list * attribute list
 
 type file = attribute list * kmodule list
