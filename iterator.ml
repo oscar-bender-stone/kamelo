@@ -103,7 +103,7 @@ let meta_kommand_iter
          | H_sort   s -> incr_k_hooked_sort cd ; f_hooked_sort attr_l acc s
          | Symbol   s -> incr_k_symbol cd        ; f_symbol attr_l acc s
          | H_symbol s -> incr_k_hooked_symbol cd ; f_hooked_symbol attr_l acc s
-         | Alias   al -> incr_k_alias cd ; meta_f_alias q attr_l acc al
+         | Alias   al -> meta_f_alias q attr_l acc al
          | Axiom(qv_l, ax) -> incr_k_axiom cd ; meta_f_axiom g_attr attr_l acc qv_l ax
        in
        aux q res
