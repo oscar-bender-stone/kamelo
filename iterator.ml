@@ -55,7 +55,8 @@ let axiom_cases (cd : count_data) (attr : attribute) (acc : 'a) (qv_l : quant_va
       if Axiom.is_predicate_axiom ax
       then (incr_k_ax_predicat cd ; f_ax_predicat acc (qv_l, ax))
       else (incr_k_ax_owise    cd ; f_ax_owise    acc (qv_l, ax))
-   | _ -> (* Format.printf (Color.yel "WARNING: %s is the only one for a rule") attr * ; @TODO *) acc)
+   | _ -> (* Format.printf (Color.yel "WARNING: %s is the only one for a rule") attr * ; @TODO *)
+      incr_k_ax_with_one_attr cd ; acc)
 
 let kore_command_iter (cd : count_data) (l : command list) (neutral_el : 'a)
       (f_sort :          attribute list -> 'a -> sort    -> 'a)
@@ -97,6 +98,7 @@ let kore_command_iter (cd : count_data) (l : command list) (neutral_el : 'a)
                     else (incr_k_alias   cd ; f_alias xattr_l acc al)
                  | _  -> (incr_k_alias cd ; f_alias attr_l acc al)))
          | Axiom(qv_l, ax) ->
+            incr_k_axiom cd ;
             match attr_l with
             | [] -> (*check_is_predicat cd attr_l acc ax f_ax_predicat (qv_l, ax) f_axiom (qv_l, ax)
                     incr_k_ax_without_attr cd ; f_axiom   attr_l acc init_axiom*)
@@ -142,6 +144,7 @@ let kore_command_iter_bis (cd : count_data) (l : command list) (neutral_el : 'a)
          | H_symbol s -> incr_k_hooked_symbol cd ; f_hooked_symbol attr_l acc s
          | Alias   al -> incr_k_alias cd ; f_alias attr_l acc al
          | Axiom(qv_l, ax) ->
+            incr_k_axiom cd ;
             if Axiom.is_rule_axiom ax
             then (incr_k_ax_rule cd ; f_rewrite attr_l acc (qv_l, ax))
             else

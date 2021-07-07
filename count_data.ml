@@ -20,8 +20,9 @@ type count_data = { k_import : int ref        ; real_import : int ref
                   ; k_ax_initializer : int ref
                   ; k_ax_owise : int ref
                   ; k_ax_rule  : int ref
-                  ; k_ax_without_attr : int ref
-                  ; k_ax_several_attr : int ref }
+                  ; k_ax_without_attr  : int ref
+                  ; k_ax_with_one_attr : int ref
+                  ; k_ax_several_attr  : int ref }
 
 let get_k_import  cd = !(cd.k_import)
 let set_k_import  cd i = cd.k_import := i
@@ -108,6 +109,9 @@ let incr_k_ax_rule cd = incr cd.k_ax_rule
 let get_k_ax_without_attr  cd = !(cd.k_ax_without_attr)
 let incr_k_ax_without_attr cd = incr cd.k_ax_without_attr
 
+let get_k_ax_with_one_attr  cd = !(cd.k_ax_with_one_attr)
+let incr_k_ax_with_one_attr cd = incr cd.k_ax_with_one_attr
+
 let get_k_ax_several_attr  cd = !(cd.k_ax_several_attr)
 let incr_k_ax_several_attr cd = incr cd.k_ax_several_attr
 
@@ -134,8 +138,9 @@ let reset_count_data : int -> count_data = fun i ->
   ; k_ax_initializer = ref i
   ; k_ax_owise = ref i
   ; k_ax_rule  = ref i
-  ; k_ax_without_attr = ref i
-  ; k_ax_several_attr = ref i }
+  ; k_ax_without_attr  = ref i
+  ; k_ax_with_one_attr = ref i
+  ; k_ax_several_attr  = ref i }
 
 let extract_info cd =
   [ (Some (get_real_import cd), Some (get_k_import cd),          "import", "imports")
@@ -162,5 +167,6 @@ let extract_info cd =
   ; (None,                      Some (get_k_ax_initializer cd),  "initializer one", "initializer one")
   ; (None,                      Some (get_k_ax_owise cd),        "otherwise one", "otherwise one")
   ; (None,                      Some (get_k_ax_rule cd),         "rewriting rule", "rewriting rules")
-  ; (None,                      Some (get_k_ax_without_attr cd), "without attribute", "without attribute")
-  ; (None,                      Some (get_k_ax_several_attr cd), "with several attributes", "with several attributes") ]
+  ; (None,                      Some (get_k_ax_without_attr  cd), "without attribute", "without attribute")
+  ; (None,                      Some (get_k_ax_with_one_attr cd), "with one attribute", "with one attribute")
+  ; (None,                      Some (get_k_ax_several_attr  cd), "with several attributes", "with several attributes") ]
