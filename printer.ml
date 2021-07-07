@@ -84,7 +84,7 @@ let pp_kommand_bis  : output -> count_data -> kommand list -> unit = fun ppf cd 
             else pp_axiom ppf cd (qv_l, ax, attr_l)
     | _ -> pp_axiom ppf cd (qv_l, ax, attr_l)
   in
-  kommand_iter cd kommand_l ()
+  kommand_iter_without_alias cd kommand_l ()
   (fun _ _ s -> pp_sort ppf cd s) (fun _ _ s -> pp_sort ppf cd s)
   (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
   (fun _ _ _ -> ()) (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l)))
@@ -103,7 +103,7 @@ let pp_kommand_ter : output -> count_data -> kommand list -> unit  = fun ppf cd 
             else pp_axiom ppf cd (qv_l, ax, attr_l)
     | _ -> pp_axiom ppf cd (qv_l, ax, attr_l)
   in
-  kommand_iter_bis cd kommand_l ()
+  kommand_iter_with_alias cd kommand_l ()
   (fun _ _ s -> pp_sort ppf cd s) (fun _ _ s -> pp_sort ppf cd s)
   (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
   (fun _ _ al -> pp_alias_bis ppf al) (fun _ _ ax -> pp_axiom_bis ppf cd ax) (f_axiom ppf cd)

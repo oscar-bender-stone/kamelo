@@ -129,7 +129,7 @@ let create_dependence_graph cd l =
   in
   let do_nothing_3 = fun _ g _ -> g in
   let do_nothing = fun g _ -> g in
-  kommand_iter cd l init_graph
+  kommand_iter_without_alias cd l init_graph
     (fun _ g s -> add_sort   g s) do_nothing_3
     (fun _ g s -> add_symbol g s) f_hooked_symbol
     do_nothing_3 f_rewrite
