@@ -69,6 +69,7 @@ let pp_command : output -> count_data -> command -> unit = fun ppf cd (c, attr_l
   | Axiom(qv_l, ax) -> incr_k_axiom cd ; pp_axiom ppf cd (qv_l, ax, attr_l)
 
 let pp_command_bis  : output -> count_data -> command list -> unit = fun ppf cd command_l ->
+  let do_nothing = fun _ _ -> () in
   let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
     fun ppf cd attr_l _ (qv_l, ax) ->
     match attr_l with
@@ -79,11 +80,14 @@ let pp_command_bis  : output -> count_data -> command list -> unit = fun ppf cd 
   kore_command_iter cd command_l ()
   (fun _ _ s -> pp_sort ppf cd s) (fun _ _ s -> pp_sort ppf cd s)
   (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
-  (fun _ _ _ -> ()) (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l))) (f_axiom ppf cd)
+  (fun _ _ _ -> ()) (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l)))
+  (f_axiom ppf cd)
+  (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
+   do_nothing, do_nothing, do_nothing, do_nothing, do_nothing)
 
 let pp_command_ter : output -> count_data -> command list -> unit  = fun ppf cd command_l ->
-  let do_nothing : attribute list -> 'a -> quant_var list * axiom -> 'a = fun _ acc _ -> acc in
-  let equality_axiom = fun attr_l _ (qv_l, ax) -> pp_axiom ppf cd (qv_l, ax, attr_l) in
+  let do_nothing : 'a -> quant_var list * axiom -> 'a = fun acc _ -> acc in
+  let equality_axiom = fun _ (qv_l, ax) -> pp_axiom ppf cd (qv_l, ax, []) in
    let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
     fun ppf cd attr_l _ (qv_l, ax) ->
     match attr_l with
@@ -95,9 +99,9 @@ let pp_command_ter : output -> count_data -> command list -> unit  = fun ppf cd 
   (fun _ _ s -> pp_sort ppf cd s) (fun _ _ s -> pp_sort ppf cd s)
   (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
   (fun _ _ al -> pp_alias_bis ppf al) (fun _ _ ax -> pp_axiom_bis ppf cd ax) (f_axiom ppf cd)
-  do_nothing do_nothing do_nothing do_nothing do_nothing
-  equality_axiom equality_axiom equality_axiom equality_axiom
-  do_nothing (f_axiom ppf cd)
+  (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
+   equality_axiom, equality_axiom, equality_axiom, equality_axiom,
+   do_nothing, (f_axiom ppf cd []))
 
 (** Kore printer *)
 

@@ -127,12 +127,15 @@ let create_dependence_graph cd l =
   let f_rewrite attr_l g ({lhs=_;rhs=(qv_l,ax)}) =
       add_axiom g qv_l ax attr_l (* @TODO forget alias *)
   in
-  let do_nothing = fun _ g _ -> g in
+  let do_nothing_3 = fun _ g _ -> g in
+  let do_nothing = fun g _ -> g in
   kore_command_iter cd l init_graph
-    (fun _ g s -> add_sort   g s) do_nothing
+    (fun _ g s -> add_sort   g s) do_nothing_3
     (fun _ g s -> add_symbol g s) f_hooked_symbol
-    do_nothing f_rewrite
+    do_nothing_3 f_rewrite
     (fun attr_l g (qv_l, ax) -> add_axiom g qv_l ax attr_l)
+    (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
+     do_nothing, do_nothing, do_nothing, do_nothing, do_nothing)
 
       (*
 let () =
