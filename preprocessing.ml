@@ -1,7 +1,6 @@
 open Type
 open Color
 
-open Symbol
 open Axiom
 
 open Count_data
@@ -43,6 +42,27 @@ let print_new_attribute : name -> attribute list -> unit = fun name attri_l ->
      List.iter (fun n -> Format.printf (yel "%s ") n) l;
      Format.printf (yel ".\n")
 
+(* Il n'y a rien qui indique que l'axiome a été généré car un symbole
+   est un prédicat : il faut peut-être le rajouter ?
+  let of_axiom : quant_var list * t * attribute list -> = fun qv_l ax a_l ->*)
+
+let of_axiom : quant_var list * t * attribute list -> attribute ->
+               (quant_var list * t * attribute list) list ->
+               (quant_var list * t * attribute list) list =
+  fun (qv_l, ax, a_l) attri ax_l ->
+  match attri with
+  | Subsort     _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
+  | Projection  _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
+  | Functional  _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
+  | Constructor _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
+  | Assoc _ -> (qv_l,ax,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
+  | Comm  _ -> (qv_l,ax,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
+  | Idem  _ -> (qv_l,ax,a_l)::ax_l
+  | Unit  _ -> (qv_l,ax,a_l)::ax_l
+  | Initializer _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
+  | Owise       _ -> if is_predicate ax then ax_l else (qv_l,ax,a_l)::ax_l
+  | _ -> (qv_l,ax,a_l)::ax_l
+
 let preprocessing :
       kmodule -> count_data ->
       name * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
@@ -64,7 +84,7 @@ let preprocessing :
             print_new_attribute name attr_l ;
             if not(!check_induc) then (incr_k_symbol cd ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
             else
-              (match is_constructor s attr_l with
+              (match Symbol.is_constructor s attr_l with
                | Some sort ->
                   let f new_v old_v = match old_v with None -> Some [new_v] | Some q -> Some (new_v::q) in
                   let induc_m = Induc.update sort (f s) induc_m in
@@ -79,7 +99,7 @@ let preprocessing :
            | h::tl ->
               (match h with
                | Axiom(qv,a), attr_l ->
-                  if is_rule_axiom a
+                  if Axiom.is_rule a
                   then
                     (incr_k_rule cd ;
                      aux tl (sort_l, induc_m, sym_l, (al, Some(qv,a,attr_l))::alias_l, ax_l))
@@ -90,7 +110,7 @@ let preprocessing :
        | Axiom(qv,a) ->
           incr_k_axiom cd ;
           match attr_l with
-          | [] -> if is_predicate_axiom a
+          | [] -> if Axiom.is_predicate a
                   then aux q acc
                   else aux q (sort_l, induc_m, sym_l, alias_l, (qv,a,attr_l)::ax_l)
           | [t] ->

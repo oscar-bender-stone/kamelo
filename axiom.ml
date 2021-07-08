@@ -7,42 +7,6 @@ open Color
 
 type t = axiom
 
-let rec is_predicate_axiom : axiom -> bool = fun a ->
-  match a with
-  | Equals(_,a1,a2)  -> is_predicate_axiom a1 || is_predicate_axiom a2
-  | Exists(_,_,a)    -> is_predicate_axiom a
-  | And(_,a1,a2)     -> is_predicate_axiom a1 || is_predicate_axiom a2
-  | Or(_,a1,a2)      -> is_predicate_axiom a1 || is_predicate_axiom a2
-  | Not(_,a)         -> is_predicate_axiom a
-  | Implies(_,a1,a2) -> is_predicate_axiom a1 || is_predicate_axiom a2
-  | Bottom   _ -> false
-  | Top      _ -> false
-  | Rewrites _ -> false (* users' rule *)
-  | In(_,_,a)        -> is_predicate_axiom a
-  | Dom_val  _ -> false
-  | Predicat p -> match p with
-                  | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
-                     begin
-                      try
-                        let res = String.sub n 0 5 in String.equal res "Lblis"
-                      with _ -> false
-                     end
-                  | Var _ -> false
-
-let is_rule_axiom : axiom -> bool = fun a ->
-  match a with
-  | Rewrites _ -> true
-  | _ -> false
-
-let is_rule_kommand : kommand -> bool = fun (c,_) ->
-  match c with
-  | Axiom(_,ax) ->
-     (match ax with
-      | Rewrites _ -> true
-      | _ -> false)
-  | _ -> false
-
-
 (* GENRALISATION
 let curry : ('a list -> 'b) -> ('b * 'a -> 'b) -> 'a list -> 'b = fun f g l ->
   let rec aux : 'a list -> (('a list -> 'b) -> 'b) -> 'b = fun l acc ->
@@ -70,9 +34,9 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
 
 exception KComputation of string
 
-let curry : (string -> p_term) -> axiom -> p_term = fun f_var ax ->
-  let rec aux : axiom -> p_term = fun ax ->
-    let f_sym = fun (a:p_term) (b:axiom) : p_term -> create_appl a (aux b) in
+let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
+  let rec aux : t -> p_term = fun ax ->
+    let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
     match ax with
     | Predicat p ->
        begin
@@ -103,8 +67,8 @@ let curry : (string -> p_term) -> axiom -> p_term = fun f_var ax ->
 let curry_ident = curry create_ident
 let curry_pattern = curry create_pattern_var
 
-(* Unit, Idem, comm, assoc *)
-let of_equality_axiom : axiom -> p_rule = fun a ->
+(* To translate Unit, Idem, comm, assoc *)
+let of_equality_axiom : t -> p_rule = fun a ->
   match a with
   | Equals(_, a1, a2) ->
      (try
@@ -113,28 +77,34 @@ let of_equality_axiom : axiom -> p_rule = fun a ->
   | _ -> failwith "The current axiom isn't an equality one.\n
                    Please, raise an issue."
 
-(* Il n'y a rien qui indique que l'axiome a été généré car un symbole
-   est un prédicat : il faut peut-être le rajouter ?
-  let of_axiom : quant_var list * axiom * attribute list -> = fun qv_l a a_l ->*)
+let rec is_predicate : t -> bool = fun a ->
+  match a with
+  | Equals(_,a1,a2)  -> is_predicate a1 || is_predicate a2
+  | Exists(_,_,a)    -> is_predicate a
+  | And(_,a1,a2)     -> is_predicate a1 || is_predicate a2
+  | Or(_,a1,a2)      -> is_predicate a1 || is_predicate a2
+  | Not(_,a)         -> is_predicate a
+  | Implies(_,a1,a2) -> is_predicate a1 || is_predicate a2
+  | Bottom   _ -> false
+  | Top      _ -> false
+  | Rewrites _ -> false (* users' rule *)
+  | In(_,_,a)        -> is_predicate a
+  | Dom_val  _ -> false
+  | Predicat p -> match p with
+                  | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
+                     begin
+                      try
+                        let res = String.sub n 0 5 in String.equal res "Lblis"
+                      with _ -> false
+                     end
+                  | Var _ -> false
 
-let of_axiom : quant_var list * axiom * attribute list -> attribute ->
-               (quant_var list * axiom * attribute list) list ->
-               (quant_var list * axiom * attribute list) list =
-  fun (qv_l,a,a_l) attri ax_l ->
-  match attri with
-  | Subsort     _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
-  | Projection  _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
-  | Functional  _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
-  | Constructor _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
-  | Assoc _ -> (qv_l,a,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
-  | Comm  _ -> (qv_l,a,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
-  | Idem  _ -> (qv_l,a,a_l)::ax_l
-  | Unit  _ -> (qv_l,a,a_l)::ax_l
-  | Initializer _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
-  | Owise       _ -> if is_predicate_axiom a then ax_l else (qv_l,a,a_l)::ax_l
-  | _ -> (qv_l,a,a_l)::ax_l
+let is_rule : t -> bool = fun a ->
+  match a with
+  | Rewrites _ -> true
+  | _ -> false
 
-let is_conditional_rule : axiom -> bool = fun a ->
+let is_conditional_rule : t -> bool = fun a ->
   match a with
   | Top _ -> false
   | _     -> true
@@ -162,7 +132,7 @@ let create_LHS : alias -> p_term = fun al ->
   | D _ -> failwith "Not possible in rewriting axiom"
 
 (** [create_RHS ax] creates a RHS of a rewriting rule thanks to an axiom. *)
-let create_RHS : axiom -> p_term = fun ax ->
+let create_RHS : t -> p_term = fun ax ->
   match ax with
   | Rewrites(_,_,And(_,a1,a2)) ->
      if is_conditional_rule a1 then
@@ -171,7 +141,9 @@ let create_RHS : axiom -> p_term = fun ax ->
        curry_pattern a2
   |  _ -> failwith "In RHS: Not yet implemented"
 
-let create_rewriting_rule : alias -> axiom -> p_rule = fun al ax ->
+(** [create_rewriting_rule al ax] creates a rewriting rule thanks to
+    an alias (for LHS) and an axiom (for RHS). *)
+let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
   let lhs = create_LHS al in
   let rhs = create_RHS ax in
   no_pos (lhs, rhs)

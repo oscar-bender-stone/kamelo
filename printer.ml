@@ -80,7 +80,7 @@ let pp_kommand_bis  : output -> count_data -> kommand list -> unit = fun ppf cd 
   let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
     fun ppf cd attr_l _ (qv_l, ax) ->
     match attr_l with
-    | [] -> if Axiom.is_predicate_axiom ax then ()
+    | [] -> if Axiom.is_predicate ax then ()
             else pp_axiom ppf cd (qv_l, ax, attr_l)
     | _ -> pp_axiom ppf cd (qv_l, ax, attr_l)
   in
@@ -99,7 +99,7 @@ let pp_kommand_ter : output -> count_data -> kommand list -> unit  = fun ppf cd 
    let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
     fun ppf cd attr_l _ (qv_l, ax) ->
     match attr_l with
-    | [] -> if Axiom.is_predicate_axiom ax then ()
+    | [] -> if Axiom.is_predicate ax then ()
             else pp_axiom ppf cd (qv_l, ax, attr_l)
     | _ -> pp_axiom ppf cd (qv_l, ax, attr_l)
   in
