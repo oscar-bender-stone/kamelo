@@ -27,12 +27,14 @@ let () =
       begin
         let printing = match !output with
           | LP      -> Printer.pp_kommand_bis ff cd
-          | Dedukti -> Printer.pp_kommand_bis ff cd (* @TODO *)
+          | Dedukti -> Printer.pp_kommand_ter ff cd (* @TODO *)
           | Kore    -> Printer.pp_kore_kommand ff cd
         in
         match !mimic with
-        | Kore    -> List.iter (Printer.pp_kommand ff cd) kommand_l
-        (* Printer.pp_kommand_ter ff cd kommand_l *)
+        | Kore    -> (match !output with
+                     | LP      -> Printer.pp_kommand_ter ff cd kommand_l
+                     | Dedukti -> () (* @TODO *)
+                     | Kore    -> Printer.pp_kore_kommand ff cd kommand_l)
         | K       -> printing kommand_l
         | Dedukti ->
            let g =
