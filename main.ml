@@ -26,23 +26,24 @@ let () =
     else
       begin
         let printing = match !output with
-          | LP      -> Printer.pp_kommand ff cd
-          | Dedukti -> Printer.pp_kommand ff cd (* @TODO *)
+          | LP      -> Printer.pp_kommand_bis ff cd
+          | Dedukti -> Printer.pp_kommand_bis ff cd (* @TODO *)
           | Kore    -> Printer.pp_kore_kommand ff cd
         in
         match !mimic with
-        | Kore    -> Printer.pp_kommand_ter ff cd kommand_l
-        | K       -> List.iter printing kommand_l
+        | Kore    -> List.iter (Printer.pp_kommand ff cd) kommand_l
+        (* Printer.pp_kommand_ter ff cd kommand_l *)
+        | K       -> printing kommand_l
         | Dedukti ->
            let g =
-             Dependency_graph.create_dependence_graph cd kommand_l
+             Dependency_graph.create_dependence_graph cd kommand_l (fun () -> ())
            in
            let tmp node =
              try
                Some (Dependency_graph.Link.find node !Dependency_graph.link)
              with Not_found -> Format.printf (Color.yel "WARNING: %s need to be defined in prelude.lp\n") node ; None
            in
-           let f node = match tmp node with | Some x -> printing x | None -> () in
+           let f node = match tmp node with | Some x -> Printer.pp_kommand ff cd x | None -> () in
            Dependency_graph.T.iter f g
       end;
     (* STEP 4: Printing count data *)

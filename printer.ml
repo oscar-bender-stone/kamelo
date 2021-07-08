@@ -75,8 +75,8 @@ let pp_kommand : output -> count_data -> kommand -> unit = fun ppf cd (kommand, 
   | Axiom(qv_l, ax) -> incr_k_axiom cd ; pp_axiom ppf cd (qv_l, ax, attr_l)
 
 let pp_kommand_bis  : output -> count_data -> kommand list -> unit = fun ppf cd kommand_l ->
-  let do_nothing = fun _ _ -> () in
-  let equality_axiom = fun _ (qv_l, ax) -> pp_equality_axiom ppf cd (qv_l, ax) in
+  let do_nothing = fun _ _ _ -> () in
+  let equality_axiom = fun _ _ (qv_l, ax) -> pp_equality_axiom ppf cd (qv_l, ax) in
   let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
     fun ppf cd attr_l _ (qv_l, ax) ->
     match attr_l with
@@ -87,15 +87,15 @@ let pp_kommand_bis  : output -> count_data -> kommand list -> unit = fun ppf cd 
   kommand_iter_without_alias cd kommand_l ()
   (fun _ _ s -> pp_sort ppf cd s) (fun _ _ s -> pp_sort ppf cd s)
   (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
-  (fun _ _ _ -> ()) (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l)))
+  do_nothing (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l)))
   (f_axiom ppf cd)
   (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
    equality_axiom, equality_axiom, equality_axiom, equality_axiom,
-   do_nothing, do_nothing)
+   do_nothing, do_nothing) (fun () -> ())
 
 let pp_kommand_ter : output -> count_data -> kommand list -> unit  = fun ppf cd kommand_l ->
-  let do_nothing : 'a -> quant_var list * axiom -> 'a = fun acc _ -> acc in
-  let equality_axiom = fun _ (qv_l, ax) -> pp_equality_axiom ppf cd (qv_l, ax) in
+  let do_nothing : attribute list -> 'a -> quant_var list * axiom -> 'a = fun _ acc _ -> acc in
+  let equality_axiom = fun _ _ (qv_l, ax) -> pp_equality_axiom ppf cd (qv_l, ax) in
    let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
     fun ppf cd attr_l _ (qv_l, ax) ->
     match attr_l with
@@ -109,7 +109,7 @@ let pp_kommand_ter : output -> count_data -> kommand list -> unit  = fun ppf cd 
   (fun _ _ al -> pp_alias_bis ppf al) (fun _ _ ax -> pp_axiom_bis ppf cd ax) (f_axiom ppf cd)
   (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
    equality_axiom, equality_axiom, equality_axiom, equality_axiom,
-   do_nothing, (f_axiom ppf cd []))
+   do_nothing, (fun attr_l -> f_axiom ppf cd attr_l)) (fun () -> ())
 
 (** Kore printer *)
 
@@ -211,14 +211,21 @@ let pp_kore_attribute : output -> attribute -> unit = fun ppf attr ->
 let pp_kore_attribute_list : output -> attribute list -> unit = fun ppf attr_l ->
   pp_list ppf "[" pp_kore_attribute attr_l  ", " "]"
 
-let pp_kore_symbol : output -> string -> symbol -> unit =
-  fun ppf keyword (name, qv_l, p_l, p) ->
+let pp_kore_sort : output -> sort -> attribute list -> unit =
+  fun ppf s attr_l -> printing ppf "sort %s " (pp s) ; pp_kore_attribute_list ppf attr_l
+
+let pp_kore_hooked_sort : output -> sort -> attribute list -> unit =
+  fun ppf s attr_l -> printing ppf "hooked-sort %s " (pp s) ; pp_kore_attribute_list ppf attr_l
+
+let pp_kore_symbol : output -> string -> symbol -> attribute list -> unit =
+  fun ppf keyword (name, qv_l, p_l, p) attr_l ->
   let prints = printing ppf "%s" in
   prints keyword ; prints " " ;
   prints (pp name) ;
   pp_kore_quant_var_list ppf qv_l ;
   pp_kore_param_list ppf p_l ;
-  printing ppf " : " ; pp_kore_param ppf p ; prints " "
+  printing ppf " : " ; pp_kore_param ppf p ; prints " " ;
+  pp_kore_attribute_list ppf attr_l
 
 let rec pp_kore_axiom : output -> int -> axiom -> unit = fun ppf step ax ->
   let print  = printing ppf in
@@ -282,34 +289,31 @@ let pp_kore_def : output -> def -> unit = fun ppf def ->
   | A ax     -> pp_endline ppf ; space ppf ; pp_kore_axiom ppf 2 ax
   | D(n, qv) -> printing ppf "%s : %s" (pp n) (pp qv)
 
-let pp_kore_alias : output -> symbol -> (name * quant_var list * (name * param) list * def) -> unit =
-  fun ppf sym (n, qv_l, p_l, def) ->
-  pp_kore_symbol ppf "alias" sym ; pp_endline ppf ;
+let pp_kore_alias : output -> alias -> attribute list -> unit =
+  fun ppf (sym, (n, qv_l, p_l, def)) attr_l ->
+  pp_kore_symbol ppf "alias" sym attr_l ; pp_endline ppf ;
   printing ppf "where %s" (pp n) ;
   pp_kore_quant_var_list ppf qv_l ;
   let f ppf (n,p) = printing ppf "%s : " (pp n) ; pp_kore_param ppf p in
   pp_list ppf "(" f p_l ", " ") :=" ;
-  pp_kore_def ppf def
-
-let pp_kore_import : output -> count_data -> import -> unit = fun ppf cd (n, attr_l) ->
-  incr_real_import cd;
-  printing ppf "import %s " (pp n);
+  pp_kore_def ppf def ;
   pp_kore_attribute_list ppf attr_l
 
-let pp_kore_kommand : output -> count_data -> kommand -> unit = fun ppf cd (kommand, attr_l) ->
-  let pp_attr = fun () -> pp_kore_attribute_list ppf attr_l in
-  (match kommand with
-   | Sort     s -> incr_k_sort cd ; incr_real_sort cd ;
-                   printing ppf "sort %s " (pp s) ; pp_attr()
-   | H_sort   s -> incr_k_hooked_sort cd ; incr_real_sort cd ;
-                   printing ppf "hooked-sort %s " (pp s) ; pp_attr()
-   | Symbol   s -> incr_k_symbol cd ; incr_real_symbol cd ;
-                   pp_kore_symbol ppf "symbol" s ; pp_attr()
-   | H_symbol s -> incr_k_hooked_symbol cd ; incr_real_symbol cd ;
-                   pp_kore_symbol ppf "hooked-symbol" s ; pp_attr()
-   | Alias(sym, body) -> incr_k_alias cd ; pp_kore_alias ppf sym body ; pp_attr()
-   | Axiom(qv_l, ax) -> incr_k_axiom cd ;
-                        printing ppf "%s" "axiom" ; pp_kore_quant_var_list ppf qv_l ;
-                        pp_endline ppf ; space ppf ; pp_kore_axiom ppf 2 ax ;
-                        pp_endline ppf ; pp_kore_attribute_list ppf attr_l ; pp_endline ppf) ;
-  pp_endline ppf
+let pp_kore_import : output -> import -> unit = fun ppf (n, attr_l) ->
+  printing ppf "import %s " (pp n) ; pp_kore_attribute_list ppf attr_l
+
+let pp_kore_kommand : output -> count_data -> kommand list -> unit = fun ppf cd kommand_l ->
+  let f_sort attr_l _ s = pp_kore_sort ppf s attr_l in
+  let f_symbol keyword attr_l _ sym = pp_kore_symbol ppf keyword sym attr_l in
+  let f_axiom : attribute list -> unit -> quant_var list * axiom -> unit =
+    fun attr_l _ (qv_l, ax) ->
+    printing ppf "%s" "axiom" ; pp_kore_quant_var_list ppf qv_l ;
+    pp_endline ppf ; space ppf ; pp_kore_axiom ppf 2 ax ;
+    pp_endline ppf ; pp_kore_attribute_list ppf attr_l ; pp_endline ppf
+  in
+  kommand_iter_with_alias cd kommand_l ()
+  f_sort f_sort (f_symbol "symbol") (f_symbol "hooked-symbol")
+  (fun attr_l _ al -> pp_kore_alias ppf al attr_l)
+  f_axiom f_axiom
+  (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom,
+   f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom) (fun () -> pp_endline ppf)

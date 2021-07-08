@@ -19,44 +19,46 @@ let check_is_predicat (cd : count_data) (attr_l : attribute list) (acc : 'a)
       else (incr_k_ax_owise    cd ; f_ax_owise    acc (qv_l, ax))
 *)
 
-let axiom_cases (cd : count_data) (attr : attribute) (acc : 'a) (qv_l : quant_var list) (ax : axiom)
-      ((f_ax_subsort       : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_predicat    : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_projection  : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_functional  : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_constructor : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_assoc       : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_comm        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_idem        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_unit        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_initializer : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_owise       : 'a -> quant_var list * axiom -> 'a)) : 'a =
-  (match attr with
+let axiom_cases (cd : count_data) (attr_l : attribute list) (curr_attr : attribute)
+      (acc : 'a) (qv_l : quant_var list) (ax : axiom)
+      (f_ax_default : attribute list -> 'a -> quant_var list * axiom -> 'a)
+      ((f_ax_subsort       : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_predicat    : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_projection  : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_functional  : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_assoc       : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_comm        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_idem        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_unit        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_initializer : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_owise       : attribute list -> 'a -> quant_var list * axiom -> 'a)) : 'a =
+  (match curr_attr with
    | Subsort     _ ->
-      incr_k_ax_subsort     cd ; f_ax_subsort acc (qv_l, ax)
+      incr_k_ax_subsort     cd ; f_ax_subsort attr_l acc (qv_l, ax)
    | Projection  _ ->
-      incr_k_ax_projection  cd ; f_ax_projection acc (qv_l, ax)
+      incr_k_ax_projection  cd ; f_ax_projection attr_l acc (qv_l, ax)
    | Functional  _ ->
-      incr_k_ax_functional  cd ; f_ax_functional acc (qv_l, ax)
+      incr_k_ax_functional  cd ; f_ax_functional attr_l acc (qv_l, ax)
    | Constructor _ ->
-      incr_k_ax_constructor cd ; f_ax_constructor acc (qv_l, ax)
+      incr_k_ax_constructor cd ; f_ax_constructor attr_l acc (qv_l, ax)
    | Assoc _ ->
-      incr_k_ax_assoc cd ; f_ax_assoc acc (qv_l, ax)
+      incr_k_ax_assoc cd ; f_ax_assoc attr_l acc (qv_l, ax)
    | Comm  _ ->
-      incr_k_ax_comm  cd ; f_ax_comm acc (qv_l, ax)
+      incr_k_ax_comm  cd ; f_ax_comm attr_l acc (qv_l, ax)
    | Idem  _ ->
-      incr_k_ax_idem  cd ; f_ax_idem acc (qv_l, ax)
+      incr_k_ax_idem  cd ; f_ax_idem attr_l acc (qv_l, ax)
    | Unit  _ ->
-      incr_k_ax_unit  cd ; f_ax_unit acc (qv_l, ax)
+      incr_k_ax_unit  cd ; f_ax_unit attr_l acc (qv_l, ax)
    | Initializer _ ->
-      incr_k_ax_initializer cd ; f_ax_initializer acc (qv_l, ax)
+      incr_k_ax_initializer cd ; f_ax_initializer attr_l acc (qv_l, ax)
    | Owise       _ ->
       (* check_is_predicat cd [] acc ax f_ax_predicat (qv_l, ax) f_ax_owise (qv_l, ax) - @TODO *)
       if Axiom.is_predicate_axiom ax
-      then (incr_k_ax_predicat cd ; f_ax_predicat acc (qv_l, ax))
-      else (incr_k_ax_owise    cd ; f_ax_owise    acc (qv_l, ax))
+      then (incr_k_ax_predicat cd ; f_ax_predicat attr_l acc (qv_l, ax))
+      else (incr_k_ax_owise    cd ; f_ax_owise    attr_l acc (qv_l, ax))
    | _ -> (* Format.printf (Color.yel "WARNING: %s is the only one for a rule") attr * ; @TODO *)
-      incr_k_ax_with_one_attr cd ; acc)
+      incr_k_ax_with_one_attr cd ; f_ax_default attr_l acc (qv_l, ax))
 
 type 'a meta_axiom = attribute list -> 'a -> quant_var list -> axiom -> 'a
 
@@ -70,30 +72,31 @@ let meta_kommand_iter
       (f_hooked_symbol  : attribute list -> 'a -> symbol  -> 'a)
       (f_alias          : attribute list -> 'a -> alias   -> 'a)
       (f_rewrite        : attribute list -> 'a -> 'b -> 'a)
-      (f_axiom          : attribute list -> 'a -> quant_var list * axiom -> 'a)
-      ((f_ax_subsort       : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_predicat    : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_projection  : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_functional  : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_constructor : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_assoc       : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_comm        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_idem        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_unit        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_initializer : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_owise       : 'a -> quant_var list * axiom -> 'a) as transformation)
+      (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
+      ((f_ax_subsort       : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_predicat    : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_projection  : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_functional  : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_assoc       : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_comm        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_idem        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_unit        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_initializer : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_owise       : attribute list -> 'a -> quant_var list * axiom -> 'a) as transformation)
+      (f_each_end_iter : unit -> unit)
     : 'a =
   let g_attr : 'a meta_axiom = fun attr_l acc qv_l ax ->
     match attr_l with
     | [] -> (if Axiom.is_predicate_axiom ax
-             then (incr_k_ax_predicat     cd ; f_ax_predicat  acc (qv_l, ax))
-             else (incr_k_ax_without_attr cd ; f_axiom attr_l acc (qv_l, ax)))
-    | [attr] -> axiom_cases cd attr acc qv_l ax transformation
+             then (incr_k_ax_predicat     cd ; f_ax_predicat  attr_l acc (qv_l, ax))
+             else (incr_k_ax_without_attr cd ; f_ax_default attr_l acc (qv_l, ax)))
+    | [attr] -> axiom_cases cd attr_l attr acc qv_l ax f_ax_default transformation
     | _ ->
        (incr_k_ax_several_attr cd ;
         (* Format.printf (yel "There is an axiom with more than one attribute.\n") ;
          * @TODO print the list *)
-        f_axiom attr_l acc (qv_l, ax))
+        f_ax_default attr_l acc (qv_l, ax))
   in
   let rec aux l acc = match l with
     | [] -> acc
@@ -106,7 +109,7 @@ let meta_kommand_iter
          | Alias   al -> meta_f_alias q attr_l acc al
          | Axiom(qv_l, ax) -> incr_k_axiom cd ; meta_f_axiom g_attr attr_l acc qv_l ax
        in
-       aux q res
+       f_each_end_iter() ; aux q res
   in aux l neutral_el
 
 let kommand_iter_without_alias
@@ -117,18 +120,19 @@ let kommand_iter_without_alias
       (f_hooked_symbol  : attribute list -> 'a -> symbol  -> 'a)
       (f_alias          : attribute list -> 'a -> alias   -> 'a)
       (f_rewrite        : attribute list -> 'a -> 'b -> 'a)
-      (f_axiom          : attribute list -> 'a -> quant_var list * axiom -> 'a)
-      ((f_ax_subsort       : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_predicat    : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_projection  : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_functional  : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_constructor : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_assoc       : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_comm        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_idem        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_unit        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_initializer : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_owise       : 'a -> quant_var list * axiom -> 'a) as transformation)
+      (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
+      ((f_ax_subsort       : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_predicat    : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_projection  : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_functional  : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_assoc       : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_comm        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_idem        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_unit        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_initializer : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_owise       : attribute list -> 'a -> quant_var list * axiom -> 'a) as transformation)
+      (f_each_end_iter : unit -> unit)
     : 'a
   =
   let meta_f_alias q attr_l acc al = match q with
@@ -142,10 +146,9 @@ let kommand_iter_without_alias
           else (incr_k_alias   cd ; f_alias xattr_l acc al)
        | _  -> (incr_k_alias cd ; f_alias attr_l acc al)
   in
-  let meta_f_axiom g_attr attr_l acc qv_l ax = g_attr attr_l acc qv_l ax
-  in
+  let meta_f_axiom g_attr attr_l acc qv_l ax = g_attr attr_l acc qv_l ax in
   meta_kommand_iter meta_f_alias meta_f_axiom cd l neutral_el f_sort f_hooked_sort
-    f_symbol f_hooked_symbol f_alias f_rewrite f_axiom transformation
+    f_symbol f_hooked_symbol f_alias f_rewrite f_ax_default transformation f_each_end_iter
 
 let kommand_iter_with_alias
       (cd : count_data) (l : kommand list) (neutral_el : 'a)
@@ -155,18 +158,19 @@ let kommand_iter_with_alias
       (f_hooked_symbol  : attribute list -> 'a -> symbol  -> 'a)
       (f_alias          : attribute list -> 'a -> alias   -> 'a)
       (f_rewrite        : attribute list -> 'a -> 'b -> 'a)
-      (f_axiom          : attribute list -> 'a -> quant_var list * axiom -> 'a)
-      ((f_ax_subsort       : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_predicat    : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_projection  : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_functional  : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_constructor : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_assoc       : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_comm        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_idem        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_unit        : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_initializer : 'a -> quant_var list * axiom -> 'a)
-       , (f_ax_owise       : 'a -> quant_var list * axiom -> 'a) as transformation)
+      (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
+      ((f_ax_subsort       : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_predicat    : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_projection  : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_functional  : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_assoc       : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_comm        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_idem        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_unit        : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_initializer : attribute list -> 'a -> quant_var list * axiom -> 'a)
+       , (f_ax_owise       : attribute list -> 'a -> quant_var list * axiom -> 'a) as transformation)
+      (f_each_end_iter : unit -> unit)
     : 'a
   =
   let meta_f_alias _ attr_l acc al = incr_k_alias cd ; f_alias attr_l acc al in
@@ -176,4 +180,4 @@ let kommand_iter_with_alias
     else g_attr attr_l acc qv_l ax
   in
   meta_kommand_iter meta_f_alias meta_f_axiom cd l neutral_el f_sort f_hooked_sort
-    f_symbol f_hooked_symbol f_alias f_rewrite f_axiom transformation
+    f_symbol f_hooked_symbol f_alias f_rewrite f_ax_default transformation f_each_end_iter
