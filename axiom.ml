@@ -34,6 +34,9 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
 
 exception KComputation of string
 
+module Data_matching = Map.Make(String)
+let data_matching : p_term Data_matching.t ref = ref Data_matching.empty
+
 let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
   let rec aux : t -> p_term = fun ax ->
     let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
@@ -47,7 +50,9 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
            let res = List.fold_left create_appl (create_ident _INJGEN) tmp in
            List.fold_left f_sym res a_l
         | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
-        | Var(n, _) -> f_var n
+        | Var(n, _) -> (if Data_matching.mem n !data_matching
+                       then Data_matching.find n !data_matching
+                       else f_var n)
        end
     | Dom_val(_, name) -> create_ident name
     (*| In _ -> failwith "OK, guys"
@@ -59,7 +64,10 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
       | Bottom _ -> failwith "BOTTOM"
       | Top    _ -> failwith "TOP"
       | Rewrites _ -> failwith "REWRITES" *)
-    | And _ -> raise (KComputation "K computations not yet implemented.")
+    | And (_, ax1, Predicat(Var(n,_))) ->
+      (* raise (KComputation "K computations not yet implemented.") *)
+       let res = aux ax1 in
+       data_matching := Data_matching.add n res !data_matching ; res
     | _ -> failwith "Not yet implemented, if the axiom isn't a predicate."
   in
   aux ax
