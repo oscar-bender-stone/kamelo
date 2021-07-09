@@ -129,7 +129,7 @@ let create_LHS : alias -> p_term = fun al ->
       match a with
       | And(_,a1,a2) ->
          if is_conditional_rule a1 then
-           raise (ConditionalRule "Conditional rewriting rule not supported yet.")
+            raise (ConditionalRule "Conditional rewriting rule not supported yet.")
          else
            (try curry_pattern a2
             with KComputation _ ->
@@ -152,6 +152,15 @@ let create_RHS : t -> p_term = fun ax ->
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)
 let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
-  let lhs = create_LHS al in
-  let rhs = create_RHS ax in
-  no_pos (lhs, rhs)
+  let rule =
+    try
+      (* Be careful: the order of the computation is important
+         because of references *)
+      let lhs = create_LHS al in
+      let rhs = create_RHS ax in
+      (lhs, rhs)
+    with ConditionalRule _ ->
+      Format.printf (yel "WARNING: Conditional rewriting rule.\n") ;
+      (_TYPE, _TYPE)
+  in
+  no_pos rule
