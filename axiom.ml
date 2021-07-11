@@ -1,9 +1,9 @@
 
 open LP_p_term
-open Type
-open Syntax
+open Common.Type
+open LP_interface.Syntax
 
-open Color
+open Common.Color
 
 type t = axiom
 

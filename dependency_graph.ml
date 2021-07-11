@@ -1,5 +1,5 @@
 
-open Type
+open Common.Type
 open Iterator
 
 open Graph

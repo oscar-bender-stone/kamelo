@@ -1,10 +1,10 @@
-open Type
-open Color
+open Common.Type
+open Common.Color
 
 open Axiom
 
-open Count_data
-open LP_printer
+open Common.Count_data
+open LP_interface.LP_printer
 open Printer
 
 module Sort = struct

@@ -1,0 +1,6 @@
+
+(library
+  (name src)
+  (flags (:standard -w -27))
+  (modules :standard)
+  (libraries translation LP_interface))

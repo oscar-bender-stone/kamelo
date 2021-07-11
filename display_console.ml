@@ -1,6 +1,6 @@
 
-open Color
-open Count_data
+open Common.Color
+open Common.Count_data
 
 let print_info : int option * int option * string * string -> unit = fun (i, j, one, several) ->
   let denomi = match j with

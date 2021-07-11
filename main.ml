@@ -1,4 +1,4 @@
-open Type
+open Common.Type
 open Display_console
 open Output
 
@@ -7,21 +7,21 @@ let () =
   Cmd_line.parse ();
   (* STEP B: Parse the .kore file   *)
   let lexbuf = Lexing.from_channel (!Cmd_line.input) in
-  let file = Kparser.file Klexer.token lexbuf in
+  let file = Parsing.Kparser.file Parsing.Klexer.token lexbuf in
   (* STEP C: Generate a file for each Kore module *)
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
     let name, kimport_l, kommand_l, _ = m in
     Dependency_graph.link := Dependency_graph.Link.empty ; (* @TODO arg *)
     (* STEP 0: Reset count data *)
-    let cd = Count_data.reset_count_data 0 in
+    let cd = Common.Count_data.reset_count_data 0 in
     (* STEP 1: Create the new file *)
     let filename = get_filename name in
     let f  = open_out filename in
     let ff = Format.formatter_of_out_channel f in
     (* STEP 2: Import management *)
     let printing = match !output with
-          | LP      -> LP_printer.pp_command
+          | LP      -> LP_interface.LP_printer.pp_command
           | Dedukti -> fun _ _ -> () (* @TODO *)
           | Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
     in
@@ -43,7 +43,7 @@ let () =
            let tmp node =
              try
                Some (Dependency_graph.Link.find node !Dependency_graph.link)
-             with Not_found -> Format.printf (Color.yel "WARNING: %s need to be defined in prelude.lp\n") node ; None
+             with Not_found -> Format.printf (Common.Color.yel "WARNING: %s need to be defined in prelude.lp\n") node ; None
            in
            let f node = match tmp node with | Some x -> Printer.pp_kommand ff cd printing x | None -> () in
            Dependency_graph.T.iter f g

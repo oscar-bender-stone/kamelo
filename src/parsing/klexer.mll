@@ -137,7 +137,7 @@ let locate : Lexing.position * Lexing.position -> int * int * int * int =
 
 let unexpected_char : Lexing.lexbuf -> char -> token = fun lexbuf c ->
   let sl, sc, el, ec = locate (lexbuf.lex_start_p, lexbuf.lex_curr_p) in
-  Pos.fatal None
+  LP_interface.Pos.fatal None
      "Unexpected characters [%c] between %i:%i to %i:%i." c sl sc el ec
 
 exception SyntaxError

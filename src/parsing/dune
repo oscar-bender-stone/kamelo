@@ -1,0 +1,9 @@
+(library
+ (name parsing)
+ (modules :standard)
+ (libraries menhirLib common LP_interface))
+
+;;(ocamllex klexer)
+(menhir
+ (flags (--external-tokens Klexer))
+ (modules kparser))

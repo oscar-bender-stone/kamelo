@@ -1,5 +1,5 @@
-open Type
-open Count_data
+open Common.Type
+open Common.Count_data
 open Printer
 
 let lp_pkg = "tests"

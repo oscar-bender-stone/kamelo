@@ -1,6 +1,6 @@
 
-open Syntax
-open Type
+open LP_interface.Syntax
+open Common.Type
 
 open LP_p_term
 open Symbol

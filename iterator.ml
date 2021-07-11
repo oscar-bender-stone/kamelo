@@ -1,5 +1,5 @@
-open Type
-open Count_data
+open Common.Type
+open Common.Count_data
 
 type rewrite = { lhs : alias ; rhs : quant_var list * axiom }
 type common_data = Format.formatter * count_data * attribute list

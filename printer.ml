@@ -1,8 +1,8 @@
 
-open Type
-open Count_data
+open Common.Type
+open Common.Count_data
 open Iterator   (* @TODO improve? *)
-open Syntax
+open! LP_interface.Syntax
 open Output
 
 type output  = Format.formatter
@@ -65,7 +65,7 @@ let pp_axiom_bis : output -> count_data -> printer -> quant_var list * axiom -> 
        if Axiom.is_conditional_rule a1 then
          raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")
        else
-         prt ppf (LP_p_term.no_pos (Syntax.P_rules [LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
+         prt ppf (LP_p_term.no_pos (P_rules [LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
     |  _ -> failwith "In RHS: Not yet implemented"
 
 let pp_kommand : output -> count_data -> printer -> kommand -> unit =

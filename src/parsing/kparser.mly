@@ -1,5 +1,5 @@
 %{
-    open Type
+    open Common.Type
 %}
 
 %token MODULE
@@ -131,19 +131,19 @@
 
 %start file
 
-%type <Type.name> name
-%type <Type.quant_var> quant_var
-%type <Type.param> param
-%type <Type.sort> sort
+%type <Common.Type.name> name
+%type <Common.Type.quant_var> quant_var
+%type <Common.Type.param> param
+%type <Common.Type.sort> sort
 
-%type <Type.symbol> symbol
-%type <Type.attribute> attribute
-%type <Type.kommand> kommand
-%type <Type.import> import
-%type <Type.kmodule list> kmodules
-%type <Type.axiom> axiom
+%type <Common.Type.symbol> symbol
+%type <Common.Type.attribute> attribute
+%type <Common.Type.kommand> kommand
+%type <Common.Type.import> import
+%type <Common.Type.kmodule list> kmodules
+%type <Common.Type.axiom> axiom
 
-%type <Type.file> file
+%type <Common.Type.file> file
 %%
 
 name:
@@ -329,7 +329,7 @@ attribute:
   | PROJECTION     attri_params { let a1,a2 = $2 in Projection(a1, a2)   }
   | INITIALIZER    attri_params { let a1,a2 = $2 in Initializer(a1, a2)  }
 
-  | name           attri_params { Format.printf (Color.yel "WARNING: Attribute named %s is new!\n") $1;
+  | name           attri_params { Format.printf (Common.Color.yel "WARNING: Attribute named %s is new!\n") $1;
                                   let a1,a2 = $2 in Other($1, (a1, a2))  }
 
 core_attributes:

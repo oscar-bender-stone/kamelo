@@ -1,5 +1,5 @@
 all:
-	ocamllex -ml klexer.mll
+	ocamllex -ml src/parsing/klexer.mll
 	dune build @install
 
 test:
@@ -10,7 +10,7 @@ doc:
 
 clean:
 	dune clean
-	rm -f klexer.ml
-	rm -f kparser.ml kparser.mli
+	rm -f *klexer.ml
+	rm -f *kparser.ml *kparser.mli
 	rm -f *.lp
 	rm -f *~

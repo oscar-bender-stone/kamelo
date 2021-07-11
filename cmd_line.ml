@@ -1,6 +1,6 @@
 open Arg
 
-open Color
+open Common.Color
 open Output
 open Printer
 open Preprocessing
