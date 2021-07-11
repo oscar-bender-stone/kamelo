@@ -2,114 +2,118 @@
 open Type
 open Count_data
 open Iterator   (* @TODO improve? *)
-open LP_printer
+open Syntax
 open Output
 
 type output  = Format.formatter
+type printer = output -> p_command -> unit
 
 (** Lambdapi printer *)
 
-let pp_import : output -> count_data -> string list -> import -> unit =
-  fun ppf cd path i ->
+let pp_import : output -> count_data -> printer -> string list -> import -> unit =
+  fun ppf cd prt path i ->
   incr_real_import cd ;
-  pp_command ppf (Translate.import_to_require_open path i)
+  prt ppf (Translate.import_to_require_open path i)
 
-let pp_sort : output -> count_data -> sort -> unit = fun ppf cd s ->
-  incr_real_sort cd ; pp_command ppf (Translate.sort_to_p_symbol (pp s))
+let pp_sort : output -> count_data -> printer -> sort -> unit =
+  fun ppf cd prt s ->
+  incr_real_sort cd ;
+  prt ppf (Translate.sort_to_p_symbol (pp s))
 
-let pp_induc : output -> count_data -> sort * symbol list -> unit =
-  fun ppf cd i ->
+let pp_induc : output -> count_data -> printer -> sort * symbol list -> unit =
+  fun ppf cd prt i ->
   incr_real_induc cd ;
-  pp_command ppf (Translate.create_inductive_type i)
+  prt ppf (Translate.create_inductive_type i)
 
-let pp_symbol : output -> count_data -> symbol * attribute list -> unit =
-  fun ppf cd ((name, qv_l, p_l, p), attr_l) ->
+let pp_symbol : output -> count_data -> printer -> symbol * attribute list -> unit =
+  fun ppf cd prt ((name, qv_l, p_l, p), attr_l) ->
   let s = (pp name, qv_l, p_l, p) in
   incr_real_symbol cd ;
-  pp_command ppf (Translate.symbol_to_p_symbol s attr_l)
+  prt ppf (Translate.symbol_to_p_symbol s attr_l)
 
-let pp_alias : output -> count_data ->
+let pp_alias : output -> count_data -> printer ->
                alias * (quant_var list * axiom * attribute list) option -> unit =
-  fun ppf cd v ->
+  fun ppf cd prt v ->
   match v with
   | _, None -> () (* @TODO *)
   | al, Some(_,ax,_) ->
      try
-       pp_command ppf (Translate.unconditional_rule_to_p_rule al ax) ;
+       prt ppf (Translate.unconditional_rule_to_p_rule al ax) ;
        incr_real_rule cd
      with Axiom.ConditionalRule _ -> ()
 
-let pp_alias_bis ppf al : unit = pp_command ppf (Symbol.alias_to_definition al)
+let pp_alias_bis ppf prt al : unit = prt ppf (Symbol.alias_to_definition al)
 
-let pp_axiom : output -> count_data -> quant_var list * axiom * attribute list -> unit =
-  fun ppf cd (_, ax, attr_l) ->
+let pp_axiom : output -> count_data -> printer -> quant_var list * axiom * attribute list -> unit =
+  fun ppf cd prt (_, ax, attr_l) ->
   match attr_l with
   | [Unit _] | [Assoc _] | [Idem _] ->
      (* if is_only_assoc ax then @TODO *)
      incr_real_rule cd ;
-     pp_command ppf (Translate.equality_axiom_to_p_rule ax)
+     prt ppf (Translate.equality_axiom_to_p_rule ax)
   | _ -> () (* @TODO *)
 
-let pp_equality_axiom : output -> count_data -> quant_var list * axiom -> unit =
-  fun ppf cd (_, ax) ->
+let pp_equality_axiom : output -> count_data -> printer -> quant_var list * axiom -> unit =
+  fun ppf cd prt (_, ax) ->
   incr_real_rule cd ;
-  pp_command ppf (Translate.equality_axiom_to_p_rule ax)
+  prt ppf (Translate.equality_axiom_to_p_rule ax)
 
-let pp_axiom_bis : output -> count_data -> quant_var list * axiom -> unit =
-  fun ppf _ (_,ax) ->
+let pp_axiom_bis : output -> count_data -> printer -> quant_var list * axiom -> unit =
+  fun ppf _ prt (_,ax) ->
   match ax with
     | Rewrites(_,lhs,And(_,a1,a2)) ->
        if Axiom.is_conditional_rule a1 then
          raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")
        else
-         pp_command ppf (LP_p_term.no_pos (Syntax.P_rules [LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
+         prt ppf (LP_p_term.no_pos (Syntax.P_rules [LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
     |  _ -> failwith "In RHS: Not yet implemented"
 
-let pp_kommand : output -> count_data -> kommand -> unit = fun ppf cd (kommand, attr_l) ->
+let pp_kommand : output -> count_data -> printer -> kommand -> unit =
+  fun ppf cd prt (kommand, attr_l) ->
   match kommand with
-  | Sort     s -> incr_k_sort cd        ; pp_sort ppf cd s
-  | H_sort   s -> incr_k_hooked_sort cd ; pp_sort ppf cd s
-  | Symbol   s -> incr_k_symbol cd        ; pp_symbol ppf cd (s, attr_l)
-  | H_symbol s -> incr_k_hooked_symbol cd ; pp_symbol ppf cd (s, attr_l)
-  | Alias   al -> incr_k_alias cd ; pp_alias_bis ppf al (* @TODO : aller voir la suite de la liste *)
-  | Axiom(qv_l, ax) -> incr_k_axiom cd ; pp_axiom ppf cd (qv_l, ax, attr_l)
+  | Sort     s -> incr_k_sort cd        ; pp_sort ppf cd prt s
+  | H_sort   s -> incr_k_hooked_sort cd ; pp_sort ppf cd prt s
+  | Symbol   s -> incr_k_symbol cd        ; pp_symbol ppf cd prt (s, attr_l)
+  | H_symbol s -> incr_k_hooked_symbol cd ; pp_symbol ppf cd prt (s, attr_l)
+  | Alias   al -> incr_k_alias cd ; pp_alias_bis ppf prt al (* @TODO : aller voir la suite de la liste *)
+  | Axiom(qv_l, ax) -> incr_k_axiom cd ; pp_axiom ppf cd prt (qv_l, ax, attr_l)
 
-let pp_kommand_bis  : output -> count_data -> kommand list -> unit = fun ppf cd kommand_l ->
+let pp_kommand_bis  : output -> count_data -> printer -> kommand list -> unit = fun ppf cd prt kommand_l ->
   let do_nothing = fun _ _ _ -> () in
-  let equality_axiom = fun _ _ (qv_l, ax) -> pp_equality_axiom ppf cd (qv_l, ax) in
-  let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
-    fun ppf cd attr_l _ (qv_l, ax) ->
+  let equality_axiom = fun _ _ (qv_l, ax) -> pp_equality_axiom ppf cd prt (qv_l, ax) in
+  let f_axiom : attribute list -> unit -> quant_var list * axiom -> unit =
+    fun attr_l _ (qv_l, ax) ->
     match attr_l with
     | [] -> if Axiom.is_predicate ax then ()
-            else pp_axiom ppf cd (qv_l, ax, attr_l)
-    | _ -> pp_axiom ppf cd (qv_l, ax, attr_l)
+            else pp_axiom ppf cd prt (qv_l, ax, attr_l)
+    | _ -> pp_axiom ppf cd prt (qv_l, ax, attr_l)
   in
   kommand_iter_without_alias cd kommand_l ()
-  (fun _ _ s -> pp_sort ppf cd s) (fun _ _ s -> pp_sort ppf cd s)
-  (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
-  do_nothing (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd (al, Some (qv_l, ax, attr_l)))
-  (f_axiom ppf cd)
+  (fun _ _ s -> pp_sort ppf cd prt s) (fun _ _ s -> pp_sort ppf cd prt s)
+  (fun attr_l _ s -> pp_symbol ppf cd prt (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd prt (s, attr_l))
+  do_nothing (fun attr_l _ ({lhs=al;rhs=(qv_l, ax)}) -> pp_alias ppf cd prt (al, Some (qv_l, ax, attr_l)))
+  f_axiom
   (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
    equality_axiom, equality_axiom, equality_axiom, equality_axiom,
    do_nothing, do_nothing) (fun () -> ())
 
-let pp_kommand_ter : output -> count_data -> kommand list -> unit  = fun ppf cd kommand_l ->
+let pp_kommand_ter : output -> count_data -> printer -> kommand list -> unit  = fun ppf cd prt kommand_l ->
   let do_nothing : attribute list -> 'a -> quant_var list * axiom -> 'a = fun _ acc _ -> acc in
-  let equality_axiom = fun _ _ (qv_l, ax) -> pp_equality_axiom ppf cd (qv_l, ax) in
-   let f_axiom : output -> count_data -> attribute list -> unit -> quant_var list * axiom -> unit =
-    fun ppf cd attr_l _ (qv_l, ax) ->
+  let equality_axiom = fun _ _ (qv_l, ax) -> pp_equality_axiom ppf cd prt (qv_l, ax) in
+   let f_axiom : attribute list -> unit -> quant_var list * axiom -> unit =
+    fun attr_l _ (qv_l, ax) ->
     match attr_l with
     | [] -> if Axiom.is_predicate ax then ()
-            else pp_axiom ppf cd (qv_l, ax, attr_l)
-    | _ -> pp_axiom ppf cd (qv_l, ax, attr_l)
+            else pp_axiom ppf cd prt (qv_l, ax, attr_l)
+    | _ -> pp_axiom ppf cd prt (qv_l, ax, attr_l)
   in
   kommand_iter_with_alias cd kommand_l ()
-  (fun _ _ s -> pp_sort ppf cd s) (fun _ _ s -> pp_sort ppf cd s)
-  (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd (s, attr_l))
-  (fun _ _ al -> pp_alias_bis ppf al) (fun _ _ ax -> pp_axiom_bis ppf cd ax) (f_axiom ppf cd)
+  (fun _ _ s -> pp_sort ppf cd prt s) (fun _ _ s -> pp_sort ppf cd prt s)
+  (fun attr_l _ s -> pp_symbol ppf cd prt (s, attr_l)) (fun attr_l _ s -> pp_symbol ppf cd prt (s, attr_l))
+  (fun _ _ al -> pp_alias_bis ppf prt al) (fun _ _ ax -> pp_axiom_bis ppf cd prt ax) f_axiom
   (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
    equality_axiom, equality_axiom, equality_axiom, equality_axiom,
-   do_nothing, (fun attr_l -> f_axiom ppf cd attr_l)) (fun () -> ())
+   do_nothing, (fun attr_l -> f_axiom attr_l)) (fun () -> ())
 
 (** Kore printer *)
 

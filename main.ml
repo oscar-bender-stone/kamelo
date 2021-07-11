@@ -20,22 +20,22 @@ let () =
     let f  = open_out filename in
     let ff = Format.formatter_of_out_channel f in
     (* STEP 2: Import management *)
-    Import.with_prelude ff kimport_l cd;
+    let printing = match !output with
+          | LP      -> LP_printer.pp_command
+          | Dedukti -> fun _ _ -> () (* @TODO *)
+          | Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
+    in
+    Import.with_prelude ff printing kimport_l cd;
     (* STEP 3: Main translation *)
     if !Cmd_line.old then Preprocessing.old ff m cd
     else
       begin
-        let printing = match !output with
-          | LP      -> Printer.pp_kommand_bis ff cd
-          | Dedukti -> Printer.pp_kommand_ter ff cd (* @TODO *)
-          | Kore    -> Printer.pp_kore_kommand ff cd
-        in
+
         match !mimic with
         | Kore    -> (match !output with
-                     | LP      -> Printer.pp_kommand_ter ff cd kommand_l
-                     | Dedukti -> () (* @TODO *)
-                     | Kore    -> Printer.pp_kore_kommand ff cd kommand_l)
-        | K       -> printing kommand_l
+                      | LP | Dedukti -> Printer.pp_kommand_ter ff cd printing kommand_l
+                      | Kore -> Printer.pp_kore_kommand ff cd kommand_l)
+        | K       -> Printer.pp_kommand_ter ff cd printing kommand_l
         | Dedukti ->
            let g =
              Dependency_graph.create_dependence_graph cd kommand_l (fun () -> ())
@@ -45,7 +45,7 @@ let () =
                Some (Dependency_graph.Link.find node !Dependency_graph.link)
              with Not_found -> Format.printf (Color.yel "WARNING: %s need to be defined in prelude.lp\n") node ; None
            in
-           let f node = match tmp node with | Some x -> Printer.pp_kommand ff cd x | None -> () in
+           let f node = match tmp node with | Some x -> Printer.pp_kommand ff cd printing x | None -> () in
            Dependency_graph.T.iter f g
       end;
     (* STEP 4: Printing count data *)

@@ -4,6 +4,7 @@ open Color
 open Axiom
 
 open Count_data
+open LP_printer
 open Printer
 
 module Sort = struct
@@ -127,10 +128,10 @@ let old : Format.formatter -> kmodule -> count_data -> unit = fun ff m cd ->
 
   (* let import_l = if Induc.is_empty induc_m then import_l else ("prelude", [])::import_l in *)
 
-  List.iter (pp_sort ff cd) sort_l;
-  List.iter (pp_induc ff cd) (List.rev (Induc.bindings induc_m));
-  List.iter (pp_symbol ff cd) sym_l;
+  List.iter (pp_sort ff cd pp_command) sort_l;
+  List.iter (pp_induc ff cd pp_command) (List.rev (Induc.bindings induc_m));
+  List.iter (pp_symbol ff cd pp_command) sym_l;
   (*List.iter (trans_command ff) command_l;*)
-  List.iter (pp_alias ff cd) alias_l;
-  List.iter (pp_axiom ff cd) ax_l;
+  List.iter (pp_alias ff cd pp_command) alias_l;
+  List.iter (pp_axiom ff cd pp_command) ax_l;
   (*List.iter (trans_command Format.std_formatter) command_l;*)
