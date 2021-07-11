@@ -21,7 +21,7 @@ let print_info : int option * int option * string * string -> unit = fun (i, j, 
 let print_count_data : count_data -> unit = fun cd -> List.iter print_info (extract_info cd)
 
 let print_header_kamelo : unit -> unit = fun () ->
-  Format.printf (gre "-------------------- Welcome to Kamelo ---------------------\n")
+  Format.printf (gre "-------------------- Welcome to KaMeLo ---------------------\n")
 let print_header_file filename =
   Format.printf (blu "--- Translation of %s\n") filename
 

@@ -40,7 +40,7 @@ let set_output o = if List.mem o dk_output then output := Dedukti
                        else failwith ("The option"^ o ^ "is unknow")
 
 let parse : unit -> unit = fun () ->
-  let usage_msg = "usage: ./kamelo [--mimic (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)] [--inductive] [--readable] [--no-color] kore_file" in
+  let usage_msg = "usage: ./KaMeLo [--mimic (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)] [--inductive] [--readable] [--no-color] kore_file" in
   parse
     [("--mimic",  String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
      ("-m",       String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
