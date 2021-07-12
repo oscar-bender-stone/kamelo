@@ -35,7 +35,7 @@ let () =
         | Kore    -> (match !output with
                       | LP | Dedukti -> Printer.pp_kommand_ter ff cd printing kommand_l
                       | Kore -> Printer.pp_kore_kommand ff cd kommand_l)
-        | K       -> Printer.pp_kommand_ter ff cd printing kommand_l
+        | K       -> Printer.pp_kommand_bis ff cd printing kommand_l
         | Dedukti ->
            let g =
              Dependency_graph.create_dependence_graph cd kommand_l (fun () -> ())
