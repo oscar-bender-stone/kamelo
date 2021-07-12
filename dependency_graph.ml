@@ -58,7 +58,6 @@ module T = Graph.Topological.Make(Gname)
 (** [data_syntax] saves the data close to K syntax *) (* @TODO improve comment *)
 let data_syntax : kommand StrMap.t ref = ref StrMap.empty
 
-
 let add_node = Gname.add_vertex
 (*
 let restore : Gname.t -> Name.t -> command Link.t -> Gname.t = fun g n deleted ->
@@ -136,7 +135,6 @@ let add_axiom g qv_l ax attr_l =
   data_syntax := StrMap.add ax_node (Axiom (qv_l,ax), attr_l) !data_syntax ; (* @TODO FIX*)
   add_axiom_aux (add_node g ax_node) ax
 
-
 (** [deleted_sym] stores all deleted symbols. *)
 let deleted_sym : kommand StrMap.t ref = ref StrMap.empty
 
@@ -160,22 +158,25 @@ let create_dependence_graph cd l =
 
 let in_prelude : kommand StrMap.t ref = ref StrMap.empty
 
-let create_dependence_graph_bis cd l =
-  let rec aux g l = match l with
-    | [] -> g
-    | ((Sort      s), _)::q -> aux (add_sort g s) q
-    | ((H_sort    s), attr_l)::q ->
-       Format.printf (Common.Color.yel "WARNING: %s need to be defined in the prelude.\n") s ;
-       in_prelude := StrMap.add s (H_sort s, attr_l) !in_prelude ;
-       aux g q
-    | ((Symbol    s), _)::q -> aux (add_symbol g s) q
-    | ((H_symbol  s), attr_l)::q ->
-       deleted_sym := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted_sym ;
-       aux g q
-    | ((Alias     _), _)::q -> aux g q
-    | ((Axiom(qv_l,ax)), attr_l)::q -> aux (add_axiom g qv_l ax attr_l) q
+let create_dependence_graph_facto cd l =
+  let init_graph = Gname.empty in
+  let do_nothing = fun _ g _ -> g in
+  let f_hooked_sort attr_l g s =
+    Format.printf (Common.Color.yel "WARNING: %s need to be defined in the prelude.\n") s ;
+    in_prelude := StrMap.add s (H_sort s, attr_l) !in_prelude ;
+    g
   in
-  aux Gname.empty l
+  let f_hooked_symbol attr_l g s =
+    deleted_sym := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted_sym ;
+    g
+  in
+  let f_axiom = fun attr_l g (qv_l,ax) -> add_axiom g qv_l ax attr_l in
+  kommand_iter_with_alias cd l init_graph
+  (fun _ g s -> add_sort   g s) f_hooked_sort
+  (fun _ g s -> add_symbol g s) f_hooked_symbol
+  do_nothing f_axiom f_axiom
+  (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom,
+   f_axiom, f_axiom, f_axiom, f_axiom, f_axiom) (fun () -> ())
 
       (*
 let () =

@@ -71,12 +71,12 @@ let pp_axiom_bis : output -> count_data -> printer -> quant_var list * axiom -> 
 let pp_kommand : output -> count_data -> printer -> kommand -> unit =
   fun ppf cd prt (kommand, attr_l) ->
   match kommand with
-  | Sort     s -> incr_k_sort cd        ; pp_sort ppf cd prt s
-  | H_sort   s -> incr_k_hooked_sort cd ; pp_sort ppf cd prt s
-  | Symbol   s -> incr_k_symbol cd        ; pp_symbol ppf cd prt (s, attr_l)
-  | H_symbol s -> incr_k_hooked_symbol cd ; pp_symbol ppf cd prt (s, attr_l)
-  | Alias   al -> incr_k_alias cd ; pp_alias_bis ppf prt al (* @TODO : aller voir la suite de la liste *)
-  | Axiom(qv_l, ax) -> incr_k_axiom cd ; pp_axiom ppf cd prt (qv_l, ax, attr_l)
+  | Sort          s -> pp_sort ppf cd prt s
+  | H_sort        s -> pp_sort ppf cd prt s
+  | Symbol        s -> pp_symbol ppf cd prt (s, attr_l)
+  | H_symbol      s -> pp_symbol ppf cd prt (s, attr_l)
+  | Alias        al -> pp_alias_bis ppf prt al (* @TODO : aller voir la suite de la liste *)
+  | Axiom(qv_l, ax) -> pp_axiom ppf cd prt (qv_l, ax, attr_l)
 
 let pp_kommand_bis  : output -> count_data -> printer -> kommand list -> unit = fun ppf cd prt kommand_l ->
   let do_nothing = fun _ _ _ -> () in
