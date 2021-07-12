@@ -32,10 +32,7 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
                  | [] -> l2
                  | h::t -> (f h)::(map_append t f l2)
 
-exception KComputation of string
-
-module Data_matching = Map.Make(String)
-let data_matching : p_term Data_matching.t ref = ref Data_matching.empty
+let data_matching : p_term StrMap.t ref = ref StrMap.empty
 
 let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
   let rec aux : t -> p_term = fun ax ->
@@ -50,9 +47,9 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
            let res = List.fold_left create_appl (create_ident _INJGEN) tmp in
            List.fold_left f_sym res a_l
         | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
-        | Var(n, _) -> (if Data_matching.mem n !data_matching
-                       then Data_matching.find n !data_matching
-                       else f_var n)
+        | Var(n, _) -> (if StrMap.mem n !data_matching
+                        then StrMap.find n !data_matching
+                        else f_var n)
        end
     | Dom_val(_, name) -> create_ident name
     (*| In _ -> failwith "OK, guys"
@@ -65,10 +62,9 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
       | Top    _ -> failwith "TOP"
       | Rewrites _ -> failwith "REWRITES" *)
     | And (_, ax1, Predicat(Var(n,_))) ->
-      (* raise (KComputation "K computations not yet implemented.") *)
        let res = aux ax1 in
-       data_matching := Data_matching.add n res !data_matching ; res
-    | _ -> failwith "Not yet implemented, if the axiom isn't a predicate."
+       data_matching := StrMap.add n res !data_matching ; res
+    | _ -> failwith "Not yet implemented [Axiom.curry]."
   in
   aux ax
 
@@ -117,6 +113,7 @@ let is_conditional_rule : t -> bool = fun a ->
   | Top _ -> false
   | _     -> true
 
+exception KComputation of string
 exception ConditionalRule of string
 
 (** [create_LHS al] creates a LHS of a rewriting rule thanks to an alias. *)

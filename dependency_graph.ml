@@ -53,8 +53,8 @@ end
 module Gname = Persistent.Digraph.Concrete(Name)
 module T = Graph.Topological.Make(Gname)
 
-module Link = Map.Make(String)
-let link : kommand Link.t ref = ref Link.empty
+(* @TODO move *) open LP_p_term
+let link : kommand StrMap.t ref = ref StrMap.empty
 
 let add_node = Gname.add_vertex
 let add_egde g n1 n2 =
@@ -63,7 +63,7 @@ let add_egde g n1 n2 =
   with
     Not_found -> Printf.printf "Coucou" ; g
 
-let add_sort g s = link := Link.add s (Sort s,[]) !link ; add_node g s (* @TODO fix *)
+let add_sort g s = link := StrMap.add s (Sort s,[]) !link ; add_node g s (* @TODO fix *)
 
 let add_dependence g node dep = match dep with
     S s -> add_egde g s node
@@ -78,7 +78,7 @@ let update_graph : Gname.t -> 'a list -> (Gname.t -> 'b -> 'a -> Gname.t) -> 'b 
 
 let add_symbol g s =
   let n, _, p_l, p = s in
-  link := Link.add n (Symbol s, []) !link ; (* @TODO fix *)
+  link := StrMap.add n (Symbol s, []) !link ; (* @TODO fix *)
   let g = add_node g n in
   (* qv_l @TODO ?? *)
   let g = update_graph g p_l add_dependence n in
@@ -113,15 +113,15 @@ let add_axiom g qv_l ax attr_l =
        update_graph g p_l add_dependence ax_node
     | Dom_val _ -> g
   in
-  link := Link.add ax_node (Axiom (qv_l,ax), attr_l) !link ; (* @TODO FIX*)
+  link := StrMap.add ax_node (Axiom (qv_l,ax), attr_l) !link ; (* @TODO FIX*)
   add_axiom_aux (add_node g ax_node) ax
 
-let deleted : kommand Link.t ref = ref Link.empty
+let deleted : kommand StrMap.t ref = ref StrMap.empty
 
 let create_dependence_graph cd l =
   let init_graph = Gname.empty in
   let f_hooked_symbol attr_l g s =
-    deleted := Link.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted ;
+    deleted := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted ;
     g
   in
   let f_rewrite attr_l g ({lhs=_;rhs=(qv_l,ax)}) =

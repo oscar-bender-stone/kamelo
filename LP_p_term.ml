@@ -102,4 +102,7 @@ let create_p_symbol (mod_l : p_modifier list) (name : string) (param_l : p_param
   ; p_sym_typ = typ
   ; p_sym_trm = def
   ; p_sym_prf = None
-  ; p_sym_def = is_def }
+  ; p_sym_def = is_def}
+
+(* @TODO move? *)
+module StrMap = Map.Make(String)
