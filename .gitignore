@@ -1,9 +1,11 @@
 *.cmi
 *.cmo
-kparser.mli
-kparser.ml
-klexer.ml
+*kparser.mli
+*kparser.ml
+*klexer.ml
 *.lp
-kamelo
+*.dk
+*.mykore
+KaMeLo
 
 printer_2.ml
