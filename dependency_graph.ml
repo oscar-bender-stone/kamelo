@@ -140,7 +140,7 @@ let deleted_sym : kommand StrMap.t ref = ref StrMap.empty
 
 let in_prelude : kommand StrMap.t ref = ref StrMap.empty
 
-let create_dependence_graph cd l =
+let create_dependence_graph_gen f_iter f_alias f_rewrite cd l =
   let init_graph = Gname.empty in
   let do_nothing = fun _ g _ -> g in
   let f_hooked_sort attr_l g s =
@@ -152,37 +152,22 @@ let create_dependence_graph cd l =
     deleted_sym := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted_sym ;
     g
   in
-  let f_rewrite attr_l g ({lhs=_;rhs=(qv_l,ax)}) =
-      add_axiom g qv_l ax attr_l (* @TODO forget alias *)
-  in
-  let f_axiom = fun attr_l g (qv_l,ax) -> add_axiom g qv_l ax attr_l in
-  kommand_iter_without_alias cd l init_graph
-    (fun _ g s -> add_sort   g s) f_hooked_sort
-    (fun _ g s -> add_symbol g s) f_hooked_symbol
-    do_nothing f_rewrite
-    f_axiom
-    (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
-     f_axiom, f_axiom, f_axiom, f_axiom, do_nothing, do_nothing) (fun () -> ())
-
-let create_dependence_graph_facto cd l =
-  let init_graph = Gname.empty in
-  let do_nothing = fun _ g _ -> g in
-  let f_hooked_sort attr_l g s =
-    Format.printf (Common.Color.yel "WARNING: %s need to be defined in the prelude.\n") s ;
-    in_prelude := StrMap.add s (H_sort s, attr_l) !in_prelude ;
-    g
-  in
-  let f_hooked_symbol attr_l g s =
-    deleted_sym := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted_sym ;
-    g
-  in
-  let f_axiom = fun attr_l g (qv_l,ax) -> add_axiom g qv_l ax attr_l in
-  kommand_iter_with_alias cd l init_graph
+  let f_ax_default = fun attr_l g (qv_l,ax) -> add_axiom g qv_l ax attr_l in
+  f_iter cd l init_graph
   (fun _ g s -> add_sort   g s) f_hooked_sort
   (fun _ g s -> add_symbol g s) f_hooked_symbol
-  do_nothing f_axiom f_axiom
-  (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom,
-   f_axiom, f_axiom, f_axiom, f_axiom, f_axiom) (fun () -> ())
+  f_alias f_rewrite f_ax_default
+  (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
+   f_ax_default, f_ax_default, f_ax_default, f_ax_default, do_nothing, do_nothing) (fun () -> ())
+
+let create_dependence_graph cd l =
+  create_dependence_graph_gen kommand_iter_without_alias (fun _ g _ -> g)
+  (fun attr_l g ({lhs=_;rhs=(qv_l,ax)}) -> add_axiom g qv_l ax attr_l) (* @TODO forget alias *)
+  cd l
+
+let create_dependence_graph_facto cd l =
+  create_dependence_graph_gen kommand_iter_with_alias (fun _ g _ -> g)
+  (fun attr_l g (qv_l,ax) -> add_axiom g qv_l ax attr_l) cd l
 
       (*
 let () =
