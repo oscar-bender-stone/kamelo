@@ -12,7 +12,7 @@ let () =
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
     let name, kimport_l, kommand_l, _ = m in
-    Dependency_graph.link := LP_p_term.StrMap.empty ; (* @TODO arg *)
+    Dependency_graph.data_syntax := LP_p_term.StrMap.empty ; (* @TODO arg *)
     (* STEP 0: Reset count data *)
     let cd = Common.Count_data.reset_count_data 0 in
     (* STEP 1: Create the new file *)
@@ -38,11 +38,11 @@ let () =
         | K       -> Printer.pp_kommand_bis ff cd printing kommand_l
         | Dedukti ->
            let g =
-             Dependency_graph.create_dependence_graph cd kommand_l (fun () -> ())
+             Dependency_graph.create_dependence_graph_bis cd kommand_l
            in
            let tmp node =
              try
-               Some (LP_p_term.StrMap.find node !Dependency_graph.link)
+               Some (LP_p_term.StrMap.find node !Dependency_graph.data_syntax)
              with Not_found ->
                (try
                   Some (LP_p_term.StrMap.find node !Dependency_graph.in_prelude)

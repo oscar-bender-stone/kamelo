@@ -156,11 +156,11 @@ let create_dependence_graph cd l =
     do_nothing f_rewrite
     (fun attr_l g (qv_l, ax) -> add_axiom g qv_l ax attr_l)
     (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
-     do_nothing, do_nothing, do_nothing, do_nothing, do_nothing)
+     do_nothing, do_nothing, do_nothing, do_nothing, do_nothing) (fun () -> ())
 
 let in_prelude : kommand StrMap.t ref = ref StrMap.empty
 
-let create_dependence_graph_bis cd g l =
+let create_dependence_graph_bis cd l =
   let rec aux g l = match l with
     | [] -> g
     | ((Sort      s), _)::q -> aux (add_sort g s) q
@@ -174,6 +174,8 @@ let create_dependence_graph_bis cd g l =
        aux g q
     | ((Alias     _), _)::q -> aux g q
     | ((Axiom(qv_l,ax)), attr_l)::q -> aux (add_axiom g qv_l ax attr_l) q
+  in
+  aux Gname.empty l
 
       (*
 let () =
