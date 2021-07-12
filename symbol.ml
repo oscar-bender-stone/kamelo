@@ -186,11 +186,5 @@ let alias_to_definition : alias -> p_command = fun al ->
   (* STEP 1: Get the definition of the symbol *)
   let body = def_to_p_term def in
   (* STEP 2: Build the p_symbol *)
-  no_pos (P_symbol
-            ({ p_sym_mod = []
-  ; p_sym_nam = create_p_ident name
-  ; p_sym_arg = create_p_params qv_l @ (create_p_params_expl expl_l)
-  ; p_sym_typ = Some (param_to_p_term p)
-  ; p_sym_trm = Some body
-  ; p_sym_prf = None
-  ; p_sym_def = true }))
+  let p_l = create_p_params qv_l @ (create_p_params_expl expl_l) in
+  no_pos (P_symbol (create_p_symbol [] name p_l (Some (param_to_p_term p)) (Some body)))

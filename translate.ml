@@ -26,24 +26,13 @@ let create_p_params : string list -> p_params list = fun s_l ->
      let is_implicit = true in
      [ List.map unique_name s_l, typ, is_implicit ]
 
-let common_p_symbol :
-    p_modifier list -> string -> p_params list -> p_term option -> p_symbol =
-  fun mod_l name param_l typ ->
-  { p_sym_mod = mod_l
-  ; p_sym_nam = no_pos name
-  ; p_sym_arg = param_l
-  ; p_sym_typ = typ
-  ; p_sym_trm = None
-  ; p_sym_prf = None
-  ; p_sym_def = false }
-
 (** Sort *)
 let get_sort_type : sort -> p_term = fun s ->
   if s = _SORTK then _TYPE else create_ident _SORTK
 
 let sort_to_p_symbol : sort -> p_command = fun s ->
   let sort_type = get_sort_type s in
-  let res = common_p_symbol [] s [] (Some sort_type) in
+  let res = create_p_symbol [] s [] (Some sort_type) None in
   no_pos (P_symbol res)
   (* modifier = Const ? *)
 
@@ -51,7 +40,7 @@ let sort_to_p_symbol : sort -> p_command = fun s ->
 let symbol_to_p_symbol : symbol -> attribute list -> p_command = fun s attr_l ->
   let name, qvar_l, _, _ = s in
   let param_l = create_p_params qvar_l in
-  let res = common_p_symbol (get_modifier attr_l) name param_l (Some (sym_curry s)) in
+  let res = create_p_symbol (get_modifier attr_l) name param_l (Some (sym_curry s)) None in
   no_pos (P_symbol res)
 
 (** [create_symbol sym] creates a symbol without position. *)
