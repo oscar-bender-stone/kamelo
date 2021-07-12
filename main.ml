@@ -30,7 +30,6 @@ let () =
     if !Cmd_line.old then Preprocessing.old ff m cd
     else
       begin
-
         match !mimic with
         | Kore    -> (match !output with
                       | LP | Dedukti -> Printer.pp_kommand_ter ff cd printing kommand_l
@@ -38,15 +37,13 @@ let () =
         | K       -> Printer.pp_kommand_bis ff cd printing kommand_l
         | Dedukti ->
            let g =
-             Dependency_graph.create_dependence_graph_facto cd kommand_l
+             Dependency_graph.create_dependence_graph cd kommand_l
            in
            let tmp node =
              try
                Some (LP_p_term.StrMap.find node !Dependency_graph.data_syntax)
-             with Not_found ->
-               (try
-                  Some (LP_p_term.StrMap.find node !Dependency_graph.in_prelude)
-               with Not_found -> (Format.printf (Common.Color.yel "WARNING: Need to be fixed: %s doesn't exist.\n") node ; None))
+             with Not_found -> (if not(LP_p_term.StrMap.mem node !Dependency_graph.in_prelude)
+                                then Format.printf (Common.Color.yel "WARNING: Need to be fixed: %s doesn't exist.\n") node ; None)
            in
            let f node = match tmp node with | Some x -> Printer.pp_kommand ff cd printing x | None -> () in
            Dependency_graph.T.iter f g
