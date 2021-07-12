@@ -62,5 +62,5 @@ let string_symbol_isomorphism =
     ("Comm", ",") ; ("Coln", ":") ; ("SCln", ";") *) ; ("LPar_\\([Comm_]*\\)RPar", "")
     ; (skip_sign "-SYNTAX", "_") ; (skip_sign "-COMMON", "")
     ; (skip_sign "INT", "_INT") ; (skip_sign "LIST", "_LIST") ; (skip_sign "SET", "_SET") ; (skip_sign "MAP", "_MAP") ]
-(* Meilleure complexité avec une map, mais moins lisible *)
+
 let pp s = if !readable then pretty_string string_symbol_isomorphism s else s

@@ -26,7 +26,7 @@
 ;;  (libraries menhirLib ocamlgraph))
 
 (executable
-  (public_name main)
+  (name main)
   (flags (:standard -w -27))
   (modules :standard)
   (libraries parsing common LP_interface str ocamlgraph))

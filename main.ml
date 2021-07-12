@@ -43,7 +43,10 @@ let () =
            let tmp node =
              try
                Some (LP_p_term.StrMap.find node !Dependency_graph.link)
-             with Not_found -> Format.printf (Common.Color.yel "WARNING: %s need to be defined in prelude.lp\n") node ; None
+             with Not_found ->
+               (try
+                  Some (LP_p_term.StrMap.find node !Dependency_graph.in_prelude)
+               with Not_found -> (Format.printf (Common.Color.yel "WARNING: Need to be fixed: %s doesn't exist.\n") node ; None))
            in
            let f node = match tmp node with | Some x -> Printer.pp_kommand ff cd printing x | None -> () in
            Dependency_graph.T.iter f g

@@ -54,19 +54,39 @@ module Gname = Persistent.Digraph.Concrete(Name)
 module T = Graph.Topological.Make(Gname)
 
 (* @TODO move *) open LP_p_term
-let link : kommand StrMap.t ref = ref StrMap.empty
+
+(** [data_syntax] saves the data close to K syntax *) (* @TODO improve comment *)
+let data_syntax : kommand StrMap.t ref = ref StrMap.empty
+
 
 let add_node = Gname.add_vertex
-let add_egde g n1 n2 =
-  try
-    Gname.add_edge g n1 n2 (* @TODO cette fonction ne renvoit pas d'erreur.... *)
-  with
-    Not_found -> Printf.printf "Coucou" ; g
+(*
+let restore : Gname.t -> Name.t -> command Link.t -> Gname.t = fun g n deleted ->
+  if Link.find n deleted then
+    Format.printf (Color.yel "WARNING: %s has been restored.\n") n ; add_node g n
+  else
+    Format.printf (Color.yel "WARNING: %s doesn't exist.\n") n ; g
 
-let add_sort g s = link := StrMap.add s (Sort s,[]) !link ; add_node g s (* @TODO fix *)
+let add_egde g n1 n2 =
+  if Gname.mem_vertex g n1 then
+    begin
+    if Gname.mem_vertex g n2 then Gname.add_edge g n1 n2
+    else restore g n2 !deleted ; Gname.add_edge g n1 n2
+    end
+  else
+    begin
+    restore g n1 !deleted ;
+    if Gname.mem_vertex g n2 then Gname.add_edge g n1 n2
+    else restore g n2 !deleted ; Gname.add_edge g n1 n2
+    end
+ *)
+
+let add_edge = Gname.add_edge
+
+let add_sort g s = data_syntax := StrMap.add s (Sort s,[]) !data_syntax ; add_node g s (* @TODO fix *)
 
 let add_dependence g node dep = match dep with
-    S s -> add_egde g s node
+    S s -> add_edge g s node
   | Q _ -> g (* @TODO ?? *)
 
 let update_graph : Gname.t -> 'a list -> (Gname.t -> 'b -> 'a -> Gname.t) -> 'b -> Gname.t = fun g l f node ->
@@ -78,7 +98,7 @@ let update_graph : Gname.t -> 'a list -> (Gname.t -> 'b -> 'a -> Gname.t) -> 'b 
 
 let add_symbol g s =
   let n, _, p_l, p = s in
-  link := StrMap.add n (Symbol s, []) !link ; (* @TODO fix *)
+  data_syntax := StrMap.add n (Symbol s, []) !data_syntax ; (* @TODO fix *)
   let g = add_node g n in
   (* qv_l @TODO ?? *)
   let g = update_graph g p_l add_dependence n in
@@ -113,15 +133,17 @@ let add_axiom g qv_l ax attr_l =
        update_graph g p_l add_dependence ax_node
     | Dom_val _ -> g
   in
-  link := StrMap.add ax_node (Axiom (qv_l,ax), attr_l) !link ; (* @TODO FIX*)
+  data_syntax := StrMap.add ax_node (Axiom (qv_l,ax), attr_l) !data_syntax ; (* @TODO FIX*)
   add_axiom_aux (add_node g ax_node) ax
 
-let deleted : kommand StrMap.t ref = ref StrMap.empty
+
+(** [deleted_sym] stores all deleted symbols. *)
+let deleted_sym : kommand StrMap.t ref = ref StrMap.empty
 
 let create_dependence_graph cd l =
   let init_graph = Gname.empty in
   let f_hooked_symbol attr_l g s =
-    deleted := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted ;
+    deleted_sym := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted_sym ;
     g
   in
   let f_rewrite attr_l g ({lhs=_;rhs=(qv_l,ax)}) =
@@ -135,6 +157,23 @@ let create_dependence_graph cd l =
     (fun attr_l g (qv_l, ax) -> add_axiom g qv_l ax attr_l)
     (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
      do_nothing, do_nothing, do_nothing, do_nothing, do_nothing)
+
+let in_prelude : kommand StrMap.t ref = ref StrMap.empty
+
+let create_dependence_graph_bis cd g l =
+  let rec aux g l = match l with
+    | [] -> g
+    | ((Sort      s), _)::q -> aux (add_sort g s) q
+    | ((H_sort    s), attr_l)::q ->
+       Format.printf (Common.Color.yel "WARNING: %s need to be defined in the prelude.\n") s ;
+       in_prelude := StrMap.add s (H_sort s, attr_l) !in_prelude ;
+       aux g q
+    | ((Symbol    s), _)::q -> aux (add_symbol g s) q
+    | ((H_symbol  s), attr_l)::q ->
+       deleted_sym := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted_sym ;
+       aux g q
+    | ((Alias     _), _)::q -> aux g q
+    | ((Axiom(qv_l,ax)), attr_l)::q -> aux (add_axiom g qv_l ax attr_l) q
 
       (*
 let () =
