@@ -4512,37 +4512,37 @@ module IMP
       \top{R}()))
   [projection{}()]
 
-// // rule `replace(_,_,_,_)_STRING-COMMON_String_String_String_String_Int`(Source,ToReplace,Replacement,Count)=>`_+String__STRING-COMMON_String_String_String`(`_+String__STRING-COMMON_String_String_String`(`substrString(_,_,_)_STRING-COMMON_String_String_Int_Int`(Source,#token("0","Int"),`findString(_,_,_)_STRING-COMMON_Int_String_String_Int`(Source,ToReplace,#token("0","Int"))),Replacement),`replace(_,_,_,_)_STRING-COMMON_String_String_String_String_Int`(`substrString(_,_,_)_STRING-COMMON_String_String_Int_Int`(Source,`_+Int_`(`findString(_,_,_)_STRING-COMMON_Int_String_String_Int`(Source,ToReplace,#token("0","Int")),`lengthString(_)_STRING-COMMON_Int_String`(ToReplace)),`lengthString(_)_STRING-COMMON_Int_String`(Source)),ToReplace,Replacement,`_-Int_`(Count,#token("1","Int")))) requires `_>Int_`(Count,#token("0","Int")) ensures #token("true","Bool") [UNIQUE_ID(311b80d2cb12d368f230eba968464e1fc926bd57e304059b282b82af4d9626d9), contentStartColumn(8), contentStartLine(1549), org.kframework.attributes.Location(Location(1549,8,1552,30)), org.kframework.attributes.Source(Source(/usr/include/kframework/builtin/domains.md)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody "requires" Bool [klabel(#ruleRequires), symbol])]
-//   axiom{R} \implies{R} (
-//     \and{R}(
-//       \equals{SortBool{},R}(
-//         Lbl'Unds-GT-'Int'Unds'{}(VarCount:SortInt{},\dv{SortInt{}}("0")),
-//         \dv{SortBool{}}("true")),
-//       \and{R} (
-//           \in{SortString{}, R} (
-//             X0:SortString{},
-//             VarSource:SortString{}
-//           ),\and{R} (
-//           \in{SortString{}, R} (
-//             X1:SortString{},
-//             VarToReplace:SortString{}
-//           ),\and{R} (
-//           \in{SortString{}, R} (
-//             X2:SortString{},
-//             VarReplacement:SortString{}
-//           ),\and{R} (
-//           \in{SortInt{}, R} (
-//             X3:SortInt{},
-//             VarCount:SortInt{}
-//           ),
-//           \top{R} ()
-//         ))))),
-//     \and{R} (
-//       \equals{SortString{},R} (
-//         Lblreplace'LParUndsCommUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'String'Unds'String'Unds'String'Unds'Int{}(X0:SortString{},X1:SortString{},X2:SortString{},X3:SortInt{}),
-//         Lbl'UndsPlus'String'UndsUnds'STRING-COMMON'Unds'String'Unds'String'Unds'String{}(Lbl'UndsPlus'String'UndsUnds'STRING-COMMON'Unds'String'Unds'String'Unds'String{}(LblsubstrString'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'String'Unds'Int'Unds'Int{}(VarSource:SortString{},\dv{SortInt{}}("0"),LblfindString'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String'Unds'String'Unds'Int{}(VarSource:SortString{},VarToReplace:SortString{},\dv{SortInt{}}("0"))),VarReplacement:SortString{}),Lblreplace'LParUndsCommUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'String'Unds'String'Unds'String'Unds'Int{}(LblsubstrString'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'String'Unds'Int'Unds'Int{}(VarSource:SortString{},Lbl'UndsPlus'Int'Unds'{}(LblfindString'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String'Unds'String'Unds'Int{}(VarSource:SortString{},VarToReplace:SortString{},\dv{SortInt{}}("0")),LbllengthString'LParUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String{}(VarToReplace:SortString{})),LbllengthString'LParUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String{}(VarSource:SortString{})),VarToReplace:SortString{},VarReplacement:SortString{},Lbl'Unds'-Int'Unds'{}(VarCount:SortInt{},\dv{SortInt{}}("1"))))),
-//       \top{R}()))
-//   [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody \"requires\" Bool [klabel(#ruleRequires), symbol]"), contentStartLine{}("1549"), contentStartColumn{}("8"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(1549,8,1552,30)"), UNIQUE'Unds'ID{}("311b80d2cb12d368f230eba968464e1fc926bd57e304059b282b82af4d9626d9")]
+// rule `replace(_,_,_,_)_STRING-COMMON_String_String_String_String_Int`(Source,ToReplace,Replacement,Count)=>`_+String__STRING-COMMON_String_String_String`(`_+String__STRING-COMMON_String_String_String`(`substrString(_,_,_)_STRING-COMMON_String_String_Int_Int`(Source,#token("0","Int"),`findString(_,_,_)_STRING-COMMON_Int_String_String_Int`(Source,ToReplace,#token("0","Int"))),Replacement),`replace(_,_,_,_)_STRING-COMMON_String_String_String_String_Int`(`substrString(_,_,_)_STRING-COMMON_String_String_Int_Int`(Source,`_+Int_`(`findString(_,_,_)_STRING-COMMON_Int_String_String_Int`(Source,ToReplace,#token("0","Int")),`lengthString(_)_STRING-COMMON_Int_String`(ToReplace)),`lengthString(_)_STRING-COMMON_Int_String`(Source)),ToReplace,Replacement,`_-Int_`(Count,#token("1","Int")))) requires `_>Int_`(Count,#token("0","Int")) ensures #token("true","Bool") [UNIQUE_ID(311b80d2cb12d368f230eba968464e1fc926bd57e304059b282b82af4d9626d9), contentStartColumn(8), contentStartLine(1549), org.kframework.attributes.Location(Location(1549,8,1552,30)), org.kframework.attributes.Source(Source(/usr/include/kframework/builtin/domains.md)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody "requires" Bool [klabel(#ruleRequires), symbol])]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \equals{SortBool{},R}(
+        Lbl'Unds-GT-'Int'Unds'{}(VarCount:SortInt{},\dv{SortInt{}}("0")),
+        \dv{SortBool{}}("true")),
+      \and{R} (
+          \in{SortString{}, R} (
+            X0:SortString{},
+            VarSource:SortString{}
+          ),\and{R} (
+          \in{SortString{}, R} (
+            X1:SortString{},
+            VarToReplace:SortString{}
+          ),\and{R} (
+          \in{SortString{}, R} (
+            X2:SortString{},
+            VarReplacement:SortString{}
+          ),\and{R} (
+          \in{SortInt{}, R} (
+            X3:SortInt{},
+            VarCount:SortInt{}
+          ),
+          \top{R} ()
+        ))))),
+    \and{R} (
+      \equals{SortString{},R} (
+        Lblreplace'LParUndsCommUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'String'Unds'String'Unds'String'Unds'Int{}(X0:SortString{},X1:SortString{},X2:SortString{},X3:SortInt{}),
+        Lbl'UndsPlus'String'UndsUnds'STRING-COMMON'Unds'String'Unds'String'Unds'String{}(Lbl'UndsPlus'String'UndsUnds'STRING-COMMON'Unds'String'Unds'String'Unds'String{}(LblsubstrString'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'String'Unds'Int'Unds'Int{}(VarSource:SortString{},\dv{SortInt{}}("0"),LblfindString'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String'Unds'String'Unds'Int{}(VarSource:SortString{},VarToReplace:SortString{},\dv{SortInt{}}("0"))),VarReplacement:SortString{}),Lblreplace'LParUndsCommUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'String'Unds'String'Unds'String'Unds'Int{}(LblsubstrString'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'String'Unds'Int'Unds'Int{}(VarSource:SortString{},Lbl'UndsPlus'Int'Unds'{}(LblfindString'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String'Unds'String'Unds'Int{}(VarSource:SortString{},VarToReplace:SortString{},\dv{SortInt{}}("0")),LbllengthString'LParUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String{}(VarToReplace:SortString{})),LbllengthString'LParUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String{}(VarSource:SortString{})),VarToReplace:SortString{},VarReplacement:SortString{},Lbl'Unds'-Int'Unds'{}(VarCount:SortInt{},\dv{SortInt{}}("1"))))),
+      \top{R}()))
+  [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody \"requires\" Bool [klabel(#ruleRequires), symbol]"), contentStartLine{}("1549"), contentStartColumn{}("8"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(1549,8,1552,30)"), UNIQUE'Unds'ID{}("311b80d2cb12d368f230eba968464e1fc926bd57e304059b282b82af4d9626d9")]
 
 // rule `replace(_,_,_,_)_STRING-COMMON_String_String_String_String_Int`(Source,_0,_1,#token("0","Int"))=>Source requires #token("true","Bool") ensures #token("true","Bool") [UNIQUE_ID(4367434b0f61c404f7a2e926426bd23874dd547de689c5d15089967fbab2b3d5), contentStartColumn(8), contentStartLine(1553), org.kframework.attributes.Location(Location(1553,8,1553,49)), org.kframework.attributes.Source(Source(/usr/include/kframework/builtin/domains.md)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody [klabel(#ruleNoConditions), symbol])]
   axiom{R} \implies{R} (
