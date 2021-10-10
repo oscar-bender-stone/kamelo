@@ -1,0 +1,41 @@
+;; Rules for the file dependency_graph.ml
+
+;; (rule
+;;  (with-stdout-to
+;;   dependency_graph.output
+;;   (run ./dependency_graph.exe)))
+
+;; (rule
+;;  (alias runtest)
+;;  (action
+;;   (progn
+;;    (diff dependency.expected basic.output)
+;;    (echo "basic: all tests succeeded.\n"))))
+
+;; (library
+;;  (name parsing)
+;;  (public_name lambdapi.parsing)
+;;  (modules :standard)
+;;  (preprocess (pps sedlex.ppx))
+;;  (libraries core menhirLib pratter sedlex sedlex.ppx common))
+
+;;(library
+;;  (name kamelo)
+;;  (public_name lambdapi.parsing)
+;;  (modules :standard)
+;;  (libraries menhirLib ocamlgraph))
+
+(executable
+  (name main)
+  (flags (:standard -w -27))
+  (modules :standard)
+  (libraries parsing common LP_interface translation core str ocamlgraph))
+
+;; (library
+;;  (name dependency_graph)
+;;  (modules dependency_graph)
+;;  (libraries ocamlgraph))
+
+;; (library
+;;   (public_name kamelo)
+;;   (names color type pos syntax symbol axiom   (modules main))
