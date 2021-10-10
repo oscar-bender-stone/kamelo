@@ -1,5 +1,5 @@
 
-open LP_p_term
+open LP_interface.LP_p_term
 open Common.Type
 open LP_interface.Syntax
 

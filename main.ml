@@ -1,18 +1,18 @@
 open Common.Type
-open Display_console
-open Output
+open Core.Display_console
+open LP_interface.Output
 
 let () =
   (* STEP A: Parse the command-line *)
-  Cmd_line.parse ();
+  Core.Cmd_line.parse ();
   (* STEP B: Parse the .kore file   *)
-  let lexbuf = Lexing.from_channel (!Cmd_line.input) in
+  let lexbuf = Lexing.from_channel (!Core.Cmd_line.input) in
   let file = Parsing.Kparser.file Parsing.Klexer.token lexbuf in
   (* STEP C: Generate a file for each Kore module *)
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
     let name, kimport_l, kommand_l, _ = m in
-    Dependency_graph.data_syntax := LP_p_term.StrMap.empty ; (* @TODO arg *)
+    Core.Dependency_graph.data_syntax := LP_interface.LP_p_term.StrMap.empty ; (* @TODO arg *)
     (* STEP 0: Reset count data *)
     let cd = Common.Count_data.reset_count_data 0 in
     (* STEP 1: Create the new file *)
@@ -25,28 +25,28 @@ let () =
           | Dedukti -> fun _ _ -> () (* @TODO *)
           | Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
     in
-    Import.with_prelude ff printing kimport_l cd;
+    Translation.Import.with_prelude ff printing kimport_l cd;
     (* STEP 3: Main translation *)
-    if !Cmd_line.old then Preprocessing.old ff m cd
+    if !Core.Cmd_line.old then Core.Preprocessing.old ff m cd
     else
       begin
         match !mimic with
         | Kore    -> (match !output with
-                      | LP | Dedukti -> Printer.pp_kommand_ter ff cd printing kommand_l
-                      | Kore -> Printer.pp_kore_kommand ff cd kommand_l)
-        | K       -> Printer.pp_kommand_bis ff cd printing kommand_l
+                      | LP | Dedukti -> Translation.Printer.pp_kommand_ter ff cd printing kommand_l
+                      | Kore -> Translation.Printer.pp_kore_kommand ff cd kommand_l)
+        | K       -> Translation.Printer.pp_kommand_bis ff cd printing kommand_l
         | Dedukti ->
            let g =
-             Dependency_graph.create_dependence_graph cd kommand_l
+             Core.Dependency_graph.create_dependence_graph cd kommand_l
            in
            let tmp node =
              try
-               Some (LP_p_term.StrMap.find node !Dependency_graph.data_syntax)
-             with Not_found -> (if not(LP_p_term.StrMap.mem node !Dependency_graph.in_prelude)
+               Some (LP_interface.LP_p_term.StrMap.find node !Core.Dependency_graph.data_syntax)
+             with Not_found -> (if not(LP_interface.LP_p_term.StrMap.mem node !Core.Dependency_graph.in_prelude)
                                 then Format.printf (Common.Color.yel "WARNING: Need to be fixed: %s doesn't exist.\n") node ; None)
            in
-           let f node = match tmp node with | Some x -> Printer.pp_kommand ff cd printing x | None -> () in
-           Dependency_graph.T.iter f g
+           let f node = match tmp node with | Some x -> Translation.Printer.pp_kommand ff cd printing x | None -> () in
+           Core.Dependency_graph.T.iter f g
       end;
     (* STEP 4: Printing count data *)
     print_module_message filename (List.length kommand_l) cd;

@@ -1,11 +1,11 @@
 open Common.Type
 open Common.Color
 
-open Axiom
+open Translation.Axiom
 
 open Common.Count_data
 open LP_interface.LP_printer
-open Printer
+open Translation.Printer
 
 module Sort = struct
   type t = sort
@@ -85,7 +85,7 @@ let preprocessing :
             print_new_attribute name attr_l ;
             if not(!check_induc) then (incr_k_symbol cd ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
             else
-              (match Symbol.is_constructor s attr_l with
+              (match Translation.Symbol.is_constructor s attr_l with
                | Some sort ->
                   let f new_v old_v = match old_v with None -> Some [new_v] | Some q -> Some (new_v::q) in
                   let induc_m = Induc.update sort (f s) induc_m in
@@ -100,7 +100,7 @@ let preprocessing :
            | h::tl ->
               (match h with
                | Axiom(qv,a), attr_l ->
-                  if Axiom.is_rule a
+                  if Translation.Axiom.is_rule a
                   then
                     (incr_k_rule cd ;
                      aux tl (sort_l, induc_m, sym_l, (al, Some(qv,a,attr_l))::alias_l, ax_l))
@@ -111,7 +111,7 @@ let preprocessing :
        | Axiom(qv,a) ->
           incr_k_axiom cd ;
           match attr_l with
-          | [] -> if Axiom.is_predicate a
+          | [] -> if Translation.Axiom.is_predicate a
                   then aux q acc
                   else aux q (sort_l, induc_m, sym_l, alias_l, (qv,a,attr_l)::ax_l)
           | [t] ->

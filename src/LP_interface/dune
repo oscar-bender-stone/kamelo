@@ -1,3 +1,4 @@
 (library
   (name LP_interface)
-  (modules :standard))
+  (modules :standard)
+  (libraries str))

@@ -1,5 +1,5 @@
 
-open LP_interface.Syntax
+open Syntax
 open Output
 
 let _SORTK = "SortK"
@@ -7,7 +7,7 @@ let _INJ = "injK"
 let _INJGEN = "injG"
 
 (** [no_pos alpha] creates nothing without position. *)
-let no_pos = LP_interface.Pos.none
+let no_pos = Pos.none
 
 (** [create_prop p] creates a modifier with one property [p]. *)
 let create_prop : prop -> p_modifier = fun p -> no_pos (P_prop p)

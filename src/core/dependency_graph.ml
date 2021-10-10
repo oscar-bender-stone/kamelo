@@ -1,6 +1,6 @@
 
 open Common.Type
-open Iterator
+open Translation.Iterator
 
 open Graph
 (*open Pack.Digraph*)
@@ -53,7 +53,7 @@ end
 module Gname = Persistent.Digraph.Concrete(Name)
 module T = Graph.Topological.Make(Gname)
 
-(* @TODO move *) open LP_p_term
+(* @TODO move *) open LP_interface.LP_p_term
 
 (** [data_syntax] saves the data close to K syntax *) (* @TODO improve comment *)
 let data_syntax : kommand StrMap.t ref = ref StrMap.empty
@@ -149,7 +149,7 @@ let create_dependence_graph_gen f_iter f_alias f_rewrite cd l =
     g
   in
   let f_hooked_symbol attr_l g s =
-    deleted_sym := StrMap.add (Symbol.get_name s) (H_symbol s, attr_l) !deleted_sym ;
+    deleted_sym := StrMap.add (Translation.Symbol.get_name s) (H_symbol s, attr_l) !deleted_sym ;
     g
   in
   let f_ax_default = fun attr_l g (qv_l,ax) -> add_axiom g qv_l ax attr_l in
