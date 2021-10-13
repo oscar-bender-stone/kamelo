@@ -1,6 +1,6 @@
 
 open Common.Type
-open Translation.Iterator
+open Iterator
 
 open Graph
 (*open Pack.Digraph*)

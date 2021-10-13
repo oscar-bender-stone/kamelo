@@ -54,7 +54,7 @@ let axiom_cases (cd : count_data) (attr_l : attribute list) (curr_attr : attribu
       incr_k_ax_initializer cd ; f_ax_initializer attr_l acc (qv_l, ax)
    | Owise       _ ->
       (* check_is_predicat cd [] acc ax f_ax_predicat (qv_l, ax) f_ax_owise (qv_l, ax) - @TODO *)
-      if Axiom.is_predicate ax
+      if Translation.Axiom.is_predicate ax
       then (incr_k_ax_predicat cd ; f_ax_predicat attr_l acc (qv_l, ax))
       else (incr_k_ax_owise    cd ; f_ax_owise    attr_l acc (qv_l, ax))
    | _ -> (* Format.printf (Color.yel "WARNING: %s is the only one for a rule") attr * ; @TODO *)
@@ -88,7 +88,7 @@ let meta_kommand_iter
     : 'a =
   let g_attr : 'a meta_axiom = fun attr_l acc qv_l ax ->
     match attr_l with
-    | [] -> (if Axiom.is_predicate ax
+    | [] -> (if Translation.Axiom.is_predicate ax
              then (incr_k_ax_predicat     cd ; f_ax_predicat  attr_l acc (qv_l, ax))
              else (incr_k_ax_without_attr cd ; f_ax_default attr_l acc (qv_l, ax)))
     | [attr] -> axiom_cases cd attr_l attr acc qv_l ax f_ax_default transformation
@@ -141,7 +141,7 @@ let kommand_iter_without_alias
        match h with
        | Axiom(qv_l, ax), attr_l_ax ->
           let xattr_l = attr_l@attr_l_ax in
-          if Axiom.is_rule ax
+          if Translation.Axiom.is_rule ax
           then (incr_k_ax_rule cd ; f_rewrite xattr_l acc { lhs = al ; rhs = (qv_l, ax) })
           else (incr_k_alias   cd ; f_alias xattr_l acc al)
        | _  -> (incr_k_alias cd ; f_alias attr_l acc al)
@@ -175,7 +175,7 @@ let kommand_iter_with_alias
   =
   let meta_f_alias _ attr_l acc al = incr_k_alias cd ; f_alias attr_l acc al in
   let meta_f_axiom g_attr attr_l acc qv_l ax =
-    if Axiom.is_rule ax
+    if Translation.Axiom.is_rule ax
     then (incr_k_ax_rule cd ; f_rewrite attr_l acc (qv_l, ax))
     else g_attr attr_l acc qv_l ax
   in

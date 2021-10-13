@@ -1,9 +1,11 @@
 
 open Common.Type
 open Common.Count_data
-open Iterator   (* @TODO improve? *)
+open Mecanism.Iterator   (* @TODO improve? *)
 open! LP_interface.Syntax
 open LP_interface.Output
+
+open Translation
 
 type output  = Format.formatter
 type printer = output -> p_command -> unit
