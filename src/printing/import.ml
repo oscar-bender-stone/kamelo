@@ -2,7 +2,7 @@ open Common.Type
 open Common.Count_data
 open Printer
 
-let lp_pkg = "tests"
+let lp_pkg = "root_KaMeLo"
 let prelude_path = ["tests"] (* depuis lp_pkg *)
 let prelude_name = "prelude"
 

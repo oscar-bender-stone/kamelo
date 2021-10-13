@@ -2,7 +2,7 @@ open Arg
 
 open Common.Color
 open LP_interface.Output
-open Translation.Printer
+open Printing.Printer
 open Preprocessing
 
 let input = ref stdin

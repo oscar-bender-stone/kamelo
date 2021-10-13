@@ -5,7 +5,7 @@ open Translation.Axiom
 
 open Common.Count_data
 open LP_interface.LP_printer
-open Translation.Printer
+open Printing.Printer
 
 module Sort = struct
   type t = sort

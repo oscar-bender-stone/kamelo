@@ -1,5 +1,4 @@
 (library
   (name translation)
-  (flags (:standard -w -27))
   (modules :standard)
-  (libraries common LP_interface print))
+  (libraries common LP_interface))
