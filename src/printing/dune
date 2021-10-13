@@ -1,0 +1,4 @@
+(library
+  (name printing)
+  (modules :standard)
+  (libraries common translation mecanism))

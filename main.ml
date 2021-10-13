@@ -1,12 +1,12 @@
 open Common.Type
-open Core.Display_console
+open Terminal.Display_console
 open LP_interface.Output
 
 let () =
   (* STEP A: Parse the command-line *)
-  Core.Cmd_line.parse ();
+  Terminal.Cmd_line.parse ();
   (* STEP B: Parse the .kore file   *)
-  let lexbuf = Lexing.from_channel (!Core.Cmd_line.input) in
+  let lexbuf = Lexing.from_channel (!Terminal.Cmd_line.input) in
   let file = Parsing.Kparser.file Parsing.Klexer.token lexbuf in
   (* STEP C: Generate a file for each Kore module *)
   let module_to_file : kmodule -> unit = fun m ->
@@ -27,7 +27,7 @@ let () =
     in
     Printing.Import.with_prelude ff printing kimport_l cd;
     (* STEP 3: Main translation *)
-    if !Core.Cmd_line.old then Core.Preprocessing.old ff m cd
+    if !Terminal.Cmd_line.old then Terminal.Preprocessing.old ff m cd
     else
       begin
         match !mimic with

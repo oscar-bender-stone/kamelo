@@ -1,0 +1,4 @@
+(library
+  (name terminal)
+  (modules :standard)
+  (libraries common translation printing))

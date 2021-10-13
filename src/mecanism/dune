@@ -1,0 +1,5 @@
+(library
+  (name mecanism)
+  (flags (:standard -w -27))
+  (modules :standard)
+  (libraries common ocamlgraph translation))
