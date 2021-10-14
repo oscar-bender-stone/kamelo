@@ -7,7 +7,9 @@ open LP_interface.Output
 
 open Translation
 
-type output  = Format.formatter
+open Common.Color
+
+(* type output  = Format.formatter *)
 type printer = output -> p_command -> unit
 
 (** Lambdapi printer *)
@@ -116,6 +118,141 @@ let pp_kommand_ter : output -> count_data -> printer -> kommand list -> unit  = 
   (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
    equality_axiom, equality_axiom, equality_axiom, equality_axiom,
    do_nothing, (fun attr_l -> f_axiom attr_l)) (fun () -> ())
+
+open Translation.Axiom
+open LP_interface.LP_p_term
+
+let _AND_BOOL = "Lbl'Unds'andBool'Unds"
+let _OR_BOOL  = "Lbl'Unds'orBool'Unds"
+let _NOT_BOOL = "LblnotBool'Unds"
+(* let _EQUALS_BOOL = "\equals"
+let _DOMAIN_VALUES = *)
+
+let encoding :
+    output -> count_data -> printer -> kommand list -> unit =
+  fun ppf cd printing kommand_l ->
+  (* STEP 1: From K commands to CTRS rules (and partial printing). *)
+  let propagation = fun _ x _ -> x in
+  let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
+    let rec aux : t -> p_term = fun ax ->
+      let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
+      match ax with
+      | Predicat p ->
+         begin
+           match p with
+           | Sym("inj", qv_l, a_l) ->
+              let g p = match p with S x | Q x -> create_implicit_arg x in
+              let tmp = List.map g qv_l in
+              let res = List.fold_left create_appl (create_ident _INJGEN) tmp in
+              List.fold_left f_sym res a_l
+           | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
+           | Var(n, _) -> (if StrMap.mem n !data_matching
+                           then StrMap.find n !data_matching
+                           else f_var n)
+         end
+      | Equals(_, x, Dom_val(_, "true"))  -> aux x
+      | Equals(_, x, Dom_val(_, "false")) -> create_appl (create_ident _NOT_BOOL) (aux x)
+      | Equals _ -> failwith "EQUALS"
+      | Dom_val(_, name) -> create_ident name
+      (*| In _ -> failwith "OK, guys" *)
+      (*| Exists _ -> failwith "EXISTS"
+      | Or _ -> failwith "OR"
+      | Not _ -> failwith "NOT"
+      | Implies _ -> failwith "IMPLIES"
+      | Bottom _ -> failwith "BOTTOM"
+      | Top    _ -> failwith "TOP"
+      | Rewrites _ -> failwith "REWRITES" *)
+      | And (_, ax1, Predicat(Var(n,_))) ->
+         let res = aux ax1 in
+         data_matching := StrMap.add n res !data_matching ; res
+      | _ -> failwith "Not yet implemented [Axiom.curry]."
+    in
+    aux ax
+  in
+  let curry_condition = curry_new create_pattern_var in
+  let create_LHS : alias -> p_term * p_term option = fun al ->
+    let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
+    let def = get_def al in
+    match def with
+    | A a ->
+       begin
+         match a with
+         | And(_,a1,a2) ->
+            (match a1 with
+             | Top _ -> curry_pattern a2, None
+             | _     -> curry_pattern a2, Some (create_appl (create_ident (Translation.Viry.safe_prefix ^ "inj")) (curry_condition a1))) (* (no_pos P_Type)) *)
+         |  _ -> failwith "In LHS: Not yet implemented"
+       end
+    | D _ -> failwith "Not possible in rewriting axiom"
+  in
+  let create_RHS : t -> p_term = fun ax ->
+    match ax with
+    | Rewrites(_,_,And(_,a1,a2)) ->
+       if is_conditional_rule a1 then
+         raise (ConditionalRule "KProver claim not supported yet.")
+       else
+         Translation.Axiom.curry_pattern a2
+    |  _ -> failwith "In RHS: Not yet implemented"
+  in
+  let create_ctrs_rule :
+      attribute list -> alias -> axiom -> Translation.Viry.ctrs_rule
+    = fun attr_l al ax ->
+    (* Be careful: the order of the computation is important
+     because of references *)
+    let default_prio = 42 in
+    let lhs, cond = create_LHS al in
+    let rhs = create_RHS ax in
+    let attr_l =
+      List.map (fun attr -> match attr with
+                          | Owise _ -> true
+                          | _ -> false) attr_l
+    in
+    let is_owise = List.fold_left (||) false attr_l in
+    match is_owise, cond with
+    | false, None   -> (no_pos (lhs, rhs), Uncond, default_prio)
+    | false, Some x -> (no_pos (lhs, rhs), Cond x, default_prio)
+    | true,  None   -> (no_pos (lhs, rhs), Owise,  default_prio)
+    | true,  Some _ -> failwith "Not possible."
+  in
+  let ctrs_r_l =
+    kommand_iter_without_alias cd kommand_l []
+    (fun _ acc s -> pp_sort ppf cd printing s ; acc)
+    (fun _ acc s -> pp_sort ppf cd printing s ; acc)
+    (fun attr_l acc s -> pp_symbol ppf cd printing (s, attr_l) ; acc)
+    (fun attr_l acc s -> pp_symbol ppf cd printing (s, attr_l) ; acc)
+    propagation
+    (fun attr_l acc {lhs=al; rhs=(_, ax)} ->
+      (create_ctrs_rule attr_l al ax)::acc)
+    propagation
+    (propagation, propagation, propagation, propagation, propagation,
+     propagation, propagation, propagation, propagation,
+     propagation, propagation) (fun () -> ())
+  in
+  (* STEP 2: From CTRS rules to TRS rules and symbols. *)
+  let sym_l, r_l = Translation.Viry.viry_encoding ppf ctrs_r_l in
+  (* STEP 3: Print symbols then TRS rules. *)
+  if List.length sym_l > 3 then
+    (List.iter (fun x -> printing ppf (no_pos (P_symbol x)))   (List.rev sym_l) ;
+     List.iter (fun x -> printing ppf (no_pos (P_rules  [x]))) (List.rev r_l))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 (** Kore printer *)
 

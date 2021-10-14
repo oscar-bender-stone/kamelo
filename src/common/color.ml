@@ -11,3 +11,6 @@ let yel fmt = colorize "33" fmt
 let blu fmt = colorize "34" fmt
 let mag fmt = colorize "35" fmt
 let cya fmt = colorize "36" fmt
+
+
+type output  = Format.formatter

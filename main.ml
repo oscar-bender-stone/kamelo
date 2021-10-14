@@ -32,7 +32,7 @@ let () =
       begin
         match !mimic with
         | Kore    -> (match !output with
-                      | LP | Dedukti -> Printing.Printer.pp_kommand_ter ff cd printing kommand_l
+                      | LP | Dedukti -> Printing.Printer.encoding ff cd printing kommand_l (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
                       | Kore -> Printing.Printer.pp_kore_kommand ff cd kommand_l)
         | K       -> Printing.Printer.pp_kommand_bis ff cd printing kommand_l
         | Dedukti ->
