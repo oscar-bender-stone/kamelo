@@ -5,7 +5,7 @@ symbol SortKItem : SortK;
 
 // Module INJ
 injective symbol injK : SortK → TYPE;
-injective symbol injG {From : SortK} {To : SortK} : injK From → injK To;
+symbol injG {From : SortK} {To : SortK} : injK From → injK To;
 
 // For inductive type
 symbol Prop : TYPE;
@@ -22,6 +22,12 @@ symbol true : injK SortBool;
 symbol false : injK SortBool;
 
 symbol SortInt : SortK;
+
+constant symbol zero : injK SortInt;
+constant symbol succ : injK SortInt → injK SortInt;
+
+builtin "0"  ≔ zero;
+builtin "+1" ≔ succ;
 
 //inductive Map : K ≔
 //  | .Map  : Map

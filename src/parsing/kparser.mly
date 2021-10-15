@@ -345,4 +345,4 @@ attributes:
 
 file:
   | attributes kmodules { ($1, $2) }
-  | EOF                { ([], []) }
+  | EOF                 { ([], []) }
