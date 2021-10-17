@@ -48,7 +48,7 @@ let () =
   (* STEP C: Generate a file for each Kore module *)
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
-    let _, _, kommand_l, _ = m in
+    let name, _, kommand_l, _ = m in
     Mecanism.Dependency_graph.data_syntax := LP_interface.LP_p_term.StrMap.empty ; (* @TODO arg *)
     (* STEP 0: Reset count data *)
     let cd = Common.Count_data.reset_count_data 0 in
@@ -81,7 +81,7 @@ let () =
            Mecanism.Dependency_graph.T.iter f g
       end;
     (* STEP 4: Printing count data *)
-    print_module_message filename (List.length kommand_l) cd;
+    print_module_message name (List.length kommand_l) cd;
     Format.pp_print_flush ff ();
     (* close_out f *)
   in
