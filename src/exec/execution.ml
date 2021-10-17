@@ -9,8 +9,9 @@ let check_extension s =
   else
     raise (Invalid_argument "Name file very short")
 
-let semantics_file = ref ""
+let filename_exec = ref ""
 
+let semantics_file = ref ""
 let set_semantics s = semantics_file := s
 
 let parse : unit -> unit = fun () ->
@@ -34,6 +35,7 @@ let parse : unit -> unit = fun () ->
      ("--no-color", Unit (fun () -> no_color:=true),  "Disable colors on the main message")*)]
     (fun s ->
       check_extension s;
+      filename_exec := String.sub s 0 ((String.length s)-5);
       Terminal.Cmd_line.input := open_in s)
     ("During compilation of a .kore program:\n" ^ usage_msg)
 
@@ -47,12 +49,14 @@ let () =
   let lexbuf = Lexing.from_channel (!Terminal.Cmd_line.input) in
   let exec = Run_parser.exec Run_lexer.token lexbuf in
   (* STEP C: Create the new file *)
-  let name = "exec_dkrun" in
+  let name = !filename_exec in
   let filename = get_filename name in
   let f  = open_out filename in
   let ff = Format.formatter_of_out_channel f in
   (* STEP D: Translate the executable *)
-  LP_interface.LP_printer.pp_p_term ff (Translation.Axiom.curry_ident exec) ;
+  let p_exec = Translation.Axiom.curry_ident exec in
+  LP_interface.LP_printer.pp_command ff
+    (LP_interface.LP_p_term.create_compute_command p_exec);
   (* STEP E: Close the new file *)
   Format.pp_print_flush ff ();
   close_out f ;

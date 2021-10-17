@@ -3,8 +3,13 @@ open Syntax
 open Output
 
 let _SORTK = "SortK"
-let _INJ = "injK"
-let _INJGEN = "injG"
+let _INJD  = "δ"
+let _INJ   = "inj"
+let _KSEQ  = "kseq"
+let _DOTK  = "dotk"
+
+let _TRUE  = "true"
+let _FALSE = "false"
 
 (** [no_pos alpha] creates nothing without position. *)
 let no_pos = Pos.none
@@ -40,8 +45,8 @@ let create_meta_var : string -> p_meta_ident = fun s -> no_pos (Name s)
 
 (** P_term *)
 
-(** [_TYPE] is the constant TYPE without position. *)
-let _TYPE : p_term = no_pos P_Type
+(** [p_TYPE] is the constant TYPE without position. *)
+let p_TYPE : p_term = no_pos P_Type
 
 (** [create_ident s] creates an identifier (just a name) without position.
     This identifier is not prefixed by "@", and can be changed by the option -r. *)
@@ -49,8 +54,17 @@ let create_ident : string -> p_term = fun s ->
   let tmp = create_p_qident ([], s) in
   no_pos (P_Iden(tmp, false))
 
-(** [_WILD] is the constant "_" without position. *)
-let _WILD : p_term = no_pos P_Wild
+let p_SORTK = create_ident _SORTK
+let p_INJD  = create_ident _INJD
+let p_INJ   = create_ident _INJ
+let p_KSEQ  = create_ident _KSEQ
+let p_DOTK  = create_ident _DOTK
+
+let p_TRUE  = create_ident _TRUE
+let p_FALSE = create_ident _FALSE
+
+(** [p_WILD] is the constant "_" without position. *)
+let p_WILD : p_term = no_pos P_Wild
 
 (** [create_meta s] creates a meta-variable without argument and position.
     Note: The option -r can't change the name. *)
@@ -85,7 +99,7 @@ let create_p_params : string list -> p_params list = fun s_l ->
   | []   -> []
   | _::_ ->
      let unique_name s = Some (no_pos s)  in
-     let typ = Some (create_ident _SORTK) in
+     let typ = Some p_SORTK in
      let is_implicit = true in
      [ List.map unique_name s_l, typ, is_implicit ]
 
@@ -103,6 +117,15 @@ let create_p_symbol (mod_l : p_modifier list) (name : string) (param_l : p_param
   ; p_sym_trm = def
   ; p_sym_prf = None
   ; p_sym_def = is_def}
+
+(** [create_compute_command p] creates a command to compute the p_term [p]. *)
+let create_compute_command : p_term -> p_command = fun p ->
+  no_pos (P_query (no_pos (P_query_normalize (p, {strategy=NONE ; steps=None}))))
+
+(** [create_builtin_command opt sym] creates a builtin command,
+    i.e. builtin [opt] := [sym]. *)
+let create_builtin_command : string -> path * string -> p_command = fun opt sym ->
+  no_pos (P_builtin(opt, (create_p_qident sym)))
 
 (* @TODO move? *)
 module StrMap = Map.Make(String)

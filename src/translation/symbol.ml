@@ -135,8 +135,8 @@ let is_constructor : symbol -> attribute list -> sort option = fun s attri_l ->
      Printf.fprintf stdout (yel "WARNING The symbol (%s) is declared 'constructor' but not 'injective'!\n") (get_name s) ; None
 
 let get_type : string -> p_term = fun s ->
-  if s = _SORTK then create_ident s
-  else create_appl (create_ident _INJ) (create_ident s)
+  let p_s = create_ident s in
+  if s = _SORTK then p_s else create_appl p_INJD p_s
 
 let sym_curry : symbol -> p_term = fun s ->
   let _, _, p_l, p = s in
@@ -157,17 +157,17 @@ let def_to_p_term : def -> p_term = fun d ->
        | And(_,a1,a2) ->
           if Axiom.is_conditional_rule a1 then
             (* raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")*)
-            _TYPE
+            p_TYPE
           else
             (try Axiom.curry_ident a2
              with Axiom.KComputation _ ->
-               Format.printf (yel "WARNING: K computation found\n") ; _TYPE)
-       | Predicat p -> (match p with Sym _ -> _TYPE | Var _ -> _TYPE)
+               Format.printf (yel "WARNING: K computation found\n") ; p_TYPE)
+       | Predicat p -> (match p with Sym _ -> p_TYPE | Var _ -> p_TYPE)
        |  _ -> failwith "In LHS: Not yet implemented"
      end
   | D (n,_) -> create_ident n
 
-let param_to_p_term p = match p with S s -> get_type s | Q _ -> _TYPE
+let param_to_p_term p = match p with S s -> get_type s | Q _ -> p_TYPE
 
 (** [create_p_params_expl l] creates explicit parameters, which have the current given type,
     without position. Note: p_params = p_ident option list * p_term option * bool. *)

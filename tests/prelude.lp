@@ -4,6 +4,13 @@ symbol SortK : TYPE;
 symbol SortKItem : SortK;
 
 // Module INJ
+// δ ζ θ ξ ϕ    γ μ ψ ω    plutôt δ ou ω
+injective symbol δ : SortK → TYPE;
+symbol t : δ SortKItem;
+
+injective symbol ω : SortK → TYPE;
+symbol r : ω SortKItem;
+
 injective symbol injK : SortK → TYPE;
 symbol injG {From : SortK} {To : SortK} : injK From → injK To;
 

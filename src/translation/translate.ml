@@ -22,13 +22,13 @@ let create_p_params : string list -> p_params list = fun s_l ->
   | []   -> []
   | _::_ ->
      let unique_name s = Some (no_pos s)  in
-     let typ = Some (create_ident _SORTK) in
+     let typ = Some p_SORTK in
      let is_implicit = true in
      [ List.map unique_name s_l, typ, is_implicit ]
 
 (** Sort *)
 let get_sort_type : sort -> p_term = fun s ->
-  if s = _SORTK then _TYPE else create_ident _SORTK
+  if s = _SORTK then p_TYPE else p_SORTK
 
 let sort_to_p_symbol : sort -> p_command = fun s ->
   let sort_type = get_sort_type s in
@@ -51,7 +51,7 @@ let create_symbol : p_symbol -> p_command = fun sym ->
 let induc_to_p_inductive : sort * symbol list -> p_inductive = fun (sort, s_l) ->
   (* p_inductive_aux = p_ident * p_term * (p_ident * p_term) list *)
   let f s = (create_p_ident (get_name s), sym_curry s) in
-  no_pos (create_p_ident sort, _TYPE, List.map f s_l)
+  no_pos (create_p_ident sort, p_TYPE, List.map f s_l)
 
 (** [create_inductive_type i] creates non-mutual inductive type without parameter
     and position. *)

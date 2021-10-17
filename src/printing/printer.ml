@@ -132,6 +132,9 @@ let encoding :
     output -> count_data -> printer -> kommand list -> unit =
   fun ppf cd printing kommand_l ->
   (* STEP 1: From K commands to CTRS rules (and partial printing). *)
+  let f_sort _ acc s = pp_sort ppf cd printing s ; acc in
+  let f_symbol attr_l acc s = pp_symbol ppf cd printing (s, attr_l) ; acc in
+  let f_deleted  _ _ _ = [] in
   let propagation = fun _ x _ -> x in
   let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
     let rec aux : t -> p_term = fun ax ->
@@ -143,7 +146,7 @@ let encoding :
            | Sym("inj", qv_l, a_l) ->
               let g p = match p with S x | Q x -> create_implicit_arg x in
               let tmp = List.map g qv_l in
-              let res = List.fold_left create_appl (create_ident _INJGEN) tmp in
+              let res = List.fold_left create_appl p_INJ tmp in
               List.fold_left f_sym res a_l
            | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
            | Var(n, _) -> (if StrMap.mem n !data_matching
@@ -195,7 +198,7 @@ let encoding :
     |  _ -> failwith "In RHS: Not yet implemented"
   in
   let create_ctrs_rule :
-      attribute list -> alias -> axiom -> Translation.Viry.ctrs_rule
+      attribute list -> alias -> axiom -> ctrs_rule
     = fun attr_l al ax ->
     (* Be careful: the order of the computation is important
      because of references *)
@@ -211,16 +214,12 @@ let encoding :
     match is_owise, cond with
     | false, None   -> (no_pos (lhs, rhs), Uncond, default_prio)
     | false, Some x -> (no_pos (lhs, rhs), Cond x, default_prio)
-    | true,  None   -> (no_pos (lhs, rhs), Owise,  default_prio)
+    | true,  None   -> (no_pos (lhs, rhs), OwiseRule,  default_prio)
     | true,  Some _ -> failwith "Not possible."
   in
   let ctrs_r_l =
     kommand_iter_without_alias cd kommand_l []
-    (fun _ acc s -> pp_sort ppf cd printing s ; acc)
-    (fun _ acc s -> pp_sort ppf cd printing s ; acc)
-    (fun attr_l acc s -> pp_symbol ppf cd printing (s, attr_l) ; acc)
-    (fun attr_l acc s -> pp_symbol ppf cd printing (s, attr_l) ; acc)
-    propagation
+    f_sort f_deleted f_symbol f_deleted propagation
     (fun attr_l acc {lhs=al; rhs=(_, ax)} ->
       (create_ctrs_rule attr_l al ax)::acc)
     propagation

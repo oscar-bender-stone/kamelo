@@ -8,24 +8,56 @@ let () =
   (* STEP B: Parse the .kore file   *)
   let lexbuf = Lexing.from_channel (!Terminal.Cmd_line.input) in
   let file = Parsing.Kparser.file Parsing.Klexer.token lexbuf in
+
+  (* STEP 1: Create the new file *)
+  let semantics_module_name =
+    match List.map (fun (name,_,_,_) -> name) (snd file) with
+    | ["BASIC-K";"KSEQ";"INJ";"K";x] -> x
+    | _ -> failwith "WARNING: The prelude isn't the one expected."
+  in
+  let filename = create_filename semantics_module_name in
+  let f  = open_out filename in
+  let ff = Format.formatter_of_out_channel f in
+
+  (* STEP : Import the prelude. *)
+  (* let cd = Common.Count_data.reset_count_data 0 in *)
+  (* Nécessaire si on veut séparer prelude.lp du reste
+   let lp_pkg = "root_KaMeLo" in
+  let prelude_name = "prelude" in *)
+    (* STEP 2: Import management *)
+  let printing = match !output with
+    | LP      -> LP_interface.LP_printer.pp_command
+    | Dedukti -> fun _ _ -> () (* @TODO *)
+    | Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
+  in
+  (* cd.k_import := 1;
+  pp_import ff cd printing (lp_pkg) (prelude_name, []);
+   *)
+  (* STEP : Create prelude *)
+    (* 1. Translate BASIC-K *)
+(*    let name,_,kommand_l,_ = head (snd file) in
+    (* 2. Add the injection _INJD *)
+
+    (* 3. Generate the prelude *)
+    create_prelude ff cd printing ; *)
+
+  (* STEP : Translation of the K prelude. *)
+
+  (* STEP : Translation of the semantics module. *)
+
   (* STEP C: Generate a file for each Kore module *)
   let module_to_file : kmodule -> unit = fun m ->
     (* let name, import_l, command_l, attribut_l = m in *)
-    let name, kimport_l, kommand_l, _ = m in
+    let _, _, kommand_l, _ = m in
     Mecanism.Dependency_graph.data_syntax := LP_interface.LP_p_term.StrMap.empty ; (* @TODO arg *)
     (* STEP 0: Reset count data *)
     let cd = Common.Count_data.reset_count_data 0 in
     (* STEP 1: Create the new file *)
-    let filename = get_filename name in
+    (* let filename = get_filename name in
     let f  = open_out filename in
-    let ff = Format.formatter_of_out_channel f in
-    (* STEP 2: Import management *)
-    let printing = match !output with
-          | LP      -> LP_interface.LP_printer.pp_command
-          | Dedukti -> fun _ _ -> () (* @TODO *)
-          | Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
-    in
-    Printing.Import.with_prelude ff printing kimport_l cd;
+    let ff = Format.formatter_of_out_channel f in *)
+
+    (* Printing.Import.with_prelude ff printing kimport_l cd; *)
     (* STEP 3: Main translation *)
     if !Terminal.Cmd_line.old then Terminal.Preprocessing.old ff m cd
     else
@@ -51,10 +83,13 @@ let () =
     (* STEP 4: Printing count data *)
     print_module_message filename (List.length kommand_l) cd;
     Format.pp_print_flush ff ();
-    close_out f
+    (* close_out f *)
   in
   (* STEP D: Iteration on .kore file *)
   print_header_kamelo ();
-  List.iter module_to_file (snd file);
+  module_to_file (List.hd (snd file)) ;
+  Printing.Prelude.create_prelude ff printing "prelude" ; (* Transformer en module pour ne plus à qu'à itérer ? *)
+  List.iter module_to_file (List.tl (snd file));
   print_footer_kamelo ();
+  close_out f;
   flush stdout;;

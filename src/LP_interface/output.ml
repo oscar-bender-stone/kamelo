@@ -5,7 +5,7 @@ let mimic = ref Kore
 type output_management = LP | Dedukti | Kore
 let output = ref LP
 
-let get_filename name =
+let create_filename name =
   let tmp = String.lowercase_ascii name in
   match !output with
   | Dedukti -> tmp ^ ".dk"
