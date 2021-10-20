@@ -102,7 +102,7 @@ let preprocessing :
                | Axiom(qv,a), attr_l ->
                   if Translation.Axiom.is_rule a
                   then
-                    (incr_k_rule cd ;
+                    (incr_k_rewriting_ax cd ;
                      aux tl (sort_l, induc_m, sym_l, (al, Some(qv,a,attr_l))::alias_l, ax_l))
                   else
                     (incr_k_alias cd ;

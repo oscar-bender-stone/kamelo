@@ -1,7 +1,7 @@
 
 open Common.Type
 open Common.Count_data
-open Mecanism.Iterator   (* @TODO improve? *)
+open Mecanism.Iterator_plus_plus   (* @TODO improve? *)
 open! LP_interface.Syntax
 open LP_interface.Output
 
@@ -21,7 +21,8 @@ let pp_import : output -> count_data -> printer -> string list -> import -> unit
 
 let pp_sort : output -> count_data -> printer -> sort -> unit =
   fun ppf cd prt s ->
-  incr_real_sort cd ;
+  (* incr_real_sort cd ; *)
+  incr_real_symbol cd ;
   prt ppf (Translate.sort_to_p_symbol (pp s))
 
 let pp_induc : output -> count_data -> printer -> sort * symbol list -> unit =
@@ -82,6 +83,8 @@ let pp_kommand : output -> count_data -> printer -> kommand -> unit =
   | Alias        al -> pp_alias_bis ppf prt al (* @TODO : aller voir la suite de la liste *)
   | Axiom(qv_l, ax) -> pp_axiom ppf cd prt (qv_l, ax, attr_l)
 
+(*
+
 let pp_kommand_bis  : output -> count_data -> printer -> kommand list -> unit = fun ppf cd prt kommand_l ->
   let do_nothing = fun _ _ _ -> () in
   let equality_axiom = fun _ _ (qv_l, ax) -> pp_equality_axiom ppf cd prt (qv_l, ax) in
@@ -118,6 +121,8 @@ let pp_kommand_ter : output -> count_data -> printer -> kommand list -> unit  = 
   (do_nothing, do_nothing, do_nothing, do_nothing, do_nothing,
    equality_axiom, equality_axiom, equality_axiom, equality_axiom,
    do_nothing, (fun attr_l -> f_axiom attr_l)) (fun () -> ())
+
+  *)
 
 open Translation.Axiom
 open LP_interface.LP_p_term
@@ -222,17 +227,18 @@ let encoding :
     f_sort f_deleted f_symbol f_deleted propagation
     (fun attr_l acc {lhs=al; rhs=(_, ax)} ->
       (create_ctrs_rule attr_l al ax)::acc)
-    propagation
-    (propagation, propagation, propagation, propagation, propagation,
-     propagation, propagation, propagation, propagation,
-     propagation, propagation) (fun () -> ())
+    propagation (propagation, propagation)
+    (propagation, propagation, propagation, propagation)
+    propagation propagation
+    (propagation, propagation, propagation, propagation,
+     propagation, propagation, propagation) (fun () -> ())
   in
   (* STEP 2: From CTRS rules to TRS rules and symbols. *)
   let sym_l, r_l = Translation.Viry.viry_encoding ppf ctrs_r_l in
   (* STEP 3: Print symbols then TRS rules. *)
   if List.length sym_l > 3 then
-    (List.iter (fun x -> printing ppf (no_pos (P_symbol x)))   (List.rev sym_l) ;
-     List.iter (fun x -> printing ppf (no_pos (P_rules  [x]))) (List.rev r_l))
+    (List.iter (fun x -> incr_additional_symbol cd ; printing ppf (no_pos (P_symbol x)))   (List.rev sym_l) ;
+     List.iter (fun x -> incr_real_rule cd ; printing ppf (no_pos (P_rules  [x]))) (List.rev r_l))
 
 
 
@@ -456,6 +462,7 @@ let pp_kore_kommand : output -> count_data -> kommand list -> unit = fun ppf cd 
   kommand_iter_with_alias cd kommand_l ()
   f_sort f_sort (f_symbol "symbol") (f_symbol "hooked-symbol")
   (fun attr_l _ al -> pp_kore_alias ppf al attr_l)
-  f_axiom f_axiom
-  (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom,
-   f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom) (fun () -> pp_endline ppf)
+  f_axiom f_axiom (f_axiom, f_axiom)
+  (f_axiom, f_axiom, f_axiom, f_axiom) f_axiom f_axiom
+   (f_axiom, f_axiom, f_axiom, f_axiom,
+    f_axiom, f_axiom, f_axiom) (fun () -> pp_endline ppf)

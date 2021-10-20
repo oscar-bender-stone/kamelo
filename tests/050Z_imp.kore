@@ -18,13 +18,13 @@ module KSEQ
     \equals{SortK{},R}(
       append{}(dotk{}(),K2:SortK{}),
       K2:SortK{})
-  []
+  [unit{}()]
 
   axiom{R}
     \equals{SortK{},R}(
       append{}(kseq{}(K1:SortKItem{},K2:SortK{}),K3:SortK{}),
       kseq{}(K1:SortKItem{},append{}(K2:SortK{},K3:SortK{})))
-  []
+  [assoc{}()]
 
 endmodule []
 
@@ -35,7 +35,7 @@ module INJ
     \equals{S3,R}(
       inj{S2,S3}(inj{S1,S2}(T:S1)),
       inj{S1,S3}(T:S1))
-  []
+  [assoc{}()]
 
 endmodule []
 

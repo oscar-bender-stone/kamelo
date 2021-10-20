@@ -1,5 +1,5 @@
-open Common.Type
-open Common.Count_data
+(* open Common.Type
+   open Common.Count_data
 
 type rewrite = { lhs : alias ; rhs : quant_var list * axiom }
 type common_data = Format.formatter * count_data * attribute list
@@ -181,3 +181,5 @@ let kommand_iter_with_alias
   in
   meta_kommand_iter meta_f_alias meta_f_axiom cd l neutral_el f_sort f_hooked_sort
     f_symbol f_hooked_symbol f_alias f_rewrite f_ax_default transformation f_each_end_iter
+
+ *)

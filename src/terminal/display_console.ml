@@ -2,6 +2,7 @@
 open Common.Color
 open Common.Count_data
 
+   (*
 let print_info : int option * int option * string * string -> unit = fun (i, j, one, several) ->
   let denomi = match j with
     | None -> "?"
@@ -19,6 +20,25 @@ let print_info : int option * int option * string * string -> unit = fun (i, j, 
        else Format.printf "%i / %s %s translated.\n" i denomi several
 
 let print_count_data : count_data -> unit = fun cd -> List.iter print_info (extract_info cd)
+    *)
+
+let print_info : int * int * string * string -> unit = fun (cran, nb, one, several) ->
+  let text =  if nb > 2 then several else one in
+
+  if nb <= 0 then ()
+  else
+    (let nb = string_of_int nb in
+     match cran with
+     | 0 -> Format.printf "  %s %s\n" nb text
+     | 1 -> Format.printf (cya "    * %s %s\n") nb text
+     | 2 -> Format.printf (gre "       - %s %s\n") nb text
+     | _ -> failwith "Internal error: Need to update extract_info")
+
+let print_count_data : count_data -> unit = fun cd ->
+  Format.printf (red "Before translating...\n") ;
+  List.iter print_info (extract_info_before cd) ;
+  Format.printf (red "...after translating:\n") ;
+  List.iter print_info (extract_info_after cd)
 
 let print_header_kamelo : unit -> unit = fun () ->
   Format.printf (gre "-------------------- Welcome to KaMeLo ---------------------\n")

@@ -241,6 +241,21 @@ attri_params:
       { ($2, $5) }
 
 useless_attribute:
+  | STRICT         attri_params { } // let a1,a2 = $2 in Strict(a1, a2)       }
+  | SEQSTRICT      attri_params { } // let a1,a2 = $2 in Seqstrict(a1, a2)    }
+
+  | COOL           attri_params { } // let a1,a2 = $2 in Cool(a1, a2)         }
+  | COOLLIKE       attri_params { } // let a1,a2 = $2 in CoolLike(a1, a2)     }
+  | HEAT           attri_params { } // let a1,a2 = $2 in Heat(a1, a2)         }
+  | STRUCTURAL     attri_params { } // let a1,a2 = $2 in Structural(a1, a2)   }
+
+  | SIMPLIFICATION attri_params { } // let a1,a2 = $2 in Simpl(a1, a2)        }
+
+
+  | LEFT           attri_params { } // let a1,a2 = $2 in Left(a1, a2)         }
+  | RIGHT          attri_params { } // let a1,a2 = $2 in Right(a1, a2)        }
+  | PRIORITIES     attri_params { } // let a1,a2 = $2 in Priorities(a1, a2)   }
+
   | TOPCELLINIT    attri_params {  } // { let a1,a2 = $2 in Topcellinit (a1, a2) }
   | TOPCELL        attri_params {  } // { let a1,a2 = $2 in Topcell(a1, a2)      }
   | CELL           attri_params {  } // { let a1,a2 = $2 in Cell(a1, a2)         }
@@ -300,20 +315,6 @@ attribute:
   | COMM           attri_params { let a1,a2 = $2 in Comm(a1, a2)         }
   | IDEM           attri_params { let a1,a2 = $2 in Idem(a1, a2)         }
   | UNIT           attri_params { let a1,a2 = $2 in Unit(a1, a2)         }
-
-  | STRICT         attri_params { let a1,a2 = $2 in Strict(a1, a2)       }
-  | SEQSTRICT      attri_params { let a1,a2 = $2 in Seqstrict(a1, a2)    }
-
-  | COOL           attri_params { let a1,a2 = $2 in Cool(a1, a2)         }
-  | COOLLIKE       attri_params { let a1,a2 = $2 in CoolLike(a1, a2)     }
-  | HEAT           attri_params { let a1,a2 = $2 in Heat(a1, a2)         }
-  | STRUCTURAL     attri_params { let a1,a2 = $2 in Structural(a1, a2)   }
-
-  | SIMPLIFICATION attri_params { let a1,a2 = $2 in Simpl(a1, a2)        }
-
-  | LEFT           attri_params { let a1,a2 = $2 in Left(a1, a2)         }
-  | RIGHT          attri_params { let a1,a2 = $2 in Right(a1, a2)        }
-  | PRIORITIES     attri_params { let a1,a2 = $2 in Priorities(a1, a2)   }
 
   | CONSTRUCTOR    attri_params { let a1,a2 = $2 in Constructor(a1, a2)  }
   | INJECTIVE      attri_params { let a1,a2 = $2 in Injective(a1, a2)    }
