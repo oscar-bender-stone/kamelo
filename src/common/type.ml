@@ -120,4 +120,6 @@ type import = name * attribute list
 
 type kmodule = name * import list * kommand list * attribute list
 
-type file = attribute list * kmodule list
+type file =
+   F_sem  of attribute list * kmodule list
+ | F_exec of axiom
