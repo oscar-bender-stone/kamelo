@@ -1,9 +1,12 @@
 _build/*
+*-kompiled/*
 *.cmi
 *.cmo
 *kparser.mli
 *kparser.ml
 *klexer.ml
+lp-generated/*
+dk-generated/*
 *.lp
 *.dk
 *.mykore
