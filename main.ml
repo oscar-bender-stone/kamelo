@@ -11,7 +11,7 @@ let () =
   match file with
   | F_exec(exec) ->
      (* STEP C: Create the new file *)
-     let name = !filename_exec in
+     let name = !Terminal.Cmd_line.filename_exec in
      let filename = create_filename name in
      let f  = open_out filename in
      let ff = Format.formatter_of_out_channel f in
