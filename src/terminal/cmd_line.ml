@@ -5,6 +5,10 @@ open LP_interface.Output
 open Printing.Printer
 open Preprocessing
 
+let filename_exec = ref ""
+let semantics_file = ref ""
+let set_semantics s = semantics_file := s
+
 let input = ref stdin
 let old = ref false
 
@@ -40,9 +44,11 @@ let set_output o = if List.mem o dk_output then output := Dedukti
                        else failwith ("The option"^ o ^ "is unknow")
 
 let parse : unit -> unit = fun () ->
-  let usage_msg = "usage: ./KaMeLo [--mimic (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)] [--inductive] [--readable] [--no-color] kore_file" in
+  let usage_msg = "usage: ./KaMeLo [--semantics (.lp|.dk)] [--mimic (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)] [--inductive] [--readable] [--no-color] kore_file" in
   parse
-    [("--mimic",  String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
+    [("--semantics",  String (fun o -> set_semantics o), "Select the semantics to run the input programm");
+     ("-s",       String (fun o -> set_semantics o), "Select the semantics to run the input programm");
+     ("--mimic",  String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
      ("-m",       String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
      ("--output", String (fun o -> set_output o), "Generate files with the extension .dk, .lp or .mykore");
      ("-o",       String (fun o -> set_output o), "Generate files with the extension .dk, .lp or .mykore");
@@ -60,5 +66,6 @@ let parse : unit -> unit = fun () ->
      ("--no-color", Unit (fun () -> no_color:=true),  "Disable colors on the main message")]
     (fun s ->
       check_extension s;
+      filename_exec := String.sub s 0 ((String.length s)-5);
       input := open_in s)
     ("During compilation of a .kore program:\n" ^ usage_msg)

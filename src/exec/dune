@@ -1,8 +1,0 @@
-(executable
-  (name execution)
-  (modules :standard)
-  (libraries menhirLib common terminal translation))
-
-(menhir
- (flags (--external-tokens Run_lexer))
- (modules run_parser))
