@@ -15,6 +15,11 @@ let () =
      let filename = create_filename name in
      let f  = open_out filename in
      let ff = Format.formatter_of_out_channel f in
+     (* STEP : Add the import of the semantic *)
+     let cd = Common.Count_data.reset_count_data 0 in
+     Printing.Printer.pp_import ff cd
+       (LP_interface.LP_printer.pp_command) (["sem_root"])
+       (!Terminal.Cmd_line.semantics_file, []);
      (* STEP D: Translate the executable *)
      let p_exec = Translation.Axiom.curry_ident exec in
      LP_interface.LP_printer.pp_command ff

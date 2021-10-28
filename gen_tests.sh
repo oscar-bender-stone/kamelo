@@ -2,7 +2,11 @@
 
 tests_folder=tests/
 kamelo_script=KaMeLo
-extension=$1
+sem_root=sem_root # Racine par défaut utilisée pour tous les sous-dossiers
+                  # afin de savoir où se trouve la racine des fichiers de
+                  # sémantique. Nom à changer également dans les fonctions
+                  # d'import de la traduction
+extension=$(if [ $# = 1 ]; then echo $1 ; else echo "lp" ;fi)
 
   #######################################################################
   #     usage: ./gen_tests dk ou ./gen_tests lp                         #
@@ -54,6 +58,9 @@ cd $tests_folder
 
 # Itération sur chaque dossier présent dans "tests_folder"
 for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
+  if [ $d = "000_KoreSyntax" ]
+  then continue
+  else
    cd $d
 
    # Récupération du nom du dossier sans les chiffres
@@ -82,22 +89,30 @@ for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
    mkdir $curr_gen_folder
    mkdir $curr_gen_folder/$curr_exec_folder
    # Traduction de la sémantique
-   #./$kamelo_script $tests_folder/$d/$semName.kore
-   #mv $semName.$extension $curr_gen_folder/
-   mv $tests_folder/$d/$semName.kore $curr_gen_folder/
+   echo "Traduction de la sémantique" $semName.kore
+   ./$kamelo_script $tests_folder/$d/$semName.kore
+   mv $semName.$extension $curr_gen_folder/
+   #mv $tests_folder/$d/$semName.kore $curr_gen_folder/
+
+   # Création du fichier de management de fichiers pour LP, si besoin
+   LPpkg=lambdapi.pkg
+   if [ $extension = "lp" ]; then echo "package_name = $sem_root" ; echo "root_path    = $sem_root" > $LPpkg ;fi
+   mv $LPpkg $curr_gen_folder/
+
    # Traduction des programmes se trouvant dans "curr_exec_folder"
    cd $tests_folder/$d/$curr_exec_folder
    for f in $(find . -mindepth 1 -type f | cut -c3-); do
       # Traduction vers Kore
       # pour utiliser krun, il faut être dans le dossier où se trouve "semName-kompiled/"
       cd ..
-      #echo $f
-      krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/${f%.*}.kore
+      echo "Traduction du programme" $f
+      new_name=${f%.*} # Suppression de l'extension (A faire avec la commande POSIX basename?)
+      krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
       # Traduction vers Dedukti
       cd ../..
-      #./$kamelo_script $curr_gen_folder/$curr_exec_folder/$f.kore
-      #mv $semName.$extension $curr_gen_folder/$curr_exec_folder
-      #mv $curr_gen_folder/$curr_exec_folder/$f.kore $curr_gen_folder/$curr_exec_folder
+      ./$kamelo_script --semantics $semName $curr_gen_folder/$curr_exec_folder/$new_name.kore
+      rm $curr_gen_folder/$curr_exec_folder/$new_name.kore
+
       cd $tests_folder/$d/$curr_exec_folder
    done
 
@@ -107,6 +122,7 @@ for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
    mv $curr_gen_folder -t $gen_folder
 
    cd $tests_folder
+  fi
 done
 
 cd ..

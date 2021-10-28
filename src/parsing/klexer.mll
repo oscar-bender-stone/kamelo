@@ -158,6 +158,7 @@ rule token = parse
   | eof                  { EOF            }
   | [' ' '\t' '\n']      { token lexbuf   }    (* skip blanks *)
   | "//"                 { comment lexbuf }
+  | "/*"                 { scomment lexbuf }
 
   | "module"             { MODULE         }
   | "endmodule"          { ENDMODULE      }
@@ -290,6 +291,12 @@ rule token = parse
 and comment = parse
   | '\n' { token   lexbuf                                          }
   | _    { comment lexbuf                                          }
+  | eof  { raise (EOFError "Unexpected end of file in comment.")   }
+
+and scomment = parse
+  | "*/" { token    lexbuf                                         }
+  | '\n' { scomment lexbuf                                         }
+  | _    { scomment lexbuf                                         }
   | eof  { raise (EOFError "Unexpected end of file in comment.")   }
 
 and quote buf = parse
