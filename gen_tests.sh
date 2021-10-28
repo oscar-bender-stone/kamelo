@@ -96,7 +96,7 @@ for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
 
    # Création du fichier de management de fichiers pour LP, si besoin
    LPpkg=lambdapi.pkg
-   if [ $extension = "lp" ]; then echo "package_name = $sem_root" ; echo "root_path    = $sem_root" > $LPpkg ;fi
+   if [ $extension = "lp" ]; then echo -e "package_name = $sem_root\nroot_path    = $sem_root" > $LPpkg ;fi
    mv $LPpkg $curr_gen_folder/
 
    # Traduction des programmes se trouvant dans "curr_exec_folder"
