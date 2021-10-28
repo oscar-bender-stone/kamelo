@@ -8,6 +8,7 @@ _build/*
 lp-generated/*
 dk-generated/*
 *.lp
+*.pkg
 *.dk
 *.mykore
 KaMeLo

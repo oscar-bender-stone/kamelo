@@ -13,5 +13,5 @@ clean:
 	dune clean
 	rm -f *klexer.ml
 	rm -f *kparser.ml *kparser.mli
-	rm -f *.lp *.dk *.mykore
+	rm -f *.lp *.pkg *.dk *.mykore
 	rm -f *~ KaMeLo
