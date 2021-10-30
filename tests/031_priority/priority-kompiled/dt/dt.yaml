@@ -1,0 +1,124 @@
+default: null
+specializations:
+- - Lbl'-LT-'generatedTop'-GT-'{}
+  - default: null
+    specializations:
+    - - Lbl'-LT-'k'-GT-'{}
+      - default: fail
+        specializations:
+        - - kseq{}
+          - default: fail
+            specializations:
+            - - inj{SortAExp{}, SortKItem{}}
+              - default: fail
+                specializations:
+                - - Lbl'UndsPlusUndsUnds'PRIORITY-SYNTAX'Unds'AExp'Unds'AExp'Unds'AExp{}
+                  - default:
+                      default: fail
+                      specializations:
+                      - - inj{SortInt{}, SortAExp{}}
+                        - args:
+                          - - ['0', '1', '0', '0', '0', '0', '1']
+                            - INT.Int
+                          next:
+                            default: fail
+                            specializations:
+                            - - '0'
+                              - &id006
+                                action:
+                                - 118
+                                - - - &id002 ['1', '1']
+                                    - STRING.String
+                                  - - &id003 ['1', '0', '0', '1']
+                                    - STRING.String
+                                  - - &id010 ['0', '0', '0', '0', '0', '1']
+                                    - STRING.String
+                              - []
+                            bitwidth: 32
+                            sort: MINT.MInt 32
+                            occurrence: &id001 [size, '0', '1', '0', '0', '0', '0',
+                              '1']
+                          function: hook_INT_size_int
+                          sort: MINT.MInt 32
+                          occurrence: *id001
+                        - [INT.Int]
+                      sort: STRING.String
+                      occurrence: &id008 ['1', '0', '0', '0', '0', '1']
+                    specializations:
+                    - - inj{SortInt{}, SortAExp{}}
+                      - args:
+                        - - &id004 ['0', '0', '0', '0', '0', '0', '1']
+                          - INT.Int
+                        next:
+                          default:
+                            default: fail
+                            specializations:
+                            - - inj{SortInt{}, SortAExp{}}
+                              - args:
+                                - - &id005 ['0', '1', '0', '0', '0', '0', '1']
+                                  - INT.Int
+                                next:
+                                  default:
+                                    action:
+                                    - 119
+                                    - - - *id002
+                                        - STRING.String
+                                      - - *id003
+                                        - STRING.String
+                                      - - *id004
+                                        - INT.Int
+                                      - - *id005
+                                        - INT.Int
+                                  specializations:
+                                  - - '0'
+                                    - *id006
+                                    - []
+                                  bitwidth: 32
+                                  sort: MINT.MInt 32
+                                  occurrence: &id007 [size, '0', '1', '0', '0', '0',
+                                    '0', '1']
+                                function: hook_INT_size_int
+                                sort: MINT.MInt 32
+                                occurrence: *id007
+                              - [INT.Int]
+                            sort: STRING.String
+                            occurrence: *id008
+                          specializations:
+                          - - '0'
+                            - action:
+                              - 120
+                              - - - *id002
+                                  - STRING.String
+                                - - *id003
+                                  - STRING.String
+                                - - *id008
+                                  - STRING.String
+                            - []
+                          bitwidth: 32
+                          sort: MINT.MInt 32
+                          occurrence: &id009 [size, '0', '0', '0', '0', '0', '0',
+                            '1']
+                        function: hook_INT_size_int
+                        sort: MINT.MInt 32
+                        occurrence: *id009
+                      - [INT.Int]
+                    sort: STRING.String
+                    occurrence: *id010
+                  - [STRING.String, STRING.String]
+                sort: STRING.String
+                occurrence: ['0', '0', '0', '0', '1']
+              - [STRING.String]
+            - - inj{SortInt{}, SortKItem{}}
+              - fail
+              - [INT.Int]
+            sort: STRING.String
+            occurrence: ['0', '0', '0', '1']
+          - [STRING.String, STRING.String]
+        sort: STRING.String
+        occurrence: ['0', '0', '1']
+      - [STRING.String]
+    sort: STRING.String
+    occurrence: ['0', '1']
+  - [STRING.String, STRING.String]
+sort: STRING.String
+occurrence: ['1']

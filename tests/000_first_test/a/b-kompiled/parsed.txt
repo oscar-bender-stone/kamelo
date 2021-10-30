@@ -1,0 +1,337 @@
+module A [org.kframework.attributes.Location(Location(166,1,170,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports MAP
+  imports DEFAULT-CONFIGURATION
+  imports A-SYNTAX
+  imports A$SYNTAX
+endmodule
+
+
+module A$SYNTAX [org.kframework.attributes.Location(Location(166,1,170,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports A-SYNTAX$SYNTAX
+  syntax KResult ::= A
+endmodule
+
+
+module A-SYNTAX [org.kframework.attributes.Location(Location(161,1,164,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports A-SYNTAX$SYNTAX
+endmodule
+
+
+module A-SYNTAX$SYNTAX [org.kframework.attributes.Location(Location(161,1,164,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax A ::= "a"
+endmodule
+
+
+module AUTO-CASTS [org.kframework.attributes.Location(Location(92,1,93,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports AUTO-CASTS$SYNTAX
+endmodule
+
+
+module AUTO-CASTS$SYNTAX [org.kframework.attributes.Location(Location(92,1,93,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module BASIC-K [org.kframework.attributes.Location(Location(5,1,10,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-BOOL
+  imports BASIC-K$SYNTAX
+endmodule
+
+
+module BASIC-K$SYNTAX [org.kframework.attributes.Location(Location(5,1,10,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-BOOL$SYNTAX
+  syntax KItem [hook(K.KItem), org.kframework.attributes.Location(Location(7,3,7,30)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax KConfigVar [org.kframework.attributes.Location(Location(9,3,9,27)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k)), token]
+  syntax K ::= KItem
+endmodule
+
+
+module BUILTIN-ID-TOKENS [org.kframework.attributes.Location(Location(17,1,22,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports BUILTIN-ID-TOKENS$SYNTAX
+endmodule
+
+
+module BUILTIN-ID-TOKENS$SYNTAX [org.kframework.attributes.Location(Location(17,1,22,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax #UpperId ::= r"[A-Z][a-zA-Z0-9]*" [prec(2), token]
+  syntax #LowerId ::= r"[a-z][a-zA-Z0-9]*" [prec(2), token]
+endmodule
+
+
+module CONFIG-CELLS [org.kframework.attributes.Location(Location(68,1,83,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports KCELLS
+  imports CONFIG-CELLS$SYNTAX
+endmodule
+
+
+module CONFIG-CELLS$SYNTAX [org.kframework.attributes.Location(Location(68,1,83,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports KCELLS$SYNTAX
+  syntax Cell ::= "<" #CellName #CellProperties ">" K "</" #CellName ">" [klabel(#configCell), symbol]
+  syntax Cell ::= "<" #CellName "/>" [klabel(#externalCell), symbol]
+  syntax #CellProperty ::= #CellName "=" KString [klabel(#cellProperty), symbol]
+  syntax #CellProperties ::= #CellProperty #CellProperties [klabel(#cellPropertyList), symbol]
+  syntax #CellProperties ::= "" [klabel(#cellPropertyListTerminator), symbol]
+  syntax #CellName ::= r"[a-zA-Z][a-zA-Z0-9\\-]*" [prec(1), token]
+  syntax #CellName ::= #UpperId [token]
+  syntax #CellName ::= #LowerId [token]
+endmodule
+
+
+module DEFAULT-CONFIGURATION [org.kframework.attributes.Location(Location(111,1,114,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports MAP
+  imports DEFAULT-CONFIGURATION$SYNTAX
+  imports BASIC-K
+  syntax Cell ::= KCell
+  rule initKCell(Init)=>`<k>`(#noDots(.KList),#SemanticCastToK(`project:KItem`(`Map:lookup`(Init,#token("$PGM","KConfigVar")))),#noDots(.KList)) requires #token("true","Bool") ensures #token("true","Bool") [initializer]
+  Bubble(config,<k> $PGM:K </k>,[contentStartColumn(17), contentStartLine(113), org.kframework.attributes.Location(Location(113,3,113,31)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))])
+endmodule
+
+
+module DEFAULT-CONFIGURATION$SYNTAX [org.kframework.attributes.Location(Location(111,1,114,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports MAP$SYNTAX
+  imports BASIC-K$SYNTAX
+  syntax KCell ::= "initKCell" "(" Map ")" [function, initializer, noThread]
+  syntax KCell ::= "<k>" K "</k>" [cell, cellName(k), contentStartColumn(17), contentStartLine(113), format(%1%i%n%2%d%n%3), maincell, org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody [klabel(#ruleNoConditions), symbol]), topcell]
+  Bubble(config,<k> $PGM:K </k>,[contentStartColumn(17), contentStartLine(113), org.kframework.attributes.Location(Location(113,3,113,31)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))])
+endmodule
+
+
+module DEFAULT-LAYOUT [org.kframework.attributes.Location(Location(104,1,109,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports DEFAULT-LAYOUT$SYNTAX
+endmodule
+
+
+module DEFAULT-LAYOUT$SYNTAX [org.kframework.attributes.Location(Location(104,1,109,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax #Layout ::= r"(\\/\\/[^\\n\\r]*)"
+  syntax #Layout ::= r"(\\/\\*([^\\*]|(\\*+([^\\*\\/])))*\\*+\\/)"
+  syntax #Layout ::= r"([\\ \\n\\r\\t])"
+endmodule
+
+
+module ID-SYNTAX-PROGRAM-PARSING [org.kframework.attributes.Location(Location(144,1,145,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports ID-SYNTAX-PROGRAM-PARSING$SYNTAX
+endmodule
+
+
+module ID-SYNTAX-PROGRAM-PARSING$SYNTAX [org.kframework.attributes.Location(Location(144,1,145,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module INT-SYNTAX [org.kframework.attributes.Location(Location(141,1,142,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports INT-SYNTAX$SYNTAX
+endmodule
+
+
+module INT-SYNTAX$SYNTAX [org.kframework.attributes.Location(Location(141,1,142,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module K [org.kframework.attributes.Location(Location(95,1,99,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports REQUIRES-ENSURES
+  imports KSEQ-SYMBOLIC
+  imports K$SYNTAX
+  imports AUTO-CASTS
+endmodule
+
+
+module K$SYNTAX [org.kframework.attributes.Location(Location(95,1,99,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports REQUIRES-ENSURES$SYNTAX
+  imports KSEQ-SYMBOLIC$SYNTAX
+  imports AUTO-CASTS$SYNTAX
+endmodule
+
+
+module K-REFLECTION [org.kframework.attributes.Location(Location(147,1,148,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports K-REFLECTION$SYNTAX
+endmodule
+
+
+module K-REFLECTION$SYNTAX [org.kframework.attributes.Location(Location(147,1,148,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module K-TERM [org.kframework.attributes.Location(Location(101,1,102,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports K-TERM$SYNTAX
+endmodule
+
+
+module K-TERM$SYNTAX [org.kframework.attributes.Location(Location(101,1,102,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module KAST [org.kframework.attributes.Location(Location(29,1,34,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-KBOTT
+  imports KSTRING
+  imports KAST$SYNTAX
+  imports BUILTIN-ID-TOKENS
+  imports BASIC-K
+endmodule
+
+
+module KAST$SYNTAX [org.kframework.attributes.Location(Location(29,1,34,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-KBOTT$SYNTAX
+  imports KSTRING$SYNTAX
+  imports BUILTIN-ID-TOKENS$SYNTAX
+  imports BASIC-K$SYNTAX
+endmodule
+
+
+module KCELLS [org.kframework.attributes.Location(Location(52,1,63,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports KCELLS$SYNTAX
+  imports KAST
+endmodule
+
+
+module KCELLS$SYNTAX [org.kframework.attributes.Location(Location(52,1,63,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports KAST$SYNTAX
+  syntax associativity left #cells
+  syntax KItem ::= Bag
+  syntax Cell [org.kframework.attributes.Location(Location(54,3,54,13)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax Bag ::= KBott
+  syntax Bag ::= Cell
+  syntax Bag ::= Bag Bag [assoc, klabel(#cells), left, symbol, unit(#cells)]
+  syntax Bag ::= ".Bag" [klabel(#cells), symbol]
+  syntax Bag ::= ".::Bag" [klabel(#cells), symbol]
+  syntax Bag ::= "(" Bag ")" [bracket, bracketLabel((_)_KCELLS_Bag_Bag)]
+endmodule
+
+
+module KSEQ-SYMBOLIC [org.kframework.attributes.Location(Location(42,1,50,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports KSEQ-SYMBOLIC$SYNTAX
+  imports KAST
+endmodule
+
+
+module KSEQ-SYMBOLIC$SYNTAX [org.kframework.attributes.Location(Location(42,1,50,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports KAST$SYNTAX
+  syntax KConfigVar ::= r"(?<![A-Za-z0-9_\\$!\\?@])(\\$)([A-Z][A-Za-z0-9'_]*)" [token]
+  syntax KBott ::= KConfigVar
+  syntax #KVariable ::= r"(?<![A-Za-z0-9_\\$!\\?@])(\\!|\\?|@)?([A-Z][A-Za-z0-9'_]*|_|_[A-Z][A-Za-z0-9'_]*)" [prec(1), token]
+  syntax #KVariable ::= #UpperId [token]
+endmodule
+
+
+module KSTRING [org.kframework.attributes.Location(Location(12,1,15,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports KSTRING$SYNTAX
+endmodule
+
+
+module KSTRING$SYNTAX [org.kframework.attributes.Location(Location(12,1,15,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax KString ::= r"[\\\"](([^\\\"\\n\\r\\\\])|([\\\\][nrtf\\\"\\\\])|([\\\\][x][0-9a-fA-F]{2})|([\\\\][u][0-9a-fA-F]{4})|([\\\\][U][0-9a-fA-F]{8}))*[\\\"]" [token]
+endmodule
+
+
+module LIST [not-lr1, org.kframework.attributes.Location(Location(134,1,135,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports LIST$SYNTAX
+endmodule
+
+
+module LIST$SYNTAX [not-lr1, org.kframework.attributes.Location(Location(134,1,135,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module MAP [org.kframework.attributes.Location(Location(116,1,128,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports MAP$SYNTAX
+endmodule
+
+
+module MAP$SYNTAX [org.kframework.attributes.Location(Location(116,1,128,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax associativity left _Map_
+  syntax Map [hook(MAP.Map), org.kframework.attributes.Location(Location(117,3,117,28)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax Map ::= Map Map [assoc, comm, element(_|->_), format(%1%n%2), function, hook(MAP.concat), index(0), klabel(_Map_), left, symbol, unit(.Map)]
+  syntax Map ::= KItem "|->" KItem [function, functional, hook(MAP.element), klabel(_|->_), latex({#1}\mapsto{#2}), symbol]
+  syntax Map ::= ".Map" [function, functional, hook(MAP.unit), klabel(.Map), latex(\dotCt{Map}), symbol]
+  syntax KItem ::= Map "[" KItem "]" [function, hook(MAP.lookup), klabel(Map:lookup), symbol]
+  syntax Int ::= "size" "(" Map ")" [function, functional, hook(MAP.size), klabel(sizeMap)]
+endmodule
+
+
+module ML-SYNTAX [org.kframework.attributes.Location(Location(36,1,40,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-K
+  imports ML-SYNTAX$SYNTAX
+endmodule
+
+
+module ML-SYNTAX$SYNTAX [org.kframework.attributes.Location(Location(36,1,40,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-K$SYNTAX
+  syntax {Sort1, Sort2} Sort2 ::= "#Ceil" "(" Sort1 ")" [klabel(#Ceil), mlOp, mlUnary, symbol]
+endmodule
+
+
+module REQUIRES-ENSURES [org.kframework.attributes.Location(Location(85,1,90,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports REQUIRES-ENSURES$SYNTAX
+  imports BASIC-K
+endmodule
+
+
+module REQUIRES-ENSURES$SYNTAX [org.kframework.attributes.Location(Location(85,1,90,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports BASIC-K$SYNTAX
+  syntax #RuleContent ::= #RuleBody [klabel(#ruleNoConditions), symbol]
+  syntax #RuleBody ::= K
+endmodule
+
+
+module RULE-CELLS [org.kframework.attributes.Location(Location(65,1,66,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports RULE-CELLS$SYNTAX
+endmodule
+
+
+module RULE-CELLS$SYNTAX [org.kframework.attributes.Location(Location(65,1,66,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module SET [not-lr1, org.kframework.attributes.Location(Location(131,1,132,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SET$SYNTAX
+endmodule
+
+
+module SET$SYNTAX [not-lr1, org.kframework.attributes.Location(Location(131,1,132,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module SORT-BOOL [org.kframework.attributes.Location(Location(137,1,139,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-BOOL$SYNTAX
+endmodule
+
+
+module SORT-BOOL$SYNTAX [org.kframework.attributes.Location(Location(137,1,139,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax Bool [hook(BOOL.Bool), org.kframework.attributes.Location(Location(138,3,138,31)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module SORT-K [org.kframework.attributes.Location(Location(1,1,3,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-K$SYNTAX
+endmodule
+
+
+module SORT-K$SYNTAX [org.kframework.attributes.Location(Location(1,1,3,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  syntax K [hook(K.K), org.kframework.attributes.Location(Location(2,3,2,22)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module SORT-KBOTT [org.kframework.attributes.Location(Location(24,1,27,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-KBOTT$SYNTAX
+  imports SORT-K
+endmodule
+
+
+module SORT-KBOTT$SYNTAX [org.kframework.attributes.Location(Location(24,1,27,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports SORT-K$SYNTAX
+  syntax KBott [org.kframework.attributes.Location(Location(26,3,26,14)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module STDIN-STREAM [org.kframework.attributes.Location(Location(153,1,154,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports STDIN-STREAM$SYNTAX
+endmodule
+
+
+module STDIN-STREAM$SYNTAX [org.kframework.attributes.Location(Location(153,1,154,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule
+
+
+module STDOUT-STREAM [org.kframework.attributes.Location(Location(156,1,157,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+  imports STDOUT-STREAM$SYNTAX
+endmodule
+
+
+module STDOUT-STREAM$SYNTAX [org.kframework.attributes.Location(Location(156,1,157,9)), org.kframework.attributes.Source(Source(/home/camel/Bureau/These/K/KTests/a/./b.k))]
+endmodule

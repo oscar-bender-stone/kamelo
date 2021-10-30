@@ -1,0 +1,62 @@
+default: null
+specializations:
+- - Lbl'-LT-'generatedTop'-GT-'{}
+  - default: null
+    specializations:
+    - - Lbl'-LT-'k'-GT-'{}
+      - default: fail
+        specializations:
+        - - kseq{}
+          - default: fail
+            specializations:
+            - - inj{SortAExp{}, SortKItem{}}
+              - default: fail
+                specializations:
+                - - Lbl'UndsPlusUndsUnds'PRIORITY-SYNTAX'Unds'AExp'Unds'AExp'Unds'AExp{}
+                  - default: fail
+                    specializations:
+                    - - inj{SortInt{}, SortAExp{}}
+                      - args:
+                        - - ['0', '1', '0', '0', '0', '0', '1']
+                          - INT.Int
+                        next:
+                          default: fail
+                          specializations:
+                          - - '0'
+                            - action:
+                              - 118
+                              - - - ['1', '1']
+                                  - STRING.String
+                                - - ['1', '0', '0', '1']
+                                  - STRING.String
+                                - - ['0', '0', '0', '0', '0', '1']
+                                  - STRING.String
+                            - []
+                          bitwidth: 32
+                          sort: MINT.MInt 32
+                          occurrence: &id001 [size, '0', '1', '0', '0', '0', '0',
+                            '1']
+                        function: hook_INT_size_int
+                        sort: MINT.MInt 32
+                        occurrence: *id001
+                      - [INT.Int]
+                    sort: STRING.String
+                    occurrence: ['1', '0', '0', '0', '0', '1']
+                  - [STRING.String, STRING.String]
+                sort: STRING.String
+                occurrence: ['0', '0', '0', '0', '1']
+              - [STRING.String]
+            - - inj{SortInt{}, SortKItem{}}
+              - fail
+              - [INT.Int]
+            sort: STRING.String
+            occurrence: ['0', '0', '0', '1']
+          - [STRING.String, STRING.String]
+        sort: STRING.String
+        occurrence: ['0', '0', '1']
+      - [STRING.String]
+    sort: STRING.String
+    occurrence: ['0', '1']
+  - [STRING.String, STRING.String]
+sort: STRING.String
+occurrence: ['1']

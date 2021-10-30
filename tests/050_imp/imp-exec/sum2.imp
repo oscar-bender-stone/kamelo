@@ -1,0 +1,7 @@
+var n, s;
+n = 10 + 42 ;
+s = 0 ;
+while 0 < n do {
+  s = s + n ;
+  n = n - 1 ;
+}

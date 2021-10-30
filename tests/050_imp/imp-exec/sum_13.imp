@@ -1,0 +1,7 @@
+var d, s;
+d = 10 ;
+s = 0 ;
+while 0 < d do {
+  s = s + d ;
+  d = d - 1 ;
+}

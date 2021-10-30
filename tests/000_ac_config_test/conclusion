@@ -1,0 +1,5 @@
+K calcule une "forme normale" pour l'ordre des configurations.
+Si une règle écrite par l'utilisateur modifie cet ordre, K modifie la règle.
+
+Il faudrait voir ce qui se passe quand il y a duplication d'une ou plusieurs
+cellules.

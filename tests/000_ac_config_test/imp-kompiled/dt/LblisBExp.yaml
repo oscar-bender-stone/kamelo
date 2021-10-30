@@ -1,0 +1,28 @@
+default: &id001
+  action:
+  - 445
+  - []
+specializations:
+- - kseq{}
+  - default: *id001
+    specializations:
+    - - dotk{}
+      - default: *id001
+        specializations:
+        - - inj{SortBExp{}, SortKItem{}}
+          - &id002
+            action:
+            - 446
+            - []
+          - [STRING.String]
+        - - inj{SortBool{}, SortKItem{}}
+          - *id002
+          - [BOOL.Bool]
+        sort: STRING.String
+        occurrence: ['0', '1']
+      - []
+    sort: STRING.String
+    occurrence: ['1', '1']
+  - [STRING.String, STRING.String]
+sort: STRING.String
+occurrence: ['1']
