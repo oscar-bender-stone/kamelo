@@ -291,6 +291,12 @@ open Printer
 open Common.Color
 open Common.Count_data
 
+let out = Format.fprintf (* TODO Doublon *)
+
+(* let print_comment : output -> string -> unit = fun ppf message -> *)
+let print_comment ppf message =
+  out ppf "\n// " ; out ppf message ; out ppf "\n"
+
 let pp_symbol_prelude : output -> count_data -> printer -> p_symbol -> unit =
   fun ppf cd prt sym ->
   incr_real_symbol cd ;
@@ -309,11 +315,14 @@ let create_prelude : output -> printer -> string -> unit =
   let pp_b = pp_builtin_prelude ppf cd prt in
   let pp_r = pp_rule_prelude ppf cd prt in
   (* STEP 1: The injection _INJD: injective symbol δ : SortK → TYPE; *)
+  print_comment ppf "Our injection between K and Dedukti";
   pp (create_p_symbol [no_pos (P_prop Injec)] "δ" []
         (Some (create_arrow p_SORTK p_TYPE)) None) ;
   (* Hooked-sort *)
+  print_comment ppf "Translation of hooked sorts";
   List.iter (fun n -> pp (create_symbol n p_SORTK)) hooked_sort ;
   (* STEP 2: Some constructors and builtin *)
+     print_comment ppf "Some builtins for Lambdapi and constructors";
      (* For inductive type *)
      (* symbol Prop : TYPE; *)
      pp (create_symbol "Prop" p_TYPE) ;
@@ -323,6 +332,7 @@ let create_prelude : output -> printer -> string -> unit =
      pp_b (create_builtin_command "Prop" ([], "Prop")) ;
      (* builtin "P" ≔ P; *)
      pp_b (create_builtin_command "P" ([], "P")) ;
+     out ppf "\n";
      (* symbol true : injK SortBool; *)
      pp (create_symbol "true" (wrap "SortBool")) ;
      (* symbol false : injK SortBool; *)
@@ -331,11 +341,13 @@ let create_prelude : output -> printer -> string -> unit =
      pp (create_symbol "zero" (wrap "SortInt")) ;
      (* constant symbol succ : injK SortInt → injK SortInt; *)
      pp (create_symbol "succ" (create_arrow (wrap "SortInt") (wrap "SortInt"))) ;
+     out ppf "\n";
      (* builtin "0"  ≔ zero; *)
      pp_b (create_builtin_command "0" ([], "zero")) ;
      (* builtin "+1" ≔ succ; *)
      pp_b (create_builtin_command "+1" ([], "succ")) ;
      (* STEP 3: Hooked-symbol *)
+     print_comment ppf "Translation of hooked symbols";
      let create_type : string * string list -> p_term = fun (name, type_l) ->
        let rec split_last_value l acc = match l with
          | []  -> failwith ("The symbol " ^ name ^ " has no type.")
@@ -348,4 +360,5 @@ let create_prelude : output -> printer -> string -> unit =
      in
      List.iter (fun (n,l) -> pp (create_symbol n (create_type (n,l)))) hooked_symbol ;
      (* STEP 4: Add semantic rules *)
+     print_comment ppf "Translation of semantic rules";
      List.iter (fun ((hl, bl), (hr, br)) -> pp_r (no_pos (List.fold_left create_appl hl bl, List.fold_left create_appl hr br))) semantic_rule

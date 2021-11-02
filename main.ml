@@ -2,6 +2,8 @@ open Common.Type
 open Terminal.Display_console
 open LP_interface.Output
 
+open Printing.Prelude (* TODO delete *)
+
 let () =
   (* STEP A: Parse the command-line *)
   Terminal.Cmd_line.parse ();
@@ -69,6 +71,8 @@ let () =
      let module_to_file : kmodule -> unit = fun m ->
        (* let name, import_l, command_l, attribut_l = m in *)
        let name, _, kommand_l, _ = m in
+       out ff "\n// Translation of the module ";
+       Format.pp_print_string ff name; out ff "\n";
        (* Mecanism.Dependency_graph.data_syntax := LP_interface.LP_p_term.StrMap.empty ; @TODO arg *)
        (* STEP 0: Reset count data *)
        let cd = Common.Count_data.reset_count_data 0 in
@@ -111,6 +115,7 @@ let () =
      (* STEP D: Iteration on .kore file *)
      print_header_kamelo ();
      module_to_file (List.hd file) ;
+     print_comment ff "PRELUDE";
      Printing.Prelude.create_prelude ff printing "prelude" ; (* Transformer en module pour ne plus à qu'à itérer ? *)
      List.iter module_to_file (List.tl file);
      print_footer_kamelo ();
