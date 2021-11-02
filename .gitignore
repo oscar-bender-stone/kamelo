@@ -1,5 +1,6 @@
 _build/*
-*-kompiled/*
+tests/*/*-kompiled/*
+tests/*-kompiled/*
 *.cmi
 *.cmo
 *kparser.mli
