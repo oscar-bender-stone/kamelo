@@ -18,13 +18,13 @@ module KSEQ
     \equals{SortK{},R}(
       append{}(dotk{}(),K2:SortK{}),
       K2:SortK{})
-  []
+  [assoc{}()]
 
   axiom{R}
     \equals{SortK{},R}(
       append{}(kseq{}(K1:SortKItem{},K2:SortK{}),K3:SortK{}),
       kseq{}(K1:SortKItem{},append{}(K2:SortK{},K3:SortK{})))
-  []
+  [assoc{}()]
 
 endmodule []
 
@@ -35,7 +35,7 @@ module INJ
     \equals{S3,R}(
       inj{S2,S3}(inj{S1,S2}(T:S1)),
       inj{S1,S3}(T:S1))
-  []
+  [assoc{}()]
 
 endmodule []
 
@@ -131,7 +131,6 @@ module MAX
   hooked-symbol Lbl'Unds'impliesBool'Unds'{}(SortBool{}, SortBool{}) : SortBool{} [functional{}(), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), symbol'Kywd'{}(), priorities{}(Lbl'UndsEqlsSlshEqls'Bool'Unds'{}(),Lbl'UndsEqlsEqls'Bool'Unds'{}()), smt-hook{}("=>"), boolOperation{}(), right{}(), terminals{}("010"), klabel{}("_impliesBool_"), hook{}("BOOL.implies"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(817,19,817,150)"), left{}(Lbl'Unds'impliesBool'Unds'{}()), format{}("%1 %cimpliesBool%r %2"), function{}()]
   hooked-symbol Lbl'Unds'in'UndsUnds'LIST'Unds'Bool'Unds'KItem'Unds'List{}(SortKItem{}, SortList{}) : SortBool{} [functional{}(), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), priorities{}(), right{}(), terminals{}("010"), klabel{}("_inList_"), hook{}("LIST.in"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(723,19,723,101)"), left{}(), format{}("%1 %cin%r %2"), function{}()]
   hooked-symbol Lbl'Unds'in'Unds'keys'LParUndsRParUnds'MAP'Unds'Bool'Unds'KItem'Unds'Map{}(SortKItem{}, SortMap{}) : SortBool{} [functional{}(), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), priorities{}(), right{}(), terminals{}("01101"), hook{}("MAP.in_keys"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(366,19,366,93)"), left{}(), format{}("%1 %cin_keys%r %c(%r %2 %c)%r"), function{}()]
-  symbol Lbl'Unds'max'UndsUnds'MAX-SYNTAX'Unds'Int'Unds'Int'Unds'Int{}(SortInt{}, SortInt{}) : SortInt{} [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/kamelo/tests/001_max/./max.k)"), priorities{}(), right{}(), terminals{}("010"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(5,16,5,39)"), left{}(), format{}("%1 %cmax%r %2"), function{}()]
   hooked-symbol Lbl'Unds'modInt'Unds'{}(SortInt{}, SortInt{}) : SortInt{} [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), symbol'Kywd'{}(), priorities{}(Lbl'UndsPlus'Int'Unds'{}(),Lbl'Unds-GT--GT-'Int'Unds'{}(),Lbl'Unds'xorInt'Unds'{}(),Lbl'UndsAnd-'Int'Unds'{}(),Lbl'Unds-LT--LT-'Int'Unds'{}(),Lbl'UndsPipe'Int'Unds'{}(),Lbl'Unds'-Int'Unds'{}()), smt-hook{}("mod"), right{}(), terminals{}("010"), klabel{}("_modInt_"), hook{}("INT.emod"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(932,18,932,121)"), left{}(Lbl'UndsStar'Int'Unds'{}(),Lbl'UndsPerc'Int'Unds'{}(),Lbl'Unds'divInt'Unds'{}(),Lbl'UndsSlsh'Int'Unds'{}(),Lbl'Unds'modInt'Unds'{}()), format{}("%1 %cmodInt%r %2"), function{}()]
   hooked-symbol Lbl'Unds'orBool'Unds'{}(SortBool{}, SortBool{}) : SortBool{} [latex{}("{#1}\\vee_{\\scriptstyle\\it Bool}{#2}"), functional{}(), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), symbol'Kywd'{}(), priorities{}(Lbl'UndsEqlsSlshEqls'Bool'Unds'{}(),Lbl'UndsEqlsEqls'Bool'Unds'{}()), smt-hook{}("or"), boolOperation{}(), right{}(), terminals{}("010"), klabel{}("_orBool_"), hook{}("BOOL.or"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(815,19,815,184)"), left{}(Lbl'Unds'orBool'Unds'{}()), format{}("%1 %corBool%r %2"), function{}()]
   hooked-symbol Lbl'Unds'orElseBool'Unds'{}(SortBool{}, SortBool{}) : SortBool{} [functional{}(), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), symbol'Kywd'{}(), priorities{}(Lbl'UndsEqlsSlshEqls'Bool'Unds'{}(),Lbl'UndsEqlsEqls'Bool'Unds'{}()), smt-hook{}("or"), boolOperation{}(), right{}(), terminals{}("010"), klabel{}("_orElseBool_"), hook{}("BOOL.orElse"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(816,19,816,148)"), left{}(Lbl'Unds'orElseBool'Unds'{}()), format{}("%1 %corElseBool%r %2"), function{}()]
@@ -171,6 +170,7 @@ module MAX
   hooked-symbol Lbllog2Int'LParUndsRParUnds'INT-COMMON'Unds'Int'Unds'Int{}(SortInt{}) : SortInt{} [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), priorities{}(), right{}(), terminals{}("1101"), klabel{}("log2Int"), hook{}("INT.log2"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(972,18,972,74)"), left{}(), format{}("%clog2Int%r %c(%r %1 %c)%r"), function{}()]
   hooked-symbol LblmakeList'LParUndsCommUndsRParUnds'LIST'Unds'List'Unds'Int'Unds'KItem{}(SortInt{}, SortKItem{}) : SortList{} [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), priorities{}(), right{}(), terminals{}("110101"), klabel{}("makeList"), hook{}("LIST.make"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(685,19,685,81)"), left{}(), format{}("%cmakeList%r %c(%r %1 %c,%r %2 %c)%r"), function{}()]
   hooked-symbol LblmaxInt'LParUndsCommUndsRParUnds'INT-COMMON'Unds'Int'Unds'Int'Unds'Int{}(SortInt{}, SortInt{}) : SortInt{} [functional{}(), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), priorities{}(), smt-hook{}("(ite (< #1 #2) #2 #1)"), right{}(), terminals{}("110101"), hook{}("INT.max"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(953,18,953,118)"), left{}(), format{}("%cmaxInt%r %c(%r %1 %c,%r %2 %c)%r"), function{}()]
+  symbol Lblmax'UndsUndsUnds'MAX-SYNTAX'Unds'Int'Unds'Int'Unds'Int{}(SortInt{}, SortInt{}) : SortInt{} [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/kamelo/./tests/001_max/max.k)"), priorities{}(), right{}(), terminals{}("100"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(6,18,6,41)"), left{}(), format{}("%cmax%r %1 %2"), function{}()]
   hooked-symbol LblminInt'LParUndsCommUndsRParUnds'INT-COMMON'Unds'Int'Unds'Int'Unds'Int{}(SortInt{}, SortInt{}) : SortInt{} [functional{}(), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), priorities{}(), smt-hook{}("(ite (< #1 #2) #1 #2)"), right{}(), terminals{}("110101"), hook{}("INT.min"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(952,18,952,118)"), left{}(), format{}("%cminInt%r %c(%r %1 %c,%r %2 %c)%r"), function{}()]
   symbol LblnoGeneratedCounterCell{}() : SortGeneratedCounterCellOpt{} [functional{}(), constructor{}(), cellOptAbsent{}("GeneratedCounterCell"), priorities{}(), right{}(), terminals{}("1"), left{}(), format{}("%cnoGeneratedCounterCell%r"), injective{}()]
   symbol LblnoKCell{}() : SortKCellOpt{} [functional{}(), constructor{}(), cellOptAbsent{}("KCell"), priorities{}(), right{}(), terminals{}("1"), left{}(), format{}("%cnoKCell%r"), injective{}()]
@@ -786,54 +786,6 @@ module MAX
         VarB:SortBool{}),
       \top{R}()))
   [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody [klabel(#ruleNoConditions), symbol]"), contentStartLine{}("856"), contentStartColumn{}("8"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(856,8,856,36)"), UNIQUE'Unds'ID{}("da818c43c21c5fb2cced7e02a74b6b4191d323de2967a671b961ad28550f3c7d")]
-
-// rule `_max__MAX-SYNTAX_Int_Int_Int`(X,Y)=>X requires `_>=Int_`(X,Y) ensures #token("true","Bool") [UNIQUE_ID(af83d700bb5e25133c9228d66c160cd5a1cedce4f6fb271146dbcddd3fd76d39), contentStartColumn(10), contentStartLine(16), org.kframework.attributes.Location(Location(16,10,16,41)), org.kframework.attributes.Source(Source(/home/camel/kamelo/tests/001_max/./max.k)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody "requires" Bool [klabel(#ruleRequires), symbol])]
-  axiom{R} \implies{R} (
-    \and{R}(
-      \equals{SortBool{},R}(
-        Lbl'Unds-GT-Eqls'Int'Unds'{}(VarX:SortInt{},VarY:SortInt{}),
-        \dv{SortBool{}}("true")),
-      \and{R} (
-          \in{SortInt{}, R} (
-            X0:SortInt{},
-            VarX:SortInt{}
-          ),\and{R} (
-          \in{SortInt{}, R} (
-            X1:SortInt{},
-            VarY:SortInt{}
-          ),
-          \top{R} ()
-        ))),
-    \and{R} (
-      \equals{SortInt{},R} (
-        Lbl'Unds'max'UndsUnds'MAX-SYNTAX'Unds'Int'Unds'Int'Unds'Int{}(X0:SortInt{},X1:SortInt{}),
-        VarX:SortInt{}),
-      \top{R}()))
-  [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/kamelo/tests/001_max/./max.k)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody \"requires\" Bool [klabel(#ruleRequires), symbol]"), contentStartLine{}("16"), contentStartColumn{}("10"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(16,10,16,41)"), UNIQUE'Unds'ID{}("af83d700bb5e25133c9228d66c160cd5a1cedce4f6fb271146dbcddd3fd76d39")]
-
-// rule `_max__MAX-SYNTAX_Int_Int_Int`(X,Y)=>Y requires `_<Int_`(X,Y) ensures #token("true","Bool") [UNIQUE_ID(25af024e49a171a971400cf210afc36a5b9e2b7c6887d990b1ad2f6f45a89bea), contentStartColumn(10), contentStartLine(15), org.kframework.attributes.Location(Location(15,10,15,40)), org.kframework.attributes.Source(Source(/home/camel/kamelo/tests/001_max/./max.k)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody "requires" Bool [klabel(#ruleRequires), symbol])]
-  axiom{R} \implies{R} (
-    \and{R}(
-      \equals{SortBool{},R}(
-        Lbl'Unds-LT-'Int'Unds'{}(VarX:SortInt{},VarY:SortInt{}),
-        \dv{SortBool{}}("true")),
-      \and{R} (
-          \in{SortInt{}, R} (
-            X0:SortInt{},
-            VarX:SortInt{}
-          ),\and{R} (
-          \in{SortInt{}, R} (
-            X1:SortInt{},
-            VarY:SortInt{}
-          ),
-          \top{R} ()
-        ))),
-    \and{R} (
-      \equals{SortInt{},R} (
-        Lbl'Unds'max'UndsUnds'MAX-SYNTAX'Unds'Int'Unds'Int'Unds'Int{}(X0:SortInt{},X1:SortInt{}),
-        VarY:SortInt{}),
-      \top{R}()))
-  [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/kamelo/tests/001_max/./max.k)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody \"requires\" Bool [klabel(#ruleRequires), symbol]"), contentStartLine{}("15"), contentStartColumn{}("10"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(15,10,15,40)"), UNIQUE'Unds'ID{}("25af024e49a171a971400cf210afc36a5b9e2b7c6887d990b1ad2f6f45a89bea")]
 
 // rule `_modInt_`(I1,I2)=>`_%Int_`(`_+Int_`(`_%Int_`(I1,`absInt(_)_INT-COMMON_Int_Int`(I2)),`absInt(_)_INT-COMMON_Int_Int`(I2)),`absInt(_)_INT-COMMON_Int_Int`(I2)) requires `_=/=Int_`(I2,#token("0","Int")) ensures #token("true","Bool") [UNIQUE_ID(adfacb58b0678a49f66186954229939a953c9849d5b08edc8f887c0d7514b2c6), concrete, contentStartColumn(5), contentStartLine(1101), org.kframework.attributes.Location(Location(1101,5,1104,23)), org.kframework.attributes.Source(Source(/usr/include/kframework/builtin/domains.md)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody "requires" Bool [klabel(#ruleRequires), symbol]), simplification]
   axiom{R} \implies{R} (
@@ -1997,6 +1949,54 @@ module MAX
       \top{R}()))
   []
 
+// rule `max___MAX-SYNTAX_Int_Int_Int`(X,Y)=>X requires `_>=Int_`(X,Y) ensures #token("true","Bool") [UNIQUE_ID(8c3f4e5efc23bebc97a5e121f50f52805f34b123f4b53b529e8bcd95ba124545), contentStartColumn(10), contentStartLine(17), org.kframework.attributes.Location(Location(17,10,17,41)), org.kframework.attributes.Source(Source(/home/camel/kamelo/tests/001_max/./max.k)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody "requires" Bool [klabel(#ruleRequires), symbol])]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \equals{SortBool{},R}(
+        Lbl'Unds-GT-Eqls'Int'Unds'{}(VarX:SortInt{},VarY:SortInt{}),
+        \dv{SortBool{}}("true")),
+      \and{R} (
+          \in{SortInt{}, R} (
+            X0:SortInt{},
+            VarX:SortInt{}
+          ),\and{R} (
+          \in{SortInt{}, R} (
+            X1:SortInt{},
+            VarY:SortInt{}
+          ),
+          \top{R} ()
+        ))),
+    \and{R} (
+      \equals{SortInt{},R} (
+        Lblmax'UndsUndsUnds'MAX-SYNTAX'Unds'Int'Unds'Int'Unds'Int{}(X0:SortInt{},X1:SortInt{}),
+        VarX:SortInt{}),
+      \top{R}()))
+  [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/kamelo/tests/001_max/./max.k)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody \"requires\" Bool [klabel(#ruleRequires), symbol]"), contentStartLine{}("17"), contentStartColumn{}("10"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(17,10,17,41)"), UNIQUE'Unds'ID{}("8c3f4e5efc23bebc97a5e121f50f52805f34b123f4b53b529e8bcd95ba124545")]
+
+// rule `max___MAX-SYNTAX_Int_Int_Int`(X,Y)=>Y requires `_<Int_`(X,Y) ensures #token("true","Bool") [UNIQUE_ID(133e49c1d9160a60bc40900efe877bad69eaccd74fe103396b26086fa0c04832), contentStartColumn(10), contentStartLine(16), org.kframework.attributes.Location(Location(16,10,16,40)), org.kframework.attributes.Source(Source(/home/camel/kamelo/tests/001_max/./max.k)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody "requires" Bool [klabel(#ruleRequires), symbol])]
+  axiom{R} \implies{R} (
+    \and{R}(
+      \equals{SortBool{},R}(
+        Lbl'Unds-LT-'Int'Unds'{}(VarX:SortInt{},VarY:SortInt{}),
+        \dv{SortBool{}}("true")),
+      \and{R} (
+          \in{SortInt{}, R} (
+            X0:SortInt{},
+            VarX:SortInt{}
+          ),\and{R} (
+          \in{SortInt{}, R} (
+            X1:SortInt{},
+            VarY:SortInt{}
+          ),
+          \top{R} ()
+        ))),
+    \and{R} (
+      \equals{SortInt{},R} (
+        Lblmax'UndsUndsUnds'MAX-SYNTAX'Unds'Int'Unds'Int'Unds'Int{}(X0:SortInt{},X1:SortInt{}),
+        VarY:SortInt{}),
+      \top{R}()))
+  [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/kamelo/tests/001_max/./max.k)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody \"requires\" Bool [klabel(#ruleRequires), symbol]"), contentStartLine{}("16"), contentStartColumn{}("10"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(16,10,16,40)"), UNIQUE'Unds'ID{}("133e49c1d9160a60bc40900efe877bad69eaccd74fe103396b26086fa0c04832")]
+
 // rule `minInt(_,_)_INT-COMMON_Int_Int_Int`(I1,I2)=>I1 requires `_<=Int_`(I1,I2) ensures #token("true","Bool") [UNIQUE_ID(fb09b6acc4366cb77203e07c4efe8a9cf304e1bac9fb0664deea05d3eb9a80c6), contentStartColumn(8), contentStartLine(1106), org.kframework.attributes.Location(Location(1106,8,1106,57)), org.kframework.attributes.Source(Source(/usr/include/kframework/builtin/domains.md)), org.kframework.definition.Production(syntax #RuleContent ::= #RuleBody "requires" Bool [klabel(#ruleRequires), symbol])]
   axiom{R} \implies{R} (
     \and{R}(
@@ -2361,4 +2361,4 @@ module MAX
 
 
 // priority groups
-endmodule [org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(10,1,19,9)"), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/kamelo/tests/001_max/./max.k)")]
+endmodule [org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(11,1,20,9)"), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/kamelo/./tests/001_max/max.k)")]
