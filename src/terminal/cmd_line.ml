@@ -15,7 +15,7 @@ let old = ref false
 (** [check_extension s] checks that the input file has the extension .kore. *)
 let check_extension s =
   let len = String.length s in
-  if len > 6 then
+  if len > 5 then
     (if not (s.[len-5] = '.' && s.[len-4] = 'k' && s.[len-3] = 'o' && s.[len-2] = 'r' && s.[len-1] = 'e') then
        raise (Invalid_argument "Expected extension: .kore"))
   else
