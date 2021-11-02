@@ -6,10 +6,10 @@ sem_root=sem_root # Racine par défaut utilisée pour tous les sous-dossiers
                   # afin de savoir où se trouve la racine des fichiers de
                   # sémantique. Nom à changer également dans les fonctions
                   # d'import de la traduction
-extension=$(if [ $# = 1 ]; then echo $1 ; else echo "lp" ;fi)
+extension=$1 #$(if [ $# = 1 ]; then echo $1 ; else echo "lp" ;fi)
 
   #######################################################################
-  #     usage: ./gen_tests dk ou ./gen_tests lp                         #
+  #    usage: ./gen_tests dk [one-test] ou ./gen_tests lp [one-test]    #
   #                                                                     #
   # Ce script a pour objectif de traduire les fichiers de tests en      # 
   # Dedukti.                                                            #
@@ -56,9 +56,14 @@ mkdir -p $gen_folder
 
 cd $tests_folder
 
+for_test=$(if [ $# = 2 ];
+    then echo $(find . -mindepth 1 -maxdepth 1 -type d -iname "$2" | sort -d | cut -c3-) ;
+    else echo $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-) ;
+    fi)
+
 # Itération sur chaque dossier présent dans "tests_folder"
-for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
-  if [ $d = "000_KoreSyntax" ]
+for d in $for_test; do
+  if [ $(echo $d | cut -c-4) = "000_" ]
   then continue
   else
    cd $d
