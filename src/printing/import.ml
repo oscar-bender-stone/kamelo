@@ -16,7 +16,7 @@ let rec concat_no_duplicate l1 l2 = match l1 with
 
 let with_prelude : Common.Color.output -> printer -> import list -> count_data -> unit =
   fun ppf prt i_l cd ->
-  cd.k.import := List.length i_l;
+  set_k_import cd (List.length i_l);
   all_import  := concat_no_duplicate i_l !all_import;
   List.iter (pp_import ppf cd prt [lp_pkg]) !all_import;
   pp_import ppf cd prt (lp_pkg::prelude_path) (prelude_name, []);
