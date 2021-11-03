@@ -1,5 +1,5 @@
 
-open Syntax
+open LP.Syntax
 open Output
 
 let _SORTK = "SortK"
@@ -12,7 +12,7 @@ let _TRUE  = "true"
 let _FALSE = "false"
 
 (** [no_pos alpha] creates nothing without position. *)
-let no_pos = Pos.none
+let no_pos = LP.Pos.none
 
 (** [create_prop p] creates a modifier with one property [p]. *)
 let create_prop : prop -> p_modifier = fun p -> no_pos (P_prop p)

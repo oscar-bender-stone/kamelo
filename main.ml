@@ -1,6 +1,6 @@
 open Common.Type
 open Terminal.Display_console
-open LP_interface.Output
+open Interface.Output
 
 open Printing.Prelude (* TODO delete *)
 
@@ -20,12 +20,12 @@ let () =
      (* STEP : Add the import of the semantic *)
      let cd = Common.Count_data.reset_count_data 0 in
      Printing.Printer.pp_import ff cd
-       (LP_interface.LP_printer.pp_command) (["sem_root"])
+       (LP.LP_printer.pp_command) (["sem_root"])
        (!Terminal.Cmd_line.semantics_file, []);
      (* STEP D: Translate the executable *)
      let p_exec = Translation.Axiom.curry_ident exec in
-     LP_interface.LP_printer.pp_command ff
-       (LP_interface.LP_p_term.create_compute_command p_exec);
+     LP.LP_printer.pp_command ff
+       (Interface.LP_p_term.create_compute_command p_exec);
      (* STEP E: Close the new file *)
      Format.pp_print_flush ff ();
      close_out f ;
@@ -48,7 +48,7 @@ let () =
   let prelude_name = "prelude" in *)
      (* STEP 2: Import management *)
      let printing = match !output with
-       | LP      -> LP_interface.LP_printer.pp_command
+       | LP      -> LP.LP_printer.pp_command
        | Dedukti -> fun _ _ -> () (* @TODO *)
        | Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
      in

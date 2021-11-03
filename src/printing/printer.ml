@@ -2,8 +2,8 @@
 open Common.Type
 open Common.Count_data
 open Mecanism.Iterator_plus_plus   (* @TODO improve? *)
-open! LP_interface.Syntax
-open LP_interface.Output
+open! LP.Syntax
+open Interface.Output
 
 open Translation
 
@@ -68,7 +68,7 @@ let pp_axiom_bis : output -> count_data -> printer -> quant_var list * axiom -> 
        if Axiom.is_conditional_rule a1 then
          raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")
        else
-         prt ppf (LP_interface.LP_p_term.no_pos (P_rules [LP_interface.LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
+         prt ppf (Interface.LP_p_term.no_pos (P_rules [Interface.LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
     |  _ -> failwith "In RHS: Not yet implemented"
 
 let pp_kommand : output -> count_data -> printer -> kommand -> unit =
@@ -123,7 +123,7 @@ let pp_kommand_ter : output -> count_data -> printer -> kommand list -> unit  = 
   *)
 
 open Translation.Axiom
-open LP_interface.LP_p_term
+open Interface.LP_p_term
 
 let _AND_BOOL = "Lbl'Unds'andBool'Unds"
 let _OR_BOOL  = "Lbl'Unds'orBool'Unds"

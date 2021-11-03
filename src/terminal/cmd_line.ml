@@ -1,7 +1,7 @@
 open Arg
 
 open Common.Color
-open LP_interface.Output
+open Interface.Output
 open Printing.Printer
 open Preprocessing
 

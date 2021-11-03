@@ -4,7 +4,7 @@ open Common.Color
 open Translation.Axiom
 
 open Common.Count_data
-open LP_interface.LP_printer
+open LP.LP_printer
 open Printing.Printer
 
 module Sort = struct

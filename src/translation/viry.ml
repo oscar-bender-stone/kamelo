@@ -108,8 +108,8 @@ Sous cette hypothèse, nous pouvons générer la règle présentée en 7.
 
 
 
-open LP_interface.Syntax
-open LP_interface.LP_p_term
+open LP.Syntax
+open Interface.LP_p_term
 open Axiom
 
 (** Generating of conditional rewriting rule *)
@@ -751,17 +751,17 @@ let generate_rule : p_term -> krule list -> p_rule list -> p_rule list = fun key
 let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
-  let flat_bool_sym = LP_interface.LP_p_term.create_p_symbol [] (safe_prefix ^ "Bool") [] (Some p_SORTK) None in
+  let flat_bool_sym = Interface.LP_p_term.create_p_symbol [] (safe_prefix ^ "Bool") [] (Some p_SORTK) None in
      (* [b.] Create the symbol ♭. *)
   let flat_type = create_appl (create_ident _INJD) (create_ident (safe_prefix ^ "Bool")) in (* _INJD ♭Bool *)
-  let flat_sym = LP_interface.LP_p_term.create_p_symbol [] safe_prefix [] (Some flat_type) None in
+  let flat_sym = Interface.LP_p_term.create_p_symbol [] safe_prefix [] (Some flat_type) None in
      (* [c.] Create the symbol ♭inj. *)
   let flat_inj_type = (* _INJD SortBool → _INJD ♭Bool *)
     create_arrow
       (create_appl p_INJD (create_ident "SortBool"))
       (create_appl p_INJD (create_ident (safe_prefix ^ "Bool")))
   in
-  let flat_inj_sym = LP_interface.LP_p_term.create_p_symbol [] (safe_prefix ^ _INJ) [] (Some flat_inj_type) None in
+  let flat_inj_sym = Interface.LP_p_term.create_p_symbol [] (safe_prefix ^ _INJ) [] (Some flat_inj_type) None in
      (* [d]. Create each C_σ from a CTRS. *)
   let equiv_class = to_equiv_class l in
   (* For each C_σ *)
@@ -781,7 +781,7 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
       let flat_head_name = safe_prefix ^ head_name in
       (* let flat_head_type = extend_type (Map.find head_name) nb_cond in @TODO *)
       let flat_head_type = p_TYPE in
-      let flat_head_sym = LP_interface.LP_p_term.create_p_symbol [] flat_head_name [] (Some flat_head_type) None in
+      let flat_head_sym = Interface.LP_p_term.create_p_symbol [] flat_head_name [] (Some flat_head_type) None in
       (* [4.] Generate the encapsulation rule. *)
       let encap_r = no_pos (create_encapsulation_rule_bis tracker mglhs nb_cond) in
       (* [5.] For each rule in C_σ *)

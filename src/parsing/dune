@@ -1,7 +1,7 @@
 (library
  (name parsing)
  (modules :standard)
- (libraries menhirLib common LP_interface))
+ (libraries menhirLib common LP))
 
 ;;(ocamllex klexer)
 (menhir

@@ -1,7 +1,7 @@
 
-open LP_interface.Syntax
+open LP.Syntax
 open Common.Type
-open LP_interface.LP_p_term
+open Interface.LP_p_term
 
 open Symbol
 open Axiom

@@ -1,6 +1,6 @@
 open Common.Type
-open LP_interface.Syntax
-open LP_interface.LP_p_term
+open LP.Syntax
+open Interface.LP_p_term
 
 open Common.Color
 
