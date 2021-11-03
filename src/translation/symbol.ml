@@ -162,7 +162,7 @@ let def_to_p_term : def -> p_term = fun d ->
             (try Axiom.curry_ident a2
              with Axiom.KComputation _ ->
                Format.printf (yel "WARNING: K computation found\n") ; p_TYPE)
-       | Predicat p -> (match p with Sym _ -> p_TYPE | Var _ -> p_TYPE)
+       | Predicate p -> (match p with Sym _ -> p_TYPE | Var _ -> p_TYPE)
        |  _ -> failwith "In LHS: Not yet implemented"
      end
   | D (n,_) -> create_ident n

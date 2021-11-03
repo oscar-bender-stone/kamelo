@@ -143,7 +143,7 @@ let encoding :
     let rec aux : t -> p_term = fun ax ->
       let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
       match ax with
-      | Predicat p ->
+      | Predicate p ->
          begin
            match p with
            | Sym("inj", qv_l, a_l) ->
@@ -168,7 +168,7 @@ let encoding :
       | Bottom _ -> failwith "BOTTOM"
       | Top    _ -> failwith "TOP"
       | Rewrites _ -> failwith "REWRITES" *)
-      | And (_, ax1, Predicat(Var(n,_))) ->
+      | And (_, ax1, Predicate(Var(n,_))) ->
          let res = aux ax1 in
          data_matching := StrMap.add n res !data_matching ; res
       | _ -> failwith "Not yet implemented [Axiom.curry]."
@@ -416,7 +416,7 @@ let rec pp_kore_axiom : output -> int -> axiom -> unit = fun ppf step ax ->
      prints "#IN(" ; tmp2 p_l n p step ax ; pp_paren ppf
   | Dom_val(sort, n) ->
      printing ppf "#DOMAIN_VALUES{%s}(%s)" (pp sort) (pp n)
-  | Predicat p -> if !verbose then pp_kore_predicat_verbose ppf step p else pp_kore_predicat ppf step p
+  | Predicate p -> if !verbose then pp_kore_predicat_verbose ppf step p else pp_kore_predicat ppf step p
 and pp_kore_predicat_verbose ppf step p = match p with
   | Sym(n, p_l, ax_l) ->
      printing ppf "#SYM(%s" (pp n) ; pp_kore_param_list_bis ppf p_l ;

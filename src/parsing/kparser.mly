@@ -214,13 +214,13 @@ axiom:
   //| name L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, axiom) R_PAREN
   //   { Sym ($1, $3, $6) }
   //| name COLON param { Var ($1, $3) }
-  | predicate           { Predicat $1 }
+  | predicate           { Predicate $1 }
 
 kommand:
-  | SORT     sort        attributes { Sort $2, $3 }
-  | H_SORT   sort        attributes { H_sort $2, $3 }
-  | SYMBOL   symbol      attributes { Symbol $2, $3 }
-  | H_SYMBOL symbol      attributes { H_symbol $2, $3 }
+  | SORT     sort        attributes   { Sort $2, $3 }
+  | H_SORT   sort        attributes   { H_sort $2, $3 }
+  | SYMBOL   symbol      attributes   { Symbol $2, $3 }
+  | H_SYMBOL symbol      attributes   { H_symbol $2, $3 }
   | ALIAS symbol WHERE def attributes { Alias ($2, $4), $5 }
   | AXIOM L_CURLY_BRA quant_var_list R_CURLY_BRA axiom attributes { Axiom ($3, $5), $6 }
 

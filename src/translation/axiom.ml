@@ -38,7 +38,7 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
   let rec aux : t -> p_term = fun ax ->
     let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
     match ax with
-    | Predicat p ->
+    | Predicate p ->
        begin
         match p with
         | Sym("inj", qv_l, a_l) ->
@@ -61,7 +61,7 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
       | Bottom _ -> failwith "BOTTOM"
       | Top    _ -> failwith "TOP"
       | Rewrites _ -> failwith "REWRITES" *)
-    | And (_, ax1, Predicat(Var(n,_))) ->
+    | And (_, ax1, Predicate(Var(n,_))) ->
        let res = aux ax1 in
        data_matching := StrMap.add n res !data_matching ; res
     | _ -> failwith "Not yet implemented [Axiom.curry]."
@@ -118,7 +118,7 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
     let rec aux : t -> p_term = fun ax ->
       let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
       match ax with
-      | Predicat p ->
+      | Predicate p ->
          begin
           match p with
           | Sym("inj", qv_l, a_l) ->
@@ -193,12 +193,12 @@ let rec is_predicate : t -> bool = fun a ->
   | Or(_,a1,a2)      -> is_predicate a1 || is_predicate a2
   | Not(_,a)         -> is_predicate a
   | Implies(_,a1,a2) -> is_predicate a1 || is_predicate a2
-  | Bottom   _ -> false
-  | Top      _ -> false
-  | Rewrites _ -> false (* users' rule *)
+  | Bottom   _  -> false
+  | Top      _  -> false
+  | Rewrites _  -> false (* users' rule *)
   | In(_,_,a)        -> is_predicate a
-  | Dom_val  _ -> false
-  | Predicat p -> match p with
+  | Dom_val  _  -> false
+  | Predicate p -> match p with
                   | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
                      begin
                       try
