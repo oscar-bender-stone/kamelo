@@ -25,3 +25,6 @@ let _OR_BOOL  = "Lbl'Unds'orBool'Unds"
 let _NOT_BOOL = "LblnotBool'Unds"
 (* let _EQUALS_BOOL = "\equals"
 let _DOMAIN_VALUES = *)
+
+(** The cell's name of the cell k *)
+let _K_CELL = "Lbl'-LT-'k'-GT-'" (* "<k>" *)

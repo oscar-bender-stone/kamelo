@@ -92,6 +92,10 @@ let create_p_symbol (mod_l : p_modifier list) (name : string) (param_l : p_param
   ; p_sym_prf = None
   ; p_sym_def = is_def}
 
+(** [create_symbol sym] creates a symbol without position. *)
+let create_symbol : p_symbol -> p_command = fun sym ->
+   no_pos (P_symbol sym)
+
 (** [create_compute_command p] creates a command to compute the p_term [p]. *)
 let create_compute_command : p_term -> p_command = fun p ->
   no_pos (P_query (no_pos (P_query_normalize (p, {strategy=NONE ; steps=None}))))

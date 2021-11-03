@@ -16,16 +16,6 @@ let import_to_require_open : string list -> import -> p_command = fun path i ->
   let path = [create_p_path (path @ [filename])] in
   no_pos (P_require (true, path))
 
-(** [create_p_params s_l] creates implicit parameters, which have the type _SORTK,
-    without position. Note: p_params = p_ident option list * p_term option * bool. *)
-let create_p_params : string list -> p_params list = fun s_l ->
-  match s_l with
-  | []   -> []
-  | _::_ ->
-     let unique_name s = Some (no_pos s)  in
-     let typ = Some p_SORTK in
-     let is_implicit = true in
-     [ List.map unique_name s_l, typ, is_implicit ]
 
 (** Sort *)
 let get_sort_type : sort -> p_term = fun s ->
@@ -43,10 +33,6 @@ let symbol_to_p_symbol : symbol -> attribute list -> p_command = fun s attr_l ->
   let param_l = create_p_params qvar_l in
   let res = create_p_symbol (get_modifier attr_l) name param_l (Some (sym_curry s)) None in
   no_pos (P_symbol res)
-
-(** [create_symbol sym] creates a symbol without position. *)
-let create_symbol : p_symbol -> p_command = fun sym ->
-   no_pos (P_symbol sym)
 
 (** Inductive type *)
 let induc_to_p_inductive : sort * symbol list -> p_inductive = fun (sort, s_l) ->

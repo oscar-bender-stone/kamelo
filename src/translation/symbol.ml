@@ -41,15 +41,15 @@ let set_injec       : t -> bool -> t = fun v b -> { v with is_injective = b   }
 let set_constructor : t -> bool -> t = fun v b -> { v with is_constructor = b }
 let set_comm        : t -> bool -> t = fun v b -> { v with is_comm = b        }
 let set_assoc       : t -> bool -> t = fun v b -> { v with is_assoc = b       }
-let set_left        : t -> bool -> t = fun v b -> { v with is_left = b        }
-let set_right       : t -> bool -> t = fun v b -> { v with is_right = b       }
+(*let set_left        : t -> bool -> t = fun v b -> { v with is_left = b        }
+let set_right       : t -> bool -> t = fun v b -> { v with is_right = b       }*)
 
 let get_injec       : t -> bool = fun v -> v.is_injective
 let get_constructor : t -> bool = fun v -> v.is_constructor
 let get_comm        : t -> bool = fun v -> v.is_comm
 let get_assoc       : t -> bool = fun v -> v.is_assoc
 let get_left        : t -> bool = fun v -> v.is_left
-let get_right       : t -> bool = fun v -> v.is_right
+(*let get_right       : t -> bool = fun v -> v.is_right *)
            (*
   let find_ac : attribute list -> prop = fun a_l ->
     let rec aux l acc = match l with

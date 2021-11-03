@@ -147,15 +147,8 @@ open Axiom
  Que faire avec la règle <top> (<k> (maxInt $X (S $Y))) ↪ ... ?
 *)
 
-(** The cell's name of the cell k *)
-let k_cell_name = "Lbl'-LT-'k'-GT-'" (* "<k>" *)
-
 (** A supposed safe prefix, i.e. there is no name beginning with it. *)
 let safe_prefix = "♭"
-
-(** Type of map with string as key *)
-module SMap = Map.Make(String)
-
 
 (** Type of a conditional rule, which has the form
     ((LHS, RHS), condition, priority) *)
@@ -169,7 +162,7 @@ type uncond_rule = p_rule * int
     i.e. a map where each entry has the form
     σ |-> [((LHS, RHS), Some condition, priority) ; ...].
     For a head symbol σ given, C_σ is the corresponding equivalence class. *)
-type equiv_class = (ctrs_rule list) SMap.t
+type equiv_class = (ctrs_rule list) StrMap.t
 
 (** ***************** To iterate on a configuration ********************* *)
 
@@ -187,7 +180,7 @@ let is_cell : string -> bool = fun s ->
 (** [is_k_cell s] returns if a string [s] is the cell's name
     of the cell k. *)
 let is_k_cell : string -> bool = fun s ->
-  let res = (s = k_cell_name) in
+  let res = (s = _K_CELL) in
   Format.fprintf (Format.formatter_of_out_channel stdout) "%b" res ; res
 
 let is_to_keep : string -> bool = fun s ->
@@ -407,12 +400,12 @@ let find_equiv_class : equiv_class -> ctrs_rule -> equiv_class =
     | None   -> Some [r]   (* Si l'entrée n'existait pas encore *)
     | Some l -> Some(r::l) (* Si l'entrée existait déjà *)
   in
-  SMap.update key f ec
+  StrMap.update key f ec
 
 (** [to_equiv_class rule_l] generates each equivalence class from
     a CTRS [rule_l], i.e. each C_σ. *)
 let to_equiv_class : ctrs_rule list -> equiv_class = fun rule_l ->
-  List.fold_left find_equiv_class SMap.empty rule_l
+  List.fold_left find_equiv_class StrMap.empty rule_l
 
   (*
 (** ***** To create the most general LHS from σ ***** *)
@@ -816,5 +809,5 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
       let new_acc_sym = if List.mem flat_head_sym acc_sym then acc_sym else flat_head_sym::acc_sym in
       new_acc_sym, aux_rule 0 [encap_r] l@acc_rule
   in
-  SMap.fold aux_sigma equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], []) (* @FIX add bemolBool en symbole ! *)
+  StrMap.fold aux_sigma equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], []) (* @FIX add bemolBool en symbole ! *)
             (*  val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b *)
