@@ -2,6 +2,7 @@
 open LP.Syntax
 open Common.Type
 open Interface.LP_p_term
+open Interface.K_prelude
 
 open Symbol
 open Axiom

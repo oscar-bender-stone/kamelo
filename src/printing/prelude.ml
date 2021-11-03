@@ -1,6 +1,7 @@
 
 open LP.Syntax
 open Interface.LP_p_term
+open Interface.K_prelude
 
 let hooked_sort =
   [ "SortList"   (* hook{}("LIST.List")     *)
@@ -256,7 +257,6 @@ let ggg : kmodule -> unit = fun m ->
 (* let appl_patt sym v1 v2 =
    create_appl (create_appl (create_ident sym) (create_pattern v1))
    (create_appl (create_ident sym) (create_pattern v2)) *)
-let create_one_arg sym v = create_appl (create_ident sym) (create_pattern_var v)
 
 let semantic_rule =
      (* //symbol Lbl'Unds-LT-'Int'Unds' : δ SortInt → δ SortInt → δ SortBool;

@@ -110,6 +110,7 @@ Sous cette hypothèse, nous pouvons générer la règle présentée en 7.
 
 open LP.Syntax
 open Interface.LP_p_term
+open Interface.K_prelude
 open Axiom
 
 (** Generating of conditional rewriting rule *)

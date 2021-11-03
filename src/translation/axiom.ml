@@ -1,5 +1,6 @@
 
 open Interface.LP_p_term
+open Interface.K_prelude
 open Common.Type
 open LP.Syntax
 
@@ -32,6 +33,8 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
                  | [] -> l2
                  | h::t -> (f h)::(map_append t f l2)
  *)
+module StrMap = Map.Make(String)
+
 let data_matching : p_term StrMap.t ref = ref StrMap.empty
 
 let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
@@ -44,7 +47,7 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
         | Sym("inj", qv_l, a_l) ->
            let g p = match p with S x | Q x -> create_implicit_arg x in
            let tmp = List.map g qv_l in
-           let res = List.fold_left create_appl (create_ident _INJ) tmp in
+           let res = List.fold_left create_appl p_INJ tmp in
            List.fold_left f_sym res a_l
         | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
         | Var(n, _) -> (if StrMap.mem n !data_matching
@@ -124,7 +127,7 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
           | Sym("inj", qv_l, a_l) ->
              let g p = match p with S x | Q x -> create_implicit_arg x in
              let tmp = List.map g qv_l in
-             let res = List.fold_left create_appl (create_ident _INJ) tmp in
+             let res = List.fold_left create_appl p_INJ tmp in
              List.fold_left f_sym res a_l
           | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
           | Var(n, _) -> (if StrMap.mem n local_data

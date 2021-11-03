@@ -124,12 +124,7 @@ let pp_kommand_ter : output -> count_data -> printer -> kommand list -> unit  = 
 
 open Translation.Axiom
 open Interface.LP_p_term
-
-let _AND_BOOL = "Lbl'Unds'andBool'Unds"
-let _OR_BOOL  = "Lbl'Unds'orBool'Unds"
-let _NOT_BOOL = "LblnotBool'Unds"
-(* let _EQUALS_BOOL = "\equals"
-let _DOMAIN_VALUES = *)
+open Interface.K_prelude
 
 let encoding :
     output -> count_data -> printer -> kommand list -> unit =
