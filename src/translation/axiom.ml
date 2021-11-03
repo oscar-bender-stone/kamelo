@@ -26,12 +26,12 @@ let curry : (axiom list -> p_term) -> axiom list -> p_term = fun f l ->
   in
   aux l (fun -> )
  *)
-
+(*
 let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
   fun l1 f l2 -> match l1 with
                  | [] -> l2
                  | h::t -> (f h)::(map_append t f l2)
-
+ *)
 let data_matching : p_term StrMap.t ref = ref StrMap.empty
 
 let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->

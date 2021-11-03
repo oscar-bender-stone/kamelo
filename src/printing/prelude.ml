@@ -288,14 +288,11 @@ let create_symbol : string -> p_term -> p_symbol = fun name typ ->
 let wrap : string -> p_term = fun s -> create_appl p_INJD (create_ident s)
 
 open Printer
-open Common.Color
 open Common.Count_data
-
-let out = Format.fprintf (* TODO Doublon *)
 
 (* let print_comment : output -> string -> unit = fun ppf message -> *)
 let print_comment ppf message =
-  out ppf "\n// " ; out ppf message ; out ppf "\n"
+  printing ppf "\n// " ; printing ppf message ; printing ppf "\n"
 
 let pp_symbol_prelude : output -> count_data -> printer -> p_symbol -> unit =
   fun ppf cd prt sym ->
@@ -332,7 +329,7 @@ let create_prelude : output -> printer -> string -> unit =
      pp_b (create_builtin_command "Prop" ([], "Prop")) ;
      (* builtin "P" ≔ P; *)
      pp_b (create_builtin_command "P" ([], "P")) ;
-     out ppf "\n";
+     printing ppf "\n";
      (* symbol true : injK SortBool; *)
      pp (create_symbol "true" (wrap "SortBool")) ;
      (* symbol false : injK SortBool; *)
@@ -341,7 +338,7 @@ let create_prelude : output -> printer -> string -> unit =
      pp (create_symbol "zero" (wrap "SortInt")) ;
      (* constant symbol succ : injK SortInt → injK SortInt; *)
      pp (create_symbol "succ" (create_arrow (wrap "SortInt") (wrap "SortInt"))) ;
-     out ppf "\n";
+     printing ppf "\n";
      (* builtin "0"  ≔ zero; *)
      pp_b (create_builtin_command "0" ([], "zero")) ;
      (* builtin "+1" ≔ succ; *)

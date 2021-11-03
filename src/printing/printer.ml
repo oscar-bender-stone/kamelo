@@ -7,9 +7,7 @@ open LP_interface.Output
 
 open Translation
 
-open Common.Color
-
-(* type output  = Format.formatter *)
+type output  = Format.formatter
 type printer = output -> p_command -> unit
 
 (** Lambdapi printer *)
@@ -234,7 +232,7 @@ let encoding :
      propagation, propagation, propagation) (fun () -> ())
   in
   (* STEP 2: From CTRS rules to TRS rules and symbols. *)
-  let sym_l, r_l = Translation.Viry.viry_encoding ppf ctrs_r_l in
+  let sym_l, r_l = Translation.Viry.viry_encoding ctrs_r_l in
   (* STEP 3: Print symbols then TRS rules. *)
   if List.length sym_l > 3 then
     (List.iter (fun x -> incr_additional_symbol cd ; printing ppf (no_pos (P_symbol x)))   (List.rev sym_l) ;
@@ -263,7 +261,7 @@ let encoding :
 
 let verbose = ref false
 
-let printing = Format.fprintf
+let printing = Format.fprintf (* TODO Doublon avec out dans LP_interface *)
 
 let pp_endline ppf = printing ppf "\n"
 let pp_paren ppf = printing ppf ")"

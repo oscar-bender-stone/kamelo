@@ -386,12 +386,10 @@ let get_head_symbol _ config =
   aux config
 
 (** [find_equiv_class ec t] adds the p_term [t] into the equivalence class [ec].  *)
-let find_equiv_class : Common.Color.output -> equiv_class -> ctrs_rule -> equiv_class =
-  fun ff ec (({elt=(lhs,_);_},_,_) as r) ->
-  (* let ff = (Format.formatter_of_out_channel stdout) in *)
+let find_equiv_class : equiv_class -> ctrs_rule -> equiv_class =
+  fun ec (({elt=(lhs,_);_},_,_) as r) ->
   let key = match get_head_symbol (ref 0) lhs with
-    | None -> LP_interface.LP_printer.pp_p_term ff lhs ;
-              Format.fprintf ff "\n-----------------------\n" ; "hum"   (* raise  KCellNotFound *)
+    | None -> "hum"   (* raise  KCellNotFound *)
     | Some {elt=(P_Iden({elt=(_,x);_},_));_} ->  (* Format.fprintf ff "Bon %s\n" x ; *) x
     | _ -> failwith "Internal error"
   in
@@ -412,8 +410,8 @@ let find_equiv_class : Common.Color.output -> equiv_class -> ctrs_rule -> equiv_
 
 (** [to_equiv_class rule_l] generates each equivalence class from
     a CTRS [rule_l], i.e. each C_σ. *)
-let to_equiv_class : Common.Color.output -> ctrs_rule list -> equiv_class = fun ff rule_l ->
-  List.fold_left (find_equiv_class ff) SMap.empty rule_l
+let to_equiv_class : ctrs_rule list -> equiv_class = fun rule_l ->
+  List.fold_left find_equiv_class SMap.empty rule_l
 
   (*
 (** ***** To create the most general LHS from σ ***** *)
@@ -750,7 +748,7 @@ let generate_rule : p_term -> krule list -> p_rule list -> p_rule list = fun key
 
 (*  type equiv_class = (ctrs_rule list) SMap.t *)
 
-let viry_encoding : Common.Color.output -> ctrs_rule list -> p_symbol list * p_rule list = fun ff l ->
+let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
   let flat_bool_sym = LP_interface.LP_p_term.create_p_symbol [] (safe_prefix ^ "Bool") [] (Some p_SORTK) None in
@@ -765,7 +763,7 @@ let viry_encoding : Common.Color.output -> ctrs_rule list -> p_symbol list * p_r
   in
   let flat_inj_sym = LP_interface.LP_p_term.create_p_symbol [] (safe_prefix ^ _INJ) [] (Some flat_inj_type) None in
      (* [d]. Create each C_σ from a CTRS. *)
-  let equiv_class = to_equiv_class ff l in
+  let equiv_class = to_equiv_class l in
   (* For each C_σ *)
   let aux_sigma : string -> ctrs_rule list -> p_symbol list * p_rule list -> p_symbol list * p_rule list =
     fun head_name l (acc_sym, acc_rule) ->

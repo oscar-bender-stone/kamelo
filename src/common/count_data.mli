@@ -8,6 +8,7 @@ val reset_count_data : int -> count_data
 (** Data about the K commands *)
 
 val set_k_import : count_data -> int -> unit
+
 val incr_k_import          : count_data -> unit
 val incr_k_sort            : count_data -> unit
 val incr_k_hooked_sort     : count_data -> unit
