@@ -78,7 +78,7 @@ for d in $for_test; do
    done
    if [ $is_kompiled = false ]; then
       if [ $(echo $semName | cut -c-2) = "M_" ]
-      then make
+      then make ; semName=$(echo $semName | cut -c3-)
       else kompile $semName.k
       fi
    fi
