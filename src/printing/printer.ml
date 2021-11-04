@@ -227,7 +227,7 @@ let encoding :
     (propagation, propagation, propagation, propagation)
     propagation propagation
     (propagation, trans_implies, trans_implies, trans_implies,
-     propagation, trans_implies, propagation) (fun () -> ())
+     propagation, trans_implies, trans_implies) (fun () -> ())
   in
   (* STEP 2: From CTRS rules to TRS rules and symbols. *)
   let sym_l, r_l = Translation.Viry.viry_encoding ctrs_r_l in

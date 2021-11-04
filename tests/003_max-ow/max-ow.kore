@@ -1149,7 +1149,7 @@ module MAX-OW
       \top{R}()))
   [org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/usr/include/kframework/builtin/domains.md)"), org'Stop'kframework'Stop'definition'Stop'Production{}("syntax #RuleContent ::= #RuleBody [klabel(#ruleNoConditions), symbol]"), contentStartLine{}("1113"), contentStartColumn{}("8"), org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(1113,8,1113,28)"), UNIQUE'Unds'ID{}("cf2cb8f038b4bdc4edb1334a3b8ced9cd296a7af43f0a1916e082a4e1aefa08b")]
 
-// rule getGeneratedCounterCell(`<generatedTop>`(_DotVar0,Cell))=>Cell requires #token("true","Bool") ensures #token("true","Bool") 
+// rule getGeneratedCounterCell(`<generatedTop>`(_DotVar0,Cell))=>Cell requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1253,7 +1253,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isBool(inj{Bool,KItem}(Bool))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isBool(inj{Bool,KItem}(Bool))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1307,7 +1307,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isCell(inj{Cell,KItem}(Cell))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isCell(inj{Cell,KItem}(Cell))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1361,7 +1361,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isExp(inj{Exp,KItem}(Exp))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isExp(inj{Exp,KItem}(Exp))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1415,7 +1415,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isGeneratedCounterCell(inj{GeneratedCounterCell,KItem}(GeneratedCounterCell))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isGeneratedCounterCell(inj{GeneratedCounterCell,KItem}(GeneratedCounterCell))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1469,7 +1469,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isGeneratedCounterCellOpt(inj{GeneratedCounterCellOpt,KItem}(GeneratedCounterCellOpt))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isGeneratedCounterCellOpt(inj{GeneratedCounterCellOpt,KItem}(GeneratedCounterCellOpt))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1523,7 +1523,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isGeneratedTopCell(inj{GeneratedTopCell,KItem}(GeneratedTopCell))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isGeneratedTopCell(inj{GeneratedTopCell,KItem}(GeneratedTopCell))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1577,7 +1577,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isGeneratedTopCellFragment(inj{GeneratedTopCellFragment,KItem}(GeneratedTopCellFragment))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isGeneratedTopCellFragment(inj{GeneratedTopCellFragment,KItem}(GeneratedTopCellFragment))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1631,7 +1631,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isInt(inj{Int,KItem}(Int))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isInt(inj{Int,KItem}(Int))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1649,7 +1649,7 @@ module MAX-OW
       \top{R}()))
   []
 
-// rule isK(K)=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isK(K)=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1703,7 +1703,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isKCell(inj{KCell,KItem}(KCell))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isKCell(inj{KCell,KItem}(KCell))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1757,7 +1757,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isKCellOpt(inj{KCellOpt,KItem}(KCellOpt))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isKCellOpt(inj{KCellOpt,KItem}(KCellOpt))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1811,7 +1811,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isKConfigVar(inj{KConfigVar,KItem}(KConfigVar))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isKConfigVar(inj{KConfigVar,KItem}(KConfigVar))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1865,7 +1865,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isKItem(KItem)=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isKItem(KItem)=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1919,7 +1919,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isKResult(inj{KResult,KItem}(KResult))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isKResult(inj{KResult,KItem}(KResult))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -1973,7 +1973,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isList(inj{List,KItem}(List))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isList(inj{List,KItem}(List))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -2027,7 +2027,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isMap(inj{Map,KItem}(Map))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isMap(inj{Map,KItem}(Map))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),
@@ -2081,7 +2081,7 @@ module MAX-OW
       \top{R}()))
   [owise{}()]
 
-// rule isSet(inj{Set,KItem}(Set))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool") 
+// rule isSet(inj{Set,KItem}(Set))=>#token("true","Bool") requires #token("true","Bool") ensures #token("true","Bool")
   axiom{R} \implies{R} (
     \and{R}(
       \top{R}(),

@@ -300,6 +300,11 @@ let print_comment ppf message =
 let pp_symbol_prelude : output -> count_data -> printer -> p_symbol -> unit =
   fun ppf cd prt sym ->
   incr_real_symbol cd ;
+  (match sym.p_sym_typ with
+   | Some v ->
+      Translation.Translate.signature :=
+        Translation.Axiom.StrMap.add sym.p_sym_nam.elt v !Translation.Translate.signature
+   | None -> ()) ;
   prt ppf (no_pos (P_symbol sym))
 
 let pp_builtin_prelude : output -> count_data -> printer -> p_command -> unit =

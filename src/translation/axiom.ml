@@ -155,8 +155,10 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
   let rec collect : t -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
     match ax with
     | Top _ -> acc
-    | In(_,(v,_), And(_, Dom_val(x,"false"), _)) | In(_,(v,_), And(_, _, Dom_val(x,"false"))) ->
-       StrMap.add v (local_curry (Dom_val(x,"false")) acc) acc
+    | In(_,(v1,_), And(_, Dom_val(x,"false"), Predicate(Var(v2, _))))
+         | In(_,(v1,_), And(_, Predicate(Var(v2, _)), Dom_val(x,"false"))) ->
+       let tmp = StrMap.add v1 (local_curry (Dom_val(x,"false")) acc) acc in
+       StrMap.add v2 (local_curry (Dom_val(x,"false")) tmp) tmp
     | In(_,(v,_),a) -> StrMap.add v (local_curry a acc) acc
     | And(_,Top _,ax) | And(_,ax,Top _) -> collect ax acc
     | And(_, ax1, ax2) -> collect ax2 (collect ax1 acc)
