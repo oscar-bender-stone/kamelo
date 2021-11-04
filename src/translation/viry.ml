@@ -640,14 +640,16 @@ let extend_type typ nb =
     let rec aux (t : p_term) acc = match t.elt with
       | P_Type   -> [], t
       | P_Iden _ -> [], t
+      | P_Appl _ -> [], t
       | P_Arro(t1, ({elt=P_Type  ;_} as t2)) -> List.rev (t1::acc), t2
       | P_Arro(t1, ({elt=P_Iden _;_} as t2)) -> List.rev (t1::acc), t2
+      | P_Arro(t1, ({elt=P_Appl _;_} as t2)) -> List.rev (t1::acc), t2
       | P_Arro(t1, ({elt=P_Arro _;_} as t2)) -> aux t2 (t1::acc)
-      | _ -> failwith "Bad signature"
+      | _ -> failwith "Unexpected type which to be extended during Viry's transformation"
     in
     aux typ []
   in
-  let flatBool_type = create_appl p_INJ (create_ident (safe_prefix ^ "Bool")) in
+  let flatBool_type = create_appl p_INJD (create_ident (safe_prefix ^ "Bool")) in
   let arg_type, output_type = split_type typ in
   List.fold_right create_arrow (arg_type@(create_list_iter nb flatBool_type)) output_type
 
@@ -773,8 +775,8 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
       let mglhs = create_most_general_LHS (fst pr.elt) in
       (* [3.] Generate the ♭-symbol of the current head symbol. *)
       let flat_head_name = safe_prefix ^ head_name in
-      (* let flat_head_type = extend_type (Map.find head_name) nb_cond in @TODO *)
-      let flat_head_type = p_TYPE in
+      let flat_head_type = extend_type (StrMap.find head_name !Translate.signature) nb_cond in
+      (* let flat_head_type = p_TYPE in *)
       let flat_head_sym = Interface.LP_p_term.create_p_symbol [] flat_head_name [] (Some flat_head_type) None in
       (* [4.] Generate the encapsulation rule. *)
       let encap_r = no_pos (create_encapsulation_rule_bis tracker mglhs nb_cond) in

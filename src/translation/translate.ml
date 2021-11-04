@@ -16,6 +16,8 @@ let import_to_require_open : string list -> import -> p_command = fun path i ->
   let path = [create_p_path (path @ [filename])] in
   no_pos (P_require (true, path))
 
+(** To store the type of each sort and symbol *)
+let signature : p_term StrMap.t ref = ref StrMap.empty
 
 (** Sort *)
 let get_sort_type : sort -> p_term = fun s ->
@@ -23,6 +25,7 @@ let get_sort_type : sort -> p_term = fun s ->
 
 let sort_to_p_symbol : sort -> p_command = fun s ->
   let sort_type = get_sort_type s in
+  signature := StrMap.add s sort_type !signature ;
   let res = create_p_symbol [] s [] (Some sort_type) None in
   no_pos (P_symbol res)
   (* modifier = Const ? *)
@@ -30,6 +33,7 @@ let sort_to_p_symbol : sort -> p_command = fun s ->
 (** Symbol *)
 let symbol_to_p_symbol : symbol -> attribute list -> p_command = fun s attr_l ->
   let name, qvar_l, _, _ = s in
+  signature := StrMap.add name (sym_curry s) !signature ;
   let param_l = create_p_params qvar_l in
   let res = create_p_symbol (get_modifier attr_l) name param_l (Some (sym_curry s)) None in
   no_pos (P_symbol res)
