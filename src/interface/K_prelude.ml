@@ -1,14 +1,15 @@
 
 open LP_p_term
+open Output
 
-let _SORTK = "SortK"
-let _INJD  = "δ"
-let _INJ   = "inj"
-let _KSEQ  = "kseq"
-let _DOTK  = "dotk"
+let _SORTK = pp "SortK"
+let _INJD  = pp "δ"
+let _INJ   = pp "inj"
+let _KSEQ  = pp "kseq"
+let _DOTK  = pp "dotk"
 
-let _TRUE  = "true"
-let _FALSE = "false"
+let _TRUE  = pp "true"
+let _FALSE = pp "false"
 
 let p_SORTK = create_ident _SORTK
 let p_INJD  = create_ident _INJD
@@ -20,11 +21,11 @@ let p_TRUE  = create_ident _TRUE
 let p_FALSE = create_ident _FALSE
 
 
-let _AND_BOOL = "Lbl'Unds'andBool'Unds"
-let _OR_BOOL  = "Lbl'Unds'orBool'Unds"
-let _NOT_BOOL = "LblnotBool'Unds"
+let _AND_BOOL = pp "Lbl'Unds'andBool'Unds"
+let _OR_BOOL  = pp "Lbl'Unds'orBool'Unds"
+let _NOT_BOOL = pp "LblnotBool'Unds"
 (* let _EQUALS_BOOL = "\equals"
 let _DOMAIN_VALUES = *)
 
 (** The cell's name of the cell k *)
-let _K_CELL = "Lbl'-LT-'k'-GT-'" (* "<k>" *)
+let _K_CELL = pp "Lbl'-LT-'k'-GT-'" (* "<k>" *)

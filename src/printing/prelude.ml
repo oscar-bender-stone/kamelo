@@ -258,6 +258,9 @@ let ggg : kmodule -> unit = fun m ->
    create_appl (create_appl (create_ident sym) (create_pattern v1))
    (create_appl (create_ident sym) (create_pattern v2)) *)
 
+let _LT_INT_ = Interface.Output.pp "Lbl'Unds-LT-'Int'Unds'"
+let _GE_INT_ = Interface.Output.pp "Lbl'Unds-GT-Eqls'Int'Unds'"
+
 let semantic_rule =
      (* //symbol Lbl'Unds-LT-'Int'Unds' : δ SortInt → δ SortInt → δ SortBool;
         rule Lbl'Unds-LT-'Int'Unds'      0         0     ↪ false
@@ -269,16 +272,16 @@ let semantic_rule =
         with Lbl'Unds-GT-Eqls'Int'Unds'     0     (succ _)  ↪ false
         with Lbl'Unds-GT-Eqls'Int'Unds' (succ $m) (succ $n) ↪ Lbl'Unds-GT-Eqls'Int'Unds' $m $n
         with Lbl'Unds-GT-Eqls'Int'Unds' (succ _)      0     ↪ true; *)
-  [ (create_ident "Lbl'Unds-LT-'Int'Unds'", [create_ident "0" ; create_ident "0"]), (create_ident "false", [])
-  ; (create_ident "Lbl'Unds-LT-'Int'Unds'", [create_ident "0" ; create_appl (create_ident "succ") p_WILD]), (create_ident "true", [])
-  ; (create_ident "Lbl'Unds-LT-'Int'Unds'", [create_one_arg "succ" "m" ; create_one_arg "succ" "n"]),
-    (create_ident "Lbl'Unds-LT-'Int'Unds'", [create_pattern_var "m" ; create_pattern_var "n"])
-  ; (create_ident "Lbl'Unds-LT-'Int'Unds'", [create_appl (create_ident "succ") p_WILD ; create_ident "0"]), (create_ident "false", [])
-  ; (create_ident "Lbl'Unds-GT-Eqls'Int'Unds'", [create_ident "0" ; create_ident "0"]), (create_ident "true", [])
-  ; (create_ident "Lbl'Unds-GT-Eqls'Int'Unds'", [create_ident "0" ; create_appl (create_ident "succ") p_WILD]), (create_ident "false", [])
-  ; (create_ident "Lbl'Unds-GT-Eqls'Int'Unds'", [create_one_arg "succ" "m" ; create_one_arg "succ" "n"]),
-    (create_ident "Lbl'Unds-GT-Eqls'Int'Unds'", [create_pattern_var "m" ; create_pattern_var "n"])
-  ; (create_ident "Lbl'Unds-GT-Eqls'Int'Unds'", [create_appl (create_ident "succ") p_WILD ; create_ident "0"]), (create_ident "true", []) ]
+  [ (create_ident _LT_INT_, [create_ident "0" ; create_ident "0"]), (create_ident "false", [])
+  ; (create_ident _LT_INT_, [create_ident "0" ; create_appl (create_ident "succ") p_WILD]), (create_ident "true", [])
+  ; (create_ident _LT_INT_, [create_one_arg "succ" "m" ; create_one_arg "succ" "n"]),
+    (create_ident _LT_INT_, [create_pattern_var "m" ; create_pattern_var "n"])
+  ; (create_ident _LT_INT_, [create_appl (create_ident "succ") p_WILD ; create_ident "0"]), (create_ident "false", [])
+  ; (create_ident _GE_INT_, [create_ident "0" ; create_ident "0"]), (create_ident "true", [])
+  ; (create_ident _GE_INT_, [create_ident "0" ; create_appl (create_ident "succ") p_WILD]), (create_ident "false", [])
+  ; (create_ident _GE_INT_, [create_one_arg "succ" "m" ; create_one_arg "succ" "n"]),
+    (create_ident _GE_INT_, [create_pattern_var "m" ; create_pattern_var "n"])
+  ; (create_ident _GE_INT_, [create_appl (create_ident "succ") p_WILD ; create_ident "0"]), (create_ident "true", []) ]
 
 
 let create_symbol : string -> p_term -> p_symbol = fun name typ ->

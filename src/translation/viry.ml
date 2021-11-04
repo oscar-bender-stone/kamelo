@@ -171,10 +171,13 @@ let is_cell : string -> bool = fun s ->
   Format.fprintf (Format.formatter_of_out_channel stdout) "boug" ;
   let len = String.length s in
   try
-    s.[0] = 'L' && s.[1] = 'b' && s.[2] = 'l' && s.[3] = '\''
-    && s.[4] = '-' && s.[5] = 'L' && s.[6] = 'T' && s.[7] = '-'
-    && s.[8] = '\'' && s.[len-6] = '\'' && s.[len-5] = '-' && s.[len-4] = 'G'
-    && s.[len-3] = 'T' && s.[len-2] = '-' && s.[len-1] = '\''
+    if !Interface.Output.readable
+    then s.[0] = '<' && s.[len-1] = '>'
+    else
+      s.[0] = 'L' && s.[1] = 'b' && s.[2] = 'l' && s.[3] = '\''
+      && s.[4] = '-' && s.[5] = 'L' && s.[6] = 'T' && s.[7] = '-'
+      && s.[8] = '\'' && s.[len-6] = '\'' && s.[len-5] = '-' && s.[len-4] = 'G'
+      && s.[len-3] = 'T' && s.[len-2] = '-' && s.[len-1] = '\''
   with _ -> Format.fprintf (Format.formatter_of_out_channel stdout) "boug" ; false
 
 (** [is_k_cell s] returns if a string [s] is the cell's name
@@ -567,9 +570,8 @@ let with_all_same_value heading nb default_sym =
     [K] -> [♭Bool] -> ... -> [♭Bool] -> [K], which has [nb+1] arguments.
     Note: ♭Bool = {♭, "true", "false"}. *)
 let create_carrier_symbol_type nb =
-  let injK = create_ident _INJ in
-  let flatBool_type = create_appl injK (create_ident (safe_prefix ^ "Bool")) in
-  let cell_type = create_appl injK (create_ident "SortGeneratedTopCell") in
+  let flatBool_type = create_appl p_INJ (create_ident (safe_prefix ^ "Bool")) in
+  let cell_type = create_appl p_INJ (create_ident "SortGeneratedTopCell") in
   List.fold_right create_arrow (cell_type::(create_list_iter nb flatBool_type)) cell_type
 
 (** [create_encapsulation_rule mglhs carrier_sym nb]
@@ -747,15 +749,17 @@ let generate_rule : p_term -> krule list -> p_rule list -> p_rule list = fun key
 let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
-  let flat_bool_sym = Interface.LP_p_term.create_p_symbol [] (safe_prefix ^ "Bool") [] (Some p_SORTK) None in
+  let flat_bool_name = safe_prefix ^ "Bool" in
+  let flat_bool_sym = Interface.LP_p_term.create_p_symbol [] flat_bool_name [] (Some p_SORTK) None in
      (* [b.] Create the symbol ♭. *)
-  let flat_type = create_appl (create_ident _INJD) (create_ident (safe_prefix ^ "Bool")) in (* _INJD ♭Bool *)
+  let p_flat_bool = create_ident flat_bool_name in
+  let flat_type = create_appl p_INJD p_flat_bool in (* _INJD ♭Bool *)
   let flat_sym = Interface.LP_p_term.create_p_symbol [] safe_prefix [] (Some flat_type) None in
      (* [c.] Create the symbol ♭inj. *)
   let flat_inj_type = (* _INJD SortBool → _INJD ♭Bool *)
     create_arrow
       (create_appl p_INJD (create_ident "SortBool"))
-      (create_appl p_INJD (create_ident (safe_prefix ^ "Bool")))
+      (create_appl p_INJD p_flat_bool)
   in
   let flat_inj_sym = Interface.LP_p_term.create_p_symbol [] (safe_prefix ^ _INJ) [] (Some flat_inj_type) None in
      (* [d]. Create each C_σ from a CTRS. *)
