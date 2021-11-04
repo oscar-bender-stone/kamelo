@@ -189,8 +189,8 @@ let encoding :
   let create_RHS : t -> p_term = fun ax ->
     match ax with
     | Rewrites(_,_,And(_,a1,a2)) ->
-       if is_conditional_rule a1 then
-         raise (ConditionalRule "KProver claim not supported yet.")
+       if is_conditional_rule a1 then (Format.fprintf Format.std_formatter "One KProver claim\n" ; p_TYPE)
+         (* raise (ConditionalRule "KProver claim not supported yet.") *)
        else
          Translation.Axiom.curry_pattern a2
     |  _ -> failwith "In RHS: Not yet implemented"
@@ -215,6 +215,9 @@ let encoding :
     | true,  None   -> (no_pos (lhs, rhs), OwiseRule,  default_prio)
     | true,  Some _ -> failwith "Not possible."
   in
+  let trans_implies =
+    fun _ acc (_, ax) -> (of_implies_axiom ax)::acc
+  in
   let ctrs_r_l =
     kommand_iter_without_alias cd kommand_l []
     f_sort f_deleted f_symbol f_deleted propagation
@@ -223,8 +226,8 @@ let encoding :
     propagation (propagation, propagation)
     (propagation, propagation, propagation, propagation)
     propagation propagation
-    (propagation, propagation, propagation, propagation,
-     propagation, propagation, propagation) (fun () -> ())
+    (propagation, trans_implies, trans_implies, trans_implies,
+     propagation, trans_implies, propagation) (fun () -> ())
   in
   (* STEP 2: From CTRS rules to TRS rules and symbols. *)
   let sym_l, r_l = Translation.Viry.viry_encoding ctrs_r_l in
