@@ -204,13 +204,13 @@ let rec is_predicate : t -> bool = fun a ->
   | In(_,_,a)        -> is_predicate a
   | Dom_val  _  -> false
   | Predicate p -> match p with
-                  | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
-                     begin
-                      try
-                        let res = String.sub n 0 5 in String.equal res "Lblis"
-                      with _ -> false
-                     end
-                  | Var _ -> false
+                   | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
+                      begin
+                       try
+                         let res = String.sub n 0 5 in String.equal res "Lblis"
+                       with _ -> false
+                      end
+                   | Var _ -> false
 
 let is_rule : t -> bool = fun a ->
   match a with

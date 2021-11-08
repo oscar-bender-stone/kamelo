@@ -181,7 +181,7 @@ let encoding :
          | And(_,a1,a2) ->
             (match a1 with
              | Top _ -> curry_pattern a2, None
-             | _     -> curry_pattern a2, Some (create_appl (create_ident (Translation.Viry.safe_prefix ^ _INJ)) (curry_condition a1))) (* (no_pos P_Type)) *)
+             | _     -> curry_pattern a2, Some (curry_condition a1)) (* (no_pos P_Type)) *)
          |  _ -> failwith "In LHS: Not yet implemented"
        end
     | D _ -> failwith "Not possible in rewriting axiom"

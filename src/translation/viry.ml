@@ -185,10 +185,7 @@ let is_cell : string -> bool = fun s ->
 let is_k_cell : string -> bool = fun s ->
   if !Interface.Output.readable
   then s = "<k>"
-  else s = "Lbl'-LT-'k'-GT-'" (* "<k>" *)
-
-  (* let res = (s = _K_CELL) in
-  Format.fprintf (Format.formatter_of_out_channel stdout) "%b" res ; res *)
+  else s = "Lbl'-LT-'k'-GT-'"
 
 let is_to_keep : string -> bool = fun s ->
   s = _KSEQ || s = _DOTK || s = _INJ
@@ -250,7 +247,7 @@ let update_config : string -> p_term -> (p_term -> p_term) -> p_term = fun head 
         if r_is_head then
           (if l_is_head
            then failwith "Several head symbols..."
-           else false,  no_pos (P_Appl(x1, f x2)))
+           else  false, no_pos (P_Appl(x1, f x2)))
         else l_is_head, no_pos (P_Appl(x1, x2)))
     | P_Patt _ | P_Expl _ -> false, t
     | P_Iden(({elt=(x1,n);pos=y}), x2) ->
@@ -259,7 +256,8 @@ let update_config : string -> p_term -> (p_term -> p_term) -> p_term = fun head 
        else false, t
     | _ -> failwith "ERROR"
   in
-  snd(aux false config)
+  let res = snd(aux false config) in
+  if has_infered_configuration config then res else f res
 
                         (*
 (** [configuration_iter] is a function with the following arguments:
@@ -797,8 +795,9 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
         | ({elt=(lhs,rhs);_}, Cond c, _)::q ->
            let curr_tracker = tracker lhs in
            let flat_cte = create_ident safe_prefix in
+           let inj_c = create_appl (create_ident (safe_prefix ^ _INJ)) c in
            let init_r =
-             no_pos (create_initialisation_rule_bis curr_tracker nb_cond i flat_cte c)
+             no_pos (create_initialisation_rule_bis curr_tracker nb_cond i flat_cte inj_c)
            in
            let true_cte = create_appl (create_ident (safe_prefix ^ _INJ)) p_TRUE in
            let reduc_r =
@@ -819,5 +818,4 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
       let new_acc_sym = if List.mem flat_head_sym acc_sym then acc_sym else flat_head_sym::acc_sym in
       new_acc_sym, aux_rule 0 [encap_r] l@acc_rule
   in
-  StrMap.fold aux_sigma equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], []) (* @FIX add bemolBool en symbole ! *)
-            (*  val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b *)
+  StrMap.fold aux_sigma equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], [])
