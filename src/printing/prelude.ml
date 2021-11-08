@@ -11,6 +11,9 @@ let hooked_sort =
   ; "SortInt"    (* hook{}("INT.Int")       *)
   ; "SortSet"    (* hook{}("SET.Set")       *)
   ; "SortBool"   (* hook{}("BOOL.Bool")     *)
+  ; "SortId"     (* token                   *)
+  ; "SortBytes"  (* hook{}("BYTES.Bytes")   *)
+  ; "SortMInt"   (* hook{}("MINT.literal")  *)
   ]
 
 let hooked_symbol =
