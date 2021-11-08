@@ -258,11 +258,12 @@ let ggg : kmodule -> unit = fun m ->
    create_appl (create_appl (create_ident sym) (create_pattern v1))
    (create_appl (create_ident sym) (create_pattern v2)) *)
 
-let _LT_INT_ = Interface.Output.pp "Lbl'Unds-LT-'Int'Unds'"
-let _GE_INT_ = Interface.Output.pp "Lbl'Unds-GT-Eqls'Int'Unds'"
 
-let semantic_rule =
-     (* //symbol Lbl'Unds-LT-'Int'Unds' : δ SortInt → δ SortInt → δ SortBool;
+
+let semantic_rule () =
+  let _LT_INT_ = Interface.Output.pp "Lbl'Unds-LT-'Int'Unds'" in
+  let _GE_INT_ = Interface.Output.pp "Lbl'Unds-GT-Eqls'Int'Unds'" in
+  (* //symbol Lbl'Unds-LT-'Int'Unds' : δ SortInt → δ SortInt → δ SortBool;
         rule Lbl'Unds-LT-'Int'Unds'      0         0     ↪ false
         with Lbl'Unds-LT-'Int'Unds'      0     (succ _)  ↪ true
         with Lbl'Unds-LT-'Int'Unds'  (succ $m) (succ $n) ↪ Lbl'Unds-LT-'Int'Unds'  $m $n
@@ -366,4 +367,4 @@ let create_prelude : output -> printer -> string -> unit =
      List.iter (fun (n,l) -> pp (create_symbol n (create_type (n,l)))) hooked_symbol ;
      (* STEP 4: Add semantic rules *)
      print_comment ppf "Translation of semantic rules";
-     List.iter (fun ((hl, bl), (hr, br)) -> pp_r (no_pos (List.fold_left create_appl hl bl, List.fold_left create_appl hr br))) semantic_rule
+     List.iter (fun ((hl, bl), (hr, br)) -> pp_r (no_pos (List.fold_left create_appl hl bl, List.fold_left create_appl hr br))) (semantic_rule())

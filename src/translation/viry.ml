@@ -183,8 +183,12 @@ let is_cell : string -> bool = fun s ->
 (** [is_k_cell s] returns if a string [s] is the cell's name
     of the cell k. *)
 let is_k_cell : string -> bool = fun s ->
-  let res = (s = _K_CELL) in
-  Format.fprintf (Format.formatter_of_out_channel stdout) "%b" res ; res
+  if !Interface.Output.readable
+  then s = "<k>"
+  else s = "Lbl'-LT-'k'-GT-'" (* "<k>" *)
+
+  (* let res = (s = _K_CELL) in
+  Format.fprintf (Format.formatter_of_out_channel stdout) "%b" res ; res *)
 
 let is_to_keep : string -> bool = fun s ->
   s = _KSEQ || s = _DOTK || s = _INJ

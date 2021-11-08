@@ -274,7 +274,7 @@ let pretty_string : (string * string) list -> string -> string = fun iso s ->
         aux t (Str.global_replace (Str.regexp pattern) new_s s)
   in
   aux iso s
-
+(*
 let skip_sign s = "_\\([A-Z-]*\\)" ^ s ^ "\\([A-Za-z_-]+\\)"
 
 let string_symbol_isomorphism =
@@ -287,7 +287,7 @@ let string_symbol_isomorphism =
   ; (skip_sign "INT", "_INT") ; (skip_sign "LIST", "_LIST") ; (skip_sign "SET", "_SET") ; (skip_sign "MAP", "_MAP") ]
 
 let pp s = if !readable then pretty_string string_symbol_isomorphism s else s
-
+ *)
 
 let pp_list : output -> string -> (output -> 'a -> unit) -> 'a list -> string -> string -> unit =
   fun ppf first f l separator last ->
