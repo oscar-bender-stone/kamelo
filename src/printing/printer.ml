@@ -134,6 +134,16 @@ let encoding :
   let f_symbol attr_l acc s = pp_symbol ppf cd printing (s, attr_l) ; acc in
   let f_deleted  _ _ _ = [] in
   let propagation = fun _ x _ -> x in
+
+  (*  axiom{R} \exists{R} (Val:SortKItem{}, \equals{SortKItem{}, R} (Val:SortKItem{}, inj{SortCell{}, SortKItem{}} (From:SortCell{}))) *)
+  let collect_subsort_data :
+      attribute list -> ctrs_rule list -> quant_var list * axiom ->
+      ctrs_rule list = fun _ _ (_, ax) ->
+    match ax with
+    | Exists (_, _, Equals(_, _, Predicate(Sym("inj", [S s1; S s2], _)))) ->
+       from_subsort_axiom s1 s2 ; []
+    | _ -> failwith "Error in [Printer.collect_subsort_data]"
+  in
   let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
     let rec aux : t -> p_term = fun ax ->
       let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
@@ -224,7 +234,7 @@ let encoding :
     f_sort f_deleted f_symbol f_deleted propagation
     (fun attr_l acc {lhs=al; rhs=(_, ax)} ->
       (create_ctrs_rule attr_l al ax)::acc)
-    propagation (propagation, propagation)
+    propagation (collect_subsort_data, propagation)
     (propagation, propagation, propagation, propagation)
     propagation propagation
     (propagation, trans_implies, trans_implies, trans_implies,

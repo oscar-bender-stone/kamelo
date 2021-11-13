@@ -306,10 +306,21 @@ let pp_symbol_prelude : output -> count_data -> printer -> p_symbol -> unit =
   incr_real_symbol cd ;
   (match sym.p_sym_typ with
    | Some v ->
-      Translation.Translate.signature :=
-        Translation.Axiom.StrMap.add sym.p_sym_nam.elt v !Translation.Translate.signature
+      Translation.Translate.symb_signature :=
+        Translation.Axiom.StrMap.add sym.p_sym_nam.elt v !Translation.Translate.symb_signature
    | None -> ()) ;
   prt ppf (no_pos (P_symbol sym))
+
+let pp_sort_prelude : output -> count_data -> printer -> p_symbol -> unit =
+  fun ppf cd prt sym ->
+  incr_real_symbol cd ;
+  (match sym.p_sym_typ with
+   | Some v ->
+      Translation.Axiom.sort_signature :=
+        Translation.Axiom.StrMap.add sym.p_sym_nam.elt v !Translation.Axiom.sort_signature
+   | None -> ()) ;
+  prt ppf (no_pos (P_symbol sym))
+
 
 let pp_builtin_prelude : output -> count_data -> printer -> p_command -> unit =
   fun ppf _ prt b -> prt ppf b
@@ -320,36 +331,37 @@ let pp_rule_prelude : output -> count_data -> printer -> p_rule -> unit =
 let create_prelude : output -> printer -> string -> unit =
   fun ppf prt _ ->
   let cd = Common.Count_data.reset_count_data 0 in
-  let pp = pp_symbol_prelude ppf cd prt in
+  let pp_sort = pp_sort_prelude ppf cd prt in
+  let pp_symb = pp_symbol_prelude ppf cd prt in
   let pp_b = pp_builtin_prelude ppf cd prt in
   let pp_r = pp_rule_prelude ppf cd prt in
   (* STEP 1: The injection _INJD: injective symbol δ : SortK → TYPE; *)
   print_comment ppf "Our injection between K and Dedukti";
-  pp (create_p_symbol [no_pos (P_prop Injec)] "δ" []
-        (Some (create_arrow p_SORTK p_TYPE)) None) ;
+  pp_symb (create_p_symbol [no_pos (P_prop Injec)] "δ" []
+             (Some (create_arrow p_SORTK p_TYPE)) None) ;
   (* Hooked-sort *)
   print_comment ppf "Translation of hooked sorts";
-  List.iter (fun n -> pp (create_symbol n p_SORTK)) hooked_sort ;
+  List.iter (fun n -> pp_sort (create_symbol n p_SORTK)) hooked_sort ;
   (* STEP 2: Some constructors and builtin *)
      print_comment ppf "Some builtins for Lambdapi and constructors";
      (* For inductive type *)
      (* symbol Prop : TYPE; *)
-     pp (create_symbol "Prop" p_TYPE) ;
+     pp_symb (create_symbol "Prop" p_TYPE) ;
      (* symbol P : Prop → TYPE; *)
-     pp (create_symbol "P" (create_arrow (create_ident "Prop") p_TYPE)) ;
+     pp_symb (create_symbol "P" (create_arrow (create_ident "Prop") p_TYPE)) ;
      (* builtin "Prop" ≔ Prop; *)
      pp_b (create_builtin_command "Prop" ([], "Prop")) ;
      (* builtin "P" ≔ P; *)
      pp_b (create_builtin_command "P" ([], "P")) ;
      printing ppf "\n";
      (* symbol true : injK SortBool; *)
-     pp (create_symbol "true" (wrap "SortBool")) ;
+     pp_symb (create_symbol "true" (wrap "SortBool")) ;
      (* symbol false : injK SortBool; *)
-     pp (create_symbol "false" (wrap "SortBool")) ;
+     pp_symb (create_symbol "false" (wrap "SortBool")) ;
      (* constant symbol zero : injK SortInt; *)
-     pp (create_symbol "zero" (wrap "SortInt")) ;
+     pp_symb (create_symbol "zero" (wrap "SortInt")) ;
      (* constant symbol succ : injK SortInt → injK SortInt; *)
-     pp (create_symbol "succ" (create_arrow (wrap "SortInt") (wrap "SortInt"))) ;
+     pp_symb (create_symbol "succ" (create_arrow (wrap "SortInt") (wrap "SortInt"))) ;
      printing ppf "\n";
      (* builtin "0"  ≔ zero; *)
      pp_b (create_builtin_command "0" ([], "zero")) ;
@@ -367,7 +379,7 @@ let create_prelude : output -> printer -> string -> unit =
        let f t1 t2 = create_arrow (Translation.Symbol.get_type t1) t2 in
        List.fold_right f head (Translation.Symbol.get_type last)
      in
-     List.iter (fun (n,l) -> pp (create_symbol n (create_type (n,l)))) hooked_symbol ;
+     List.iter (fun (n,l) -> pp_symb (create_symbol n (create_type (n,l)))) hooked_symbol ;
      (* STEP 4: Add semantic rules *)
      print_comment ppf "Translation of semantic rules";
      List.iter (fun ((hl, bl), (hr, br)) -> pp_r (no_pos (List.fold_left create_appl hl bl, List.fold_left create_appl hr br))) (semantic_rule())

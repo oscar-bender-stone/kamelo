@@ -781,7 +781,7 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
       let mglhs = create_most_general_LHS (fst pr.elt) in
       (* [3.] Generate the ♭-symbol of the current head symbol. *)
       let flat_head_name = safe_prefix ^ head_name in
-      let flat_head_type = extend_type (StrMap.find head_name !Translate.signature) nb_cond in
+      let flat_head_type = extend_type (StrMap.find head_name !Translate.symb_signature) nb_cond in
       (* let flat_head_type = p_TYPE in *)
       let flat_head_sym = Interface.LP_p_term.create_p_symbol [] flat_head_name [] (Some flat_head_type) None in
       (* [4.] Generate the encapsulation rule. *)

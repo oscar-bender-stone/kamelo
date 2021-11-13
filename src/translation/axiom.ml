@@ -85,6 +85,15 @@ let of_equality_axiom : t -> p_rule = fun ax ->
   | _ -> failwith "The current axiom isn't an equality one.\n
                    Please, raise an issue."
 
+let subsort_data : (string list) StrMap.t ref = ref StrMap.empty
+
+let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
+  let f a = match a with
+    | None   -> Some [s2]   (* Si l'entrée n'existait pas encore *)
+    | Some l -> Some(s2::l) (* Si l'entrée existait déjà *)
+  in (* TODO a factorisé avec [find_equiv_class] dans viry.ml *)
+  subsort_data := StrMap.update s1 f !subsort_data
+
   (* axiom{R} \implies{R} (
    *   \and{R}(
    *     \top{R}(),
@@ -272,3 +281,27 @@ let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
       (p_TYPE, p_TYPE)
   in
   no_pos rule
+
+(** To store the type of each sort   *)
+let sort_signature : p_term StrMap.t ref = ref StrMap.empty
+
+(** [create_isKResult_rule] generates a rewriting rule
+    p_IS_KRESULT (p_KSEQ (p_INJ { s } _) p_DOTK) --> b
+    b = true,  if s is a subsort of KResult
+    b = false, otherwise *)
+let create_isKResult_rule : unit -> p_rule list = fun () ->
+  let create_one_LHS : string -> p_term = fun sort_x ->
+    let inj = create_appl (create_appl p_INJ (create_implicit_arg sort_x)) p_WILD in
+    let k_comput = create_appl (create_appl p_KSEQ inj) p_DOTK in
+    create_appl p_IS_KRESULT k_comput
+  in
+  let create_one_rule : string -> p_term -> p_rule list -> p_rule list =
+    fun key _ acc ->
+    if key = _SORTK || key = _SORT_KITEM || key = _SORT_KRESULT then acc
+    else
+      let lhs = create_one_LHS key in
+      let subsort_rel = try StrMap.find key !subsort_data with Not_found -> [] in
+      let rhs = create_ident (string_of_bool (List.mem _SORT_KRESULT subsort_rel)) in
+      (no_pos (lhs, rhs))::acc
+  in
+  StrMap.fold create_one_rule !sort_signature []

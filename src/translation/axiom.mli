@@ -17,6 +17,9 @@ val curry_pattern : t -> p_term
 
 val of_equality_axiom : t -> p_rule
 
+(* val subsort_data : (string list) StrMap.t ref *)
+val from_subsort_axiom : string -> string -> unit
+
 (** Type of extra data about a rule *) (* Mettre aussi priority ? *)
 type extra_data_rule =
    Uncond         (* A uncondtional rule *)
@@ -38,3 +41,6 @@ val is_conditional_rule : t -> bool
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)
 val create_rewriting_rule : alias -> t -> p_rule
+
+val sort_signature : p_term StrMap.t ref
+val create_isKResult_rule : unit -> p_rule list
