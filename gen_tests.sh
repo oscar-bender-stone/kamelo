@@ -95,7 +95,8 @@ for d in $for_test; do
    mkdir $curr_gen_folder/$curr_exec_folder
    # Traduction de la sémantique
    echo "Traduction de la sémantique" $semName.kore
-   ./$kamelo_script $tests_folder/$d/$semName.kore
+   ./$kamelo_script -r $tests_folder/$d/$semName.kore
+   # rm $tests_folder/$d/$semName.kore
    mv $semName.$extension $curr_gen_folder/
    #mv $tests_folder/$d/$semName.kore $curr_gen_folder/
 
@@ -115,7 +116,7 @@ for d in $for_test; do
       krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
       # Traduction vers Dedukti
       cd ../..
-      ./$kamelo_script --semantics $semName $curr_gen_folder/$curr_exec_folder/$new_name.kore
+      ./$kamelo_script -r --semantics $semName $curr_gen_folder/$curr_exec_folder/$new_name.kore
       rm $curr_gen_folder/$curr_exec_folder/$new_name.kore
 
       cd $tests_folder/$d/$curr_exec_folder

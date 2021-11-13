@@ -181,7 +181,7 @@ let encoding :
          | And(_,a1,a2) ->
             (match a1 with
              | Top _ -> curry_pattern a2, None
-             | _     -> curry_pattern a2, Some (curry_condition a1)) (* (no_pos P_Type)) *)
+             | _     -> let res = curry_pattern a2 in res, Some (curry_condition a1)) (* (no_pos P_Type)) *)
          |  _ -> failwith "In LHS: Not yet implemented"
        end
     | D _ -> failwith "Not possible in rewriting axiom"
@@ -198,6 +198,7 @@ let encoding :
   let create_ctrs_rule :
       attribute list -> alias -> axiom -> ctrs_rule
     = fun attr_l al ax ->
+    data_matching := StrMap.empty ;
     (* Be careful: the order of the computation is important
      because of references *)
     let default_prio = 42 in

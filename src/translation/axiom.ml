@@ -76,6 +76,7 @@ let curry_pattern = curry create_pattern_var
 
 (* To translate Unit, Idem, comm, assoc *)
 let of_equality_axiom : t -> p_rule = fun ax ->
+  data_matching := StrMap.empty ;
   match ax with
   | Equals(_, ax1, ax2) ->
      (try
@@ -181,10 +182,10 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
       with _ -> failwith "Implies axiom")
   | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), And(_, Equals(_,l,r), Top _)) ->
      (let data = collect a1 data in
-      try no_pos (local_curry l data, local_curry r data), Cond (curry_pattern c), 42
+      try no_pos (local_curry l data, local_curry r data), Cond (local_curry c data), 42
       with _ -> failwith "Implies axiom")
   | Implies(_, Equals(_, c, Dom_val(_,"true")), And(_, Equals(_,l,r), Top _)) ->
-      (try no_pos (local_curry l data, local_curry r data), Cond (curry_pattern c), 42
+      (try no_pos (local_curry l data, local_curry r data), Cond (local_curry c data), 42
        with _ -> failwith "Implies axiom")
   | _ -> failwith "The current axiom isn't an implies one.\n
                    Please, raise an issue."
@@ -258,6 +259,7 @@ let create_RHS : t -> p_term = fun ax ->
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)
 let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
+  data_matching := StrMap.empty ;
   let rule =
     try
       (* Be careful: the order of the computation is important
