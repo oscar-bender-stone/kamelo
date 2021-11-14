@@ -24,6 +24,22 @@ let () =
        (!Terminal.Cmd_line.semantics_file, []);
      (* STEP D: Translate the executable *)
      let p_exec = Translation.Axiom.curry_ident exec in
+     (* STEP : Add free variables *)
+     let f_pp : string -> string list -> unit = fun key var_l ->
+       let var_type =
+         Interface.LP_p_term.create_appl
+           Interface.K_prelude.p_INJD
+           (Interface.LP_p_term.create_ident key) in
+       let comm name =
+         Printing.Prelude.pp_symbol_prelude ff cd
+           (LP.LP_printer.pp_command)
+           (Printing.Prelude.create_symbol name var_type)
+       in
+       List.iter (fun name -> comm name) var_l
+     in
+     Translation.Axiom.StrMap.iter f_pp !Translation.Axiom.free_var ;
+
+     (* STEP : Printing *)
      LP.LP_printer.pp_command ff
        (Interface.LP_p_term.create_compute_command p_exec);
      (* STEP E: Close the new file *)
@@ -117,7 +133,7 @@ let () =
      print_header_kamelo ();
      module_to_file (List.hd file) ;
      print_comment ff "PRELUDE";
-     Printing.Prelude.create_prelude ff printing "prelude" ; (* Transformer en module pour ne plus à qu'à itérer ? *)
+     Printing.Prelude.create_prelude ff printing "prelude" ; (* Transformer en module pour ne plus avoir qu'à itérer ? *)
      List.iter module_to_file (List.tl file);
      if Translation.Axiom.StrMap.mem Interface.K_prelude._SORT_KRESULT !Translation.Axiom.sort_signature then
        (print_comment ff "Extension of isKResult's definition";

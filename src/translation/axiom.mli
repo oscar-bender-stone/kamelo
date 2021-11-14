@@ -9,6 +9,8 @@ exception ConditionalRule of string
 
 module StrMap : Map.S with type key = string
 
+val free_var : (string list) StrMap.t ref
+
 val data_matching : p_term StrMap.t ref
 
 val curry : (string -> p_term) -> t -> p_term

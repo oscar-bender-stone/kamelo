@@ -35,7 +35,9 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
  *)
 module StrMap = Map.Make(String)
 
-let data_matching : p_term StrMap.t ref = ref StrMap.empty
+let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
+
+let data_matching : p_term StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
 let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
   let rec aux : t -> p_term = fun ax ->
@@ -54,6 +56,12 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
                         then StrMap.find n !data_matching
                         else f_var n)
        end
+    | Dom_val("SortId", name) ->
+       let f a = match a with
+         | None   -> Some [name]   (* Si l'entrée n'existait pas encore *)
+         | Some l -> if List.mem name l then Some l else Some(name::l) (* Si l'entrée existait déjà *)
+       in (* TODO a factorisé avec [find_equiv_class] dans viry.ml et [from_subsort_axiom] plus bas *)
+       free_var := StrMap.update "SortId" f !free_var ; create_ident name
     | Dom_val(_, name) -> create_ident name
     (*| In _ -> failwith "OK, guys"
       | Equals _ -> failwith "EQUALS"
