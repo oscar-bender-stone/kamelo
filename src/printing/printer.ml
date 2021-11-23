@@ -158,7 +158,13 @@ let encoding :
               List.fold_left f_sym res a_l
            | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
            | Var(n, _) -> (if StrMap.mem n !data_matching
-                           then StrMap.find n !data_matching
+                           then
+                             (Format.printf (Common.Color.yel "oups") ;
+                              let res = StrMap.find n !data_matching in
+                              (if !do_specific_thing
+                               then (Format.printf (Common.Color.yel "\n yes \n") ;
+                                     Translation.Axiom.change_sort_inj res)
+                               else res))
                            else f_var n)
          end
       | Equals(_, x, Dom_val(_, "true"))  -> aux x
@@ -208,12 +214,17 @@ let encoding :
   let create_ctrs_rule :
       attribute list -> alias -> axiom -> ctrs_rule
     = fun attr_l al ax ->
-    data_matching := StrMap.empty ;
+    if is_cooling_rule attr_l then do_specific_thing := true ;
+    Format.printf (Common.Color.yel "\n In CTRS VIRY %b\n") (is_cooling_rule attr_l);
+    data_matching := StrMap.empty ; reset_var() ;
     (* Be careful: the order of the computation is important
      because of references *)
     let default_prio = 42 in
+    Format.printf (Common.Color.yel "  In LHS\n") ;
     let lhs, cond = create_LHS al in
+    Format.printf (Common.Color.yel "  In RHS\n") ;
     let rhs = create_RHS ax in
+    do_specific_thing := false ;
     let attr_l =
       List.map (fun attr -> match attr with
                           | Owise _ -> true

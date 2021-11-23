@@ -189,7 +189,15 @@ let kommand_iter_without_alias
        | Axiom(qv_l, ax), attr_l_ax ->
           let xattr_l = attr_l@attr_l_ax in
           if Translation.Axiom.is_rule ax
-          then (incr_k_rewriting_ax cd ; f_rewrite xattr_l acc { lhs = al ; rhs = (qv_l, ax) })
+          then
+            (Format.printf (Common.Color.yel "%b") (Translation.Axiom.is_cooling_rule attr_l_ax) ;
+             if Translation.Axiom.is_cooling_rule attr_l_ax
+             then
+               (Translation.Axiom.do_specific_thing := true ;
+                incr_k_rewriting_ax cd ;
+                let res = f_rewrite xattr_l acc { lhs = al ; rhs = (qv_l, ax) } in
+                Translation.Axiom.do_specific_thing := false ; res)
+             else (incr_k_rewriting_ax cd ; f_rewrite xattr_l acc { lhs = al ; rhs = (qv_l, ax) }))
           else (incr_k_alias   cd ; f_alias xattr_l acc al)
        | _  -> (incr_k_alias cd ; f_alias attr_l acc al)
   in

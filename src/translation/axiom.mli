@@ -13,6 +13,12 @@ val free_var : (string list) StrMap.t ref
 
 val data_matching : p_term StrMap.t ref
 
+val do_specific_thing : bool ref
+
+val reset_var : unit -> unit
+
+val change_sort_inj : p_term -> p_term
+
 val curry : (string -> p_term) -> t -> p_term
 val curry_ident   : t -> p_term
 val curry_pattern : t -> p_term
@@ -39,6 +45,7 @@ val of_implies_axiom : t -> ctrs_rule
 val is_predicate : t -> bool
 val is_rule      : t -> bool
 val is_conditional_rule : t -> bool
+val is_cooling_rule : attribute list -> bool
 
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)

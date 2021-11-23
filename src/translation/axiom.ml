@@ -35,9 +35,64 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
  *)
 module StrMap = Map.Make(String)
 
+let subsort_data : (string list) StrMap.t ref = ref StrMap.empty
+
+let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
+  let f a = match a with
+    | None   -> Some [s2]   (* Si l'entrée n'existait pas encore *)
+    | Some l -> Some(s2::l) (* Si l'entrée existait déjà *)
+  in (* TODO a factorisé avec [find_equiv_class] dans viry.ml *)
+  subsort_data := StrMap.update s1 f !subsort_data
+
 let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
 let data_matching : p_term StrMap.t ref = ref StrMap.empty (* TODO remove *)
+
+let do_specific_thing : bool ref = ref false
+
+(* Par rajouter une injection à HOLE *)
+let init_var : string * p_term = ("", p_TYPE)
+let specific_var : (string * p_term) ref = ref init_var
+let reset_var : unit -> unit = fun () -> specific_var := init_var
+
+let change_sort_inj : p_term -> p_term = fun t ->
+  Format.printf "coucoub" ;
+  let rec aux t = match t with
+    | P_Appl(
+        {elt=P_Appl(
+            {elt=P_Appl({elt=P_Iden({elt=(x1,"inj");pos=x2}, x3);pos=x4},
+                        {elt=P_Expl({elt=P_Iden ({elt=(x5,s1) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
+            ; pos=x10},
+            {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
+        ; pos=x16},
+        {elt=P_Patt(Some {elt=("HOLE" as n) ;pos=x17}, x18) ; pos=x19} ) ->
+       let f : string -> string list -> string -> string = fun key v acc ->
+         if List.mem _SORT_KRESULT v && List.mem s1 v
+         then key ^ acc
+         else "" ^ acc
+       in
+       Format.printf (Common.Color.yel "coucou") ;
+       let new_s = StrMap.fold f !subsort_data "" in
+       Format.printf (Common.Color.yel "%s\n") n ;
+       let new_s = if new_s = "" then s1 else new_s in
+       Format.printf (Common.Color.yel "%s\n") new_s ;
+       let res s2 =
+         P_Appl(
+             {elt=P_Appl(
+                      {elt=P_Appl({elt=P_Iden({elt=(x1,"inj");pos=x2}, x3);pos=x4},
+                                  {elt=P_Expl({elt=P_Iden ({elt=(x5,new_s) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
+                      ; pos=x10},
+                      {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
+             ; pos=x16},
+             {elt=P_Patt(Some {elt=n ;pos=x17}, x18) ; pos=x19} )
+       in
+       if not(new_s = s1) then specific_var := (n, LP.Pos.none (res s1)) ;
+       res s2
+    | P_Appl(({elt=t1;pos=x1}), ({elt=t2 ;pos=x2})) ->
+       P_Appl(({elt=aux t1;pos=x1}), ({elt=aux t2 ;pos=x2}))
+    | _ -> t
+  in
+  {elt=aux t.elt ; pos= t.pos}
 
 let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
   let rec aux : t -> p_term = fun ax ->
@@ -50,11 +105,27 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
            let g p = match p with S x | Q x -> create_implicit_arg x in
            let tmp = List.map g qv_l in
            let res = List.fold_left create_appl p_INJ tmp in
-           List.fold_left f_sym res a_l
+           let res = List.fold_left f_sym res a_l in
+           if !do_specific_thing
+           then (Format.printf (Common.Color.yel "no! \n") ;
+                 change_sort_inj res)
+           else res
         | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
         | Var(n, _) -> (if StrMap.mem n !data_matching
-                        then StrMap.find n !data_matching
-                        else f_var n)
+                        then
+                          (Format.printf (Common.Color.yel "\n curry ") ;
+                           let res = StrMap.find n !data_matching in res)
+                        else
+                          (if !do_specific_thing
+                           then
+                             (Format.printf (Common.Color.yel "\nSpecific var: %s\n") (fst !specific_var) ;
+                              Format.printf (Common.Color.yel "\nSpecific var: %s\n") n ;
+                              if (fst !specific_var) = (Interface.Output.pp n)
+                              then snd !specific_var
+                              else
+                                (Format.printf (Common.Color.yel "no! \n") ;
+                                 change_sort_inj (f_var n)))
+                           else f_var n))
        end
     | Dom_val("SortId", name) ->
        let f a = match a with
@@ -92,15 +163,6 @@ let of_equality_axiom : t -> p_rule = fun ax ->
       with _ -> failwith "Unit, Idem, comm, assoc")
   | _ -> failwith "The current axiom isn't an equality one.\n
                    Please, raise an issue."
-
-let subsort_data : (string list) StrMap.t ref = ref StrMap.empty
-
-let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
-  let f a = match a with
-    | None   -> Some [s2]   (* Si l'entrée n'existait pas encore *)
-    | Some l -> Some(s2::l) (* Si l'entrée existait déjà *)
-  in (* TODO a factorisé avec [find_equiv_class] dans viry.ml *)
-  subsort_data := StrMap.update s1 f !subsort_data
 
   (* axiom{R} \implies{R} (
    *   \and{R}(
@@ -239,6 +301,13 @@ let is_conditional_rule : t -> bool = fun a ->
   match a with
   | Top _ -> false
   | _     -> true
+
+let is_cooling_rule : attribute list -> bool = fun l ->
+  let f a = match a with
+    | Cool _ -> true
+    | _ -> false
+  in
+  List.fold_left (fun acc x -> f x || acc) false l
 
 exception KComputation of string
 exception ConditionalRule of string
