@@ -126,12 +126,26 @@ open Translation.Axiom
 open Interface.LP_p_term
 open Interface.K_prelude
 
+module Sort = struct
+  type t = sort
+  let compare = String.compare
+end
+module Induc = Map.Make(Sort)
+
+let data_induc : (symbol list) Induc.t ref = ref Induc.empty
+
 let encoding :
     output -> count_data -> printer -> kommand list -> unit =
   fun ppf cd printing kommand_l ->
   (* STEP 1: From K commands to CTRS rules (and partial printing). *)
   let f_sort _ acc s = pp_sort ppf cd printing s ; acc in
-  let f_symbol attr_l acc s = pp_symbol ppf cd printing (s, attr_l) ; acc in
+  let f_symbol attr_l acc s =
+    (match Translation.Symbol.is_constructor s attr_l with
+     | Some sort ->
+        let f new_v old_v = match old_v with None -> Some [new_v] | Some q -> Some (new_v::q) in
+        data_induc := Induc.update sort (f s) !data_induc
+     | None -> () ) ;
+    pp_symbol ppf cd printing (s, attr_l) ; acc in
   let f_deleted  _ _ _ = [] in
   let propagation = fun _ x _ -> x in
 

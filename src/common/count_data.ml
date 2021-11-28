@@ -50,8 +50,8 @@ type count_data_k =
       not_ax       : cd_not_ax     ;
       implies_ax   : cd_implies_ax ;
       rewriting_ax : int ref       ;
-  ax_without_attr : int ref ;
-  ax_several_attr : int ref }
+   ax_without_attr : int ref ;
+   ax_several_attr : int ref }
 
 (** [reset_count_data_k i] returns a value of type "count_data_k"
     where all internal values are initialised at [i]. *)
