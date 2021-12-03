@@ -1,6 +1,6 @@
-#! /bin/bash
+#! /bin/bash -e
 
-tests_folder=tests/
+tests_folder=tests
 kamelo_script=KaMeLo
 sem_root=sem_root # Racine par défaut utilisée pour tous les sous-dossiers
                   # afin de savoir où se trouve la racine des fichiers de
@@ -117,6 +117,7 @@ for d in $for_test; do
       # Traduction vers Dedukti
       cd ../..
       ./$kamelo_script -r --semantics $semName $curr_gen_folder/$curr_exec_folder/$new_name.kore
+      python3 rewrite.py $curr_gen_folder/$curr_exec_folder/$new_name.$extension
       rm $curr_gen_folder/$curr_exec_folder/$new_name.kore
 
       cd $tests_folder/$d/$curr_exec_folder
