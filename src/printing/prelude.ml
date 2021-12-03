@@ -264,8 +264,11 @@ let ggg : kmodule -> unit = fun m ->
 
 
 let semantic_rule () =
-  let _LT_INT_ = Interface.Output.pp "Lbl'Unds-LT-'Int'Unds'" in
-  let _GE_INT_ = Interface.Output.pp "Lbl'Unds-GT-Eqls'Int'Unds'" in
+  let _LT_INT_  = Interface.Output.pp "Lbl'Unds-LT-'Int'Unds'" in
+  let _GE_INT_  = Interface.Output.pp "Lbl'Unds-GT-Eqls'Int'Unds'" in
+  let _EQ_INT_  = Interface.Output.pp "Lbl'UndsEqlsEqls'Int'Unds'" in
+  let _SUB_INT_ = Interface.Output.pp "Lbl'Unds'-Int'Unds'" in
+  let _ADD_INT_ = Interface.Output.pp "Lbl'UndsPlus'Int'Unds'" in
   (* //symbol Lbl'Unds-LT-'Int'Unds' : δ SortInt → δ SortInt → δ SortBool;
         rule Lbl'Unds-LT-'Int'Unds'      0         0     ↪ false
         with Lbl'Unds-LT-'Int'Unds'      0     (succ _)  ↪ true
@@ -285,8 +288,33 @@ let semantic_rule () =
   ; (create_ident _GE_INT_, [create_ident "0" ; create_appl (create_ident "succ") p_WILD]), (create_ident "false", [])
   ; (create_ident _GE_INT_, [create_one_arg "succ" "m" ; create_one_arg "succ" "n"]),
     (create_ident _GE_INT_, [create_pattern_var "m" ; create_pattern_var "n"])
-  ; (create_ident _GE_INT_, [create_appl (create_ident "succ") p_WILD ; create_ident "0"]), (create_ident "true", []) ]
-
+  ; (create_ident _GE_INT_, [create_appl (create_ident "succ") p_WILD ; create_ident "0"]), (create_ident "true", [])
+  (* rule _==Int_ 0 0 ↪ true;
+     rule _==Int_ 0 (succ _) ↪ false;
+     rule _==Int_ (succ $m) (succ $n) ↪ _==Int_ $m $n;
+     rule _==Int_ (succ _) 0 ↪ false; *)
+  ; (create_ident _EQ_INT_, [create_ident "0" ; create_ident "0"]), (create_ident "true", [])
+  ; (create_ident _EQ_INT_, [create_ident "0" ; create_appl (create_ident "succ") p_WILD]), (create_ident "false", [])
+  ; (create_ident _EQ_INT_, [create_one_arg "succ" "m" ; create_one_arg "succ" "n"]),
+    (create_ident _EQ_INT_, [create_pattern_var "m" ; create_pattern_var "n"])
+  ; (create_ident _EQ_INT_, [create_appl (create_ident "succ") p_WILD ; create_ident "0"]), (create_ident "false", [])
+  (* rule _-Int_ 0 0 ↪ 0;
+     rule _-Int_ 0 (succ _) ↪ 0; // TODO Fix
+     rule _-Int_ (succ $m) (succ $n) ↪ _-Int_ $m $n;
+     rule _-Int_ (succ $n) 0 ↪ succ $n; *)
+  ; (create_ident _SUB_INT_, [create_ident "0" ; create_ident "0"]), (create_ident "0", [])
+  ; (create_ident _SUB_INT_, [create_ident "0" ; create_appl (create_ident "succ") p_WILD]), (create_ident "0", [])
+  ; (create_ident _SUB_INT_, [create_one_arg "succ" "m" ; create_one_arg "succ" "n"]),
+    (create_ident _SUB_INT_, [create_pattern_var "m" ; create_pattern_var "n"])
+  ; (create_ident _SUB_INT_, [create_one_arg "succ" "n" ; create_ident "0"]), (create_one_arg "succ" "n", [])
+  (* rule _PlusInt_ (succ $m) $n ↪ succ (_PlusInt_ $m $n);
+     rule _PlusInt_ 0 $n ↪ $n; *)
+  ; (create_ident _SUB_INT_, [create_one_arg "succ" "m" ; create_pattern_var "n"]),
+    (create_appl
+       (create_ident "succ")
+       (create_ident _SUB_INT_, [create_pattern_var "m" ; create_pattern_var "n"]))
+  ; (create_ident _SUB_INT_, [create_ident "0" ; create_pattern_var "n"]), (create_pattern_var "n", [])
+  ]
 
 let create_symbol : string -> p_term -> p_symbol = fun name typ ->
   create_p_symbol [] name [] (Some typ) None
