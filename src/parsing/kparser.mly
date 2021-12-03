@@ -244,9 +244,7 @@ useless_attribute:
   | STRICT         attri_params { } // let a1,a2 = $2 in Strict(a1, a2)       }
   | SEQSTRICT      attri_params { } // let a1,a2 = $2 in Seqstrict(a1, a2)    }
 
- // | COOL           attri_params { } // let a1,a2 = $2 in Cool(a1, a2)         }
   | COOLLIKE       attri_params { } // let a1,a2 = $2 in CoolLike(a1, a2)     }
-  | HEAT           attri_params { } // let a1,a2 = $2 in Heat(a1, a2)         }
   | STRUCTURAL     attri_params { } // let a1,a2 = $2 in Structural(a1, a2)   }
 
   | SIMPLIFICATION attri_params { } // let a1,a2 = $2 in Simpl(a1, a2)        }
@@ -324,6 +322,7 @@ attribute:
   | FUNCTION       attri_params { let a1,a2 = $2 in Function(a1, a2)     }
 
   | COOL           attri_params { let a1,a2 = $2 in Cool(a1, a2)         }
+  | HEAT           attri_params { let a1,a2 = $2 in Heat(a1, a2)         }
 
   | ANYWHERE       attri_params { let a1,a2 = $2 in Anywhere(a1, a2)     }
   | OWISE          attri_params { let a1,a2 = $2 in Owise(a1, a2)        }

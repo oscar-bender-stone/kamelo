@@ -35,6 +35,7 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
  *)
 module StrMap = Map.Make(String)
 
+(** où key est une sous-sorte des sortes dans la liste *)
 let subsort_data : (string list) StrMap.t ref = ref StrMap.empty
 
 let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
@@ -223,10 +224,10 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
       | Implies _ -> failwith "IMPLIES"
       | Bottom _ -> failwith "BOTTOM"
       | Top    _ -> failwith "TOP"
-      | Rewrites _ -> failwith "REWRITES"
-    | And (_, ax1, Predicat(Var(n,_))) ->
+      | Rewrites _ -> failwith "REWRITES" *)
+    | And (_, ax1, Predicate(Var(n,_))) ->
        let res = aux ax1 in
-       data_matching := StrMap.add n res !data_matching ; res *)
+       data_matching := StrMap.add n res !data_matching ; res
       | _ -> failwith "Not yet implemented [local_curry]."
     in
     aux ax
@@ -305,6 +306,13 @@ let is_conditional_rule : t -> bool = fun a ->
 let is_cooling_rule : attribute list -> bool = fun l ->
   let f a = match a with
     | Cool _ -> true
+    | _ -> false
+  in
+  List.fold_left (fun acc x -> f x || acc) false l
+
+let is_heating_rule : attribute list -> bool = fun l ->
+  let f a = match a with
+    | Heat _ -> true
     | _ -> false
   in
   List.fold_left (fun acc x -> f x || acc) false l

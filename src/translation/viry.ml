@@ -245,9 +245,9 @@ let update_config : string -> p_term -> (p_term -> p_term) -> p_term = fun head 
        (let l_is_head, x1 = aux is_head t1 in
         let r_is_head, x2 = aux is_head t2 in
         if r_is_head then
-          (if l_is_head
+          (* (if l_is_head TODO Correcte ?
            then failwith "Several head symbols..."
-           else  false, no_pos (P_Appl(x1, f x2)))
+           else *) false, no_pos (P_Appl(x1, f x2))
         else l_is_head, no_pos (P_Appl(x1, x2)))
     | P_Patt _ | P_Expl _ -> false, t
     | P_Iden(({elt=(x1,n);pos=y}), x2) ->

@@ -226,30 +226,159 @@ let encoding :
     |  _ -> failwith "In RHS: Not yet implemented"
   in
   let create_ctrs_rule :
-      attribute list -> alias -> axiom -> ctrs_rule
+      attribute list -> alias -> axiom -> ctrs_rule list
     = fun attr_l al ax ->
     if is_cooling_rule attr_l then do_specific_thing := true ;
     Format.printf (Common.Color.yel "\n In CTRS VIRY %b\n") (is_cooling_rule attr_l);
     data_matching := StrMap.empty ; reset_var() ;
     (* Be careful: the order of the computation is important
-     because of references *)
+       because of references *)
     let default_prio = 42 in
     Format.printf (Common.Color.yel "  In LHS\n") ;
     let lhs, cond = create_LHS al in
     Format.printf (Common.Color.yel "  In RHS\n") ;
     let rhs = create_RHS ax in
     do_specific_thing := false ;
-    let attr_l =
-      List.map (fun attr -> match attr with
-                          | Owise _ -> true
-                          | _ -> false) attr_l
-    in
-    let is_owise = List.fold_left (||) false attr_l in
-    match is_owise, cond with
-    | false, None   -> (no_pos (lhs, rhs), Uncond, default_prio)
-    | false, Some x -> (no_pos (lhs, rhs), Cond x, default_prio)
-    | true,  None   -> (no_pos (lhs, rhs), OwiseRule,  default_prio)
-    | true,  Some _ -> failwith "Not possible."
+
+    if is_heating_rule attr_l then
+      (* Selection of the variable to specialize, with its sort *)
+      let new_v, sort_v = match cond with
+        | Some (* Si de la forme : LblnotBool'Unds'{}(LblisKResult{}(kseq{}(inj{SortAExp{}, SortKItem{}}(VarHOLE:SortAExp{}),dotk{}())))) *)
+          ( {elt=P_Appl(
+                 {elt=P_Appl(
+                      {elt=P_Iden({elt=(_, "Lbl'Unds'andBool'Unds'");pos=_}, _);pos=_},
+                      _) (* true /\ true *)
+                 ; pos=_},
+
+
+
+                 {elt=P_Appl(
+                      {elt=P_Iden({elt=(_, "LblnotBool'Unds'");pos=_}, _);pos=_},
+                      {elt=P_Appl(
+                           {elt=P_Iden({elt=(_, "LblisKResult");pos=_}, _);pos=_},
+                           {elt=P_Appl(
+                                {elt=P_Appl({elt=P_Iden({elt=(_,"kseq");pos=_}, _);pos=_},
+                                            {elt=P_Appl(
+                                                 {elt=P_Appl(
+                                                      {elt=P_Appl({elt=P_Iden({elt=(_,"inj");pos=_}, _);pos=_},
+                                                                  {elt=P_Expl({elt=P_Iden ({elt=(_,s1) ;pos=_}, _); pos=_}) ; pos=_} )
+                                                      ; pos=_},
+                                                      {elt=P_Expl({elt=P_Iden ({elt=(_,_) ;pos=_}, _); pos=_}) ; pos=_} )
+                                                 ; pos=_},
+                                                 {elt=P_Patt(Some {elt=n ;pos=_}, _) ; pos=_} )
+                                            ; pos=_} )
+                                ; pos=_},
+                                {elt=P_Iden({elt=(_,"dotk");pos=_}, _);pos=_} )
+                           ; pos=_} )
+                      ; pos=_} )
+                 ; pos=_} )
+
+
+            ; pos=_}
+
+
+
+
+          ) -> n, s1
+
+        | Some (* Si de la forme : LblnotBool'Unds'{}(LblisKResult{}(kseq{}(inj{SortAExp{}, SortKItem{}}(VarHOLE:SortAExp{}),dotk{}())))) *)
+           ( {elt=P_Appl(
+                  {elt=P_Appl(
+                       {elt=P_Iden({elt=(_,"_andBool_");pos=_}, _);pos=_},
+                       _) (* true /\ true *)
+                  ; pos=_},
+
+
+
+                  {elt=P_Appl(
+                       {elt=P_Iden({elt=(_, "notBool_");pos=_}, _);pos=_},
+                       {elt=P_Appl(
+                            {elt=P_Iden({elt=(_,"isKResult");pos=_}, _);pos=_},
+                            {elt=P_Appl(
+                                 {elt=P_Appl({elt=P_Iden({elt=(_,"kseq");pos=_}, _);pos=_},
+                                             {elt=P_Appl(
+                                                  {elt=P_Appl(
+                                                       {elt=P_Appl({elt=P_Iden({elt=(_,"inj");pos=_}, _);pos=_},
+                                                                   {elt=P_Expl({elt=P_Iden ({elt=(_,s1) ;pos=_}, _); pos=_}) ; pos=_} )
+                                                       ; pos=_},
+                                                       {elt=P_Expl({elt=P_Iden ({elt=(_,_) ;pos=_}, _); pos=_}) ; pos=_} )
+                                                  ; pos=_},
+                                                  {elt=P_Patt(Some {elt=n;pos=_}, _) ; pos=_} )
+                                             ; pos=_} )
+                                 ; pos=_},
+                                 {elt=P_Iden({elt=(_,"dotk");pos=_}, _);pos=_} )
+                            ; pos=_} )
+                       ; pos=_} )
+                  ; pos=_} )
+
+
+             ; pos=_}
+
+           ) -> n, s1
+        | Some _ -> failwith "Unexpected shape for the condition."
+        | None -> failwith "No condition for a heating rule."
+      in
+      (* Get the list of constructor symbols *)
+      let constr_sym_l =
+        let natural_constr =
+          try
+            Induc.find sort_v !data_induc
+          with Not_found -> failwith ("No constructor symbol for the sort" ^ sort_v)
+        in
+        (* Get constructors by transitivty of subsort sorts *)
+        let subsort_l =
+          StrMap.fold (fun key s_l l -> if List.mem sort_v s_l then key::l else l) !(Translation.Axiom.subsort_data) []
+        in
+        let f l s =
+          let tmp = try Induc.find s !data_induc with Not_found -> [] in
+          tmp@l
+        in
+        List.fold_left f natural_constr subsort_l
+      in
+      (* Generation of specialize rules *)
+      let subst t a =
+        let rec aux : p_term -> p_term = fun t -> match t with
+          | ({elt=P_Appl(t1, t2);pos=p}) -> {elt=P_Appl(aux t1, aux t2);pos=p}
+          | ({elt=P_Patt(Some {elt=x;pos=_}, _);pos=_}) ->
+             if x = new_v
+             then a
+             else t
+          | t -> t
+        in
+        aux t
+      in
+      let lambda_lhs p = subst lhs p in
+      let lambda_rhs p = subst rhs p in
+      let gen_specialization : ctrs_rule list -> symbol -> ctrs_rule list = fun acc sym ->
+        (* Generate the new pattern *)
+        (* TODO Take into count "qv_l" in symbol = name * quant_var list * param list * param *)
+        let name, _, p_l, _ = sym in
+        let new_pattern =
+          let rec aux : int -> p_term -> p_term = fun i acc ->
+            if i = 0 then acc
+            else
+              let new_name = Translation.Viry.safe_prefix ^ (string_of_int i) in
+              aux (i-1) ({elt=P_Appl(acc,{elt=P_Patt(Some {elt=new_name ; pos=None}, None); pos=None});pos=None})
+          in
+          aux (List.length p_l) (create_ident name)
+        in
+        (* Use it *)
+        (no_pos (lambda_lhs new_pattern, lambda_rhs new_pattern), Uncond, default_prio)::acc
+      in
+      List.fold_left gen_specialization [] constr_sym_l
+
+    else
+      let attr_l =
+        List.map (fun attr -> match attr with
+                              | Owise _ -> true
+                              | _ -> false) attr_l
+      in
+      let is_owise = List.fold_left (||) false attr_l in
+      match is_owise, cond with
+      | false, None   -> [(no_pos (lhs, rhs), Uncond,     default_prio)]
+      | false, Some x -> [(no_pos (lhs, rhs), Cond x,     default_prio)]
+      | true,  None   -> [(no_pos (lhs, rhs), OwiseRule,  default_prio)]
+      | true,  Some _ -> failwith "Not possible [create_ctrs_rule]."
   in
   let trans_implies =
     fun _ acc (_, ax) -> (of_implies_axiom ax)::acc
@@ -258,7 +387,7 @@ let encoding :
     kommand_iter_without_alias cd kommand_l []
     f_sort f_deleted f_symbol f_deleted propagation
     (fun attr_l acc {lhs=al; rhs=(_, ax)} ->
-      (create_ctrs_rule attr_l al ax)::acc)
+      (create_ctrs_rule attr_l al ax)@acc)
     propagation (collect_subsort_data, propagation)
     (propagation, propagation, propagation, propagation)
     propagation propagation

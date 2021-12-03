@@ -12,6 +12,7 @@ module StrMap : Map.S with type key = string
 val free_var : (string list) StrMap.t ref
 
 val data_matching : p_term StrMap.t ref
+val subsort_data  : (string list) StrMap.t ref
 
 val do_specific_thing : bool ref
 
@@ -46,6 +47,7 @@ val is_predicate : t -> bool
 val is_rule      : t -> bool
 val is_conditional_rule : t -> bool
 val is_cooling_rule : attribute list -> bool
+val is_heating_rule : attribute list -> bool
 
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)
