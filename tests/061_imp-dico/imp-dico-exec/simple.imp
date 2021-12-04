@@ -1,0 +1,3 @@
+decl var(0) ;
+var(0) = 0 ;
+while var(0) <= 0 do var(0) = var(0) + 1;
