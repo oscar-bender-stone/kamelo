@@ -256,6 +256,9 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
   in
   let data = StrMap.empty in
   match ax with
+  | Implies(_, Top _, And(_, Equals(_,l,r), Top _)) ->
+     (try no_pos (curry_pattern l, curry_pattern r), Uncond, 42
+      with _ -> failwith "Implies axiom")
   | Implies(_, And(_,Top _, a1), And(_, Equals(_,l,r), Top _)) ->
      (let data = collect a1 data in
       try no_pos (local_curry l data, local_curry r data), Uncond, 42
@@ -284,6 +287,7 @@ let rec is_predicate : t -> bool = fun a ->
   | Rewrites _  -> false (* users' rule *)
   | In(_,_,a)        -> is_predicate a
   | Dom_val  _  -> false
+  | Ceil(_,a)        -> is_predicate a
   | Predicate p -> match p with
                    | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
                       begin

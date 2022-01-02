@@ -37,6 +37,7 @@
   | REWRITES
   | IN
   | DOM_VAL
+  | CEIL
 
   | ASSOC
   | COMM
@@ -193,6 +194,7 @@ rule token = parse
   | "\\rewrites"         { REWRITES       }
   | "\\in"               { IN             }
   | "\\dv"               { DOM_VAL        }
+  | "\\ceil"             { CEIL           }
 
   | "assoc"              { ASSOC          }
   | "comm"               { COMM           }

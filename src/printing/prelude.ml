@@ -331,9 +331,9 @@ let semantic_rule () =
   (* rule _PlusInt_ (succ $m) $n ↪ succ (_PlusInt_ $m $n);
      rule _PlusInt_ 0 $n ↪ $n; *)
   ; (create_ident _SUB_INT_, [create_one_arg "succ" "m" ; create_pattern_var "n"]),
-    (create_appl
-       (create_ident "succ")
-       (create_ident _SUB_INT_, [create_pattern_var "m" ; create_pattern_var "n"]))
+    (create_ident "succ", [create_appl
+                             (create_appl (create_ident _SUB_INT_) (create_pattern_var "m"))
+                             (create_pattern_var "n")])
   ; (create_ident _SUB_INT_, [create_ident "0" ; create_pattern_var "n"]), (create_pattern_var "n", [])
   ]
 

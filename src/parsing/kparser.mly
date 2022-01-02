@@ -35,6 +35,7 @@
 %token REWRITES
 %token IN
 %token DOM_VAL
+%token CEIL
 
 // USEFUL attributes
 %token ASSOC
@@ -200,21 +201,23 @@ predicate:
   | name COLON param                                  { Var ($1, $3)     }
 
 axiom:
-  | EQUALS   op_bin   { let a1,a2,a3 = $2 in Equals(a1, a2, a3) }
-  | EXISTS   op_quant { let pl, q, a = $2 in Exists (pl, q, a) }
-  | AND      op_bin   { let a1,a2,a3 = $2 in And(a1, a2, a3) }
-  | OR       op_bin   { let a1,a2,a3 = $2 in Or(a1, a2, a3) }
-  | NOT      op_una   { let a1, a2   = $2 in Not(a1, a2) }
-  | IMPLIES  op_bin   { let a1,a2,a3 = $2 in Implies(a1, a2, a3) }
-  | BOTTOM   op_const { Bottom $2 }
-  | TOP      op_const { Top $2 }
+  | EQUALS   op_bin   { let a1,a2,a3 = $2 in Equals(a1, a2, a3)   }
+  | EXISTS   op_quant { let pl, q, a = $2 in Exists (pl, q, a)    }
+  | AND      op_bin   { let a1,a2,a3 = $2 in And(a1, a2, a3)      }
+  | OR       op_bin   { let a1,a2,a3 = $2 in Or(a1, a2, a3)       }
+  | NOT      op_una   { let a1, a2   = $2 in Not(a1, a2)          }
+  | IMPLIES  op_bin   { let a1,a2,a3 = $2 in Implies(a1, a2, a3)  }
+  | BOTTOM   op_const { Bottom $2                                 }
+  | TOP      op_const { Top $2                                    }
   | REWRITES op_bin   { let a1,a2,a3 = $2 in Rewrites(a1, a2, a3) }
-  | IN       op_quant { let pl, q, a = $2 in In (pl, q, a) }
-  | DOM_VAL  L_CURLY_BRA sort R_CURLY_BRA L_PAREN STRING R_PAREN { Dom_val ($3, $6) }
+  | IN       op_quant { let pl, q, a = $2 in In (pl, q, a)        }
+  | DOM_VAL  L_CURLY_BRA sort R_CURLY_BRA L_PAREN STRING R_PAREN
+                      { Dom_val ($3, $6)                          }
+  | CEIL     op_una   { let a1, a2   = $2 in Ceil(a1, a2)         }
   //| name L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, axiom) R_PAREN
   //   { Sym ($1, $3, $6) }
   //| name COLON param { Var ($1, $3) }
-  | predicate           { Predicate $1 }
+  | predicate         { Predicate $1                              }
 
 kommand:
   | SORT     sort        attributes   { Sort $2, $3 }
