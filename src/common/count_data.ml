@@ -271,46 +271,45 @@ let extract_info_before cd =
   ; (0, get_k_alias cd,           "alias",           "alias")
   ; (0, get_k_axiom cd,           "axiom",           "axioms")
 
-  ; (1, get_k_exists_ax cd,         "exists-axiom",    "exists-axioms")
-  ; (2, get_k_ax_subsort cd,          "subsort one",     "subsort one")
-  ; (2, get_k_ax_functional cd,       "functional one",  "functional one")
+  ; (1, get_k_exists_ax cd,           "exists-axiom",   "exists-axioms")
+  ; (2, get_k_ax_subsort cd,          "subsort one",    "subsort one")
+  ; (2, get_k_ax_functional cd,       "functional one", "functional one")
 
-  ; (1, get_k_equals_ax cd,         "equals-axiom",    "equals-axioms")
-  ; (2, get_k_ax_assoc cd,            "associative one", "associative one")
-  ; (2, get_k_ax_comm cd,             "commutative one", "commutative one")
-  ; (2, get_k_ax_idem cd,             "idempotence one", "idempotence one")
-  ; (2, get_k_ax_unit cd,             "identity one",    "identity one")
+  ; (1, get_k_equals_ax cd,           "equals-axiom",      "equals-axioms")
+  ; (2, get_k_ax_assoc cd,            "associative one",   "associative one")
+  ; (2, get_k_ax_comm cd,             "commutative one",   "commutative one")
+  ; (2, get_k_ax_unit cd,             "unit/identity one", "unit/identity one")
+  ; (2, get_k_ax_idem cd,             "idempotence one",   "idempotence one")
 
-  ; (1, get_k_or_ax cd,             "or-axiom",        "or-axioms")
+  ; (1, get_k_or_ax cd,               "or-axiom",        "or-axioms")
   ; (2, get_k_or_ax_junk_constructor cd,
                                       "junk constructor", "junk constructor")
 
-  ; (1, get_k_bottom_ax cd,         "bottom-axiom",     "bottom-axioms")
+  ; (1, get_k_bottom_ax cd,           "bottom-axiom",     "bottom-axioms")
   ; (2, get_k_bottom_ax_junk_constructor cd,
                                       "junk constructor", "junk constructor")
 
-  ; (1, get_k_not_ax cd,            "not-axiom",        "not-axioms")
+  ; (1, get_k_not_ax cd,              "not-axiom",        "not-axioms")
   ; (2, get_k_not_ax_diff_constructor cd,
                                       "diff constructor", "diff constructor")
 
-  ; (1, get_k_implies_ax cd,        "implies-axiom",   "implies-axioms")
-  ; (2, get_k_ax_same_constructor cd,
-                                      "same constructor",     "same constructor")
-  ; (2, get_k_ax_initializer cd,      "initializer one",      "initializer one")
-  ; (2, get_k_ax_projection cd,       "projection one",       "projection one")
+  ; (1, get_k_implies_ax cd,          "implies-axiom",   "implies-axioms")
+  ; (2, get_k_ax_same_constructor cd, "same constructor",           "same constructor")
+  ; (2, get_k_ax_initializer cd,      "initializer one",            "initializer one")
+  ; (2, get_k_ax_projection cd,       "projection one",             "projection one")
   ; (2, get_k_ax_predicate_false cd,  "predicate one (case false)", "predicate one (case false)")
   ; (2, get_k_ax_predicate_true cd,   "predicate one (case true)",  "predicate one (case true)")
-  ; (2, get_k_ax_owise cd,          "otherwise one",     "otherwise one")
-  ; (2, get_k_ax_without_attr  cd, "without attribute", "without attribute")
-  ; (2, get_k_ax_with_one_attr cd, "with one attribute", "with one attribute")
+  ; (2, get_k_ax_owise cd,            "otherwise one",              "otherwise one")
+  ; (2, get_k_ax_without_attr  cd,    "without attribute",          "without attribute")
+  ; (2, get_k_ax_with_one_attr cd,    "with one attribute",         "with one attribute")
 
-  ; (1, get_k_rewriting_ax cd,      "rewriting one",     "rewriting one")
+  ; (1, get_k_rewriting_ax cd,        "rewriting one", "rewriting one")
 
-  ; (1, get_k_ax_several_attr  cd, "with several attributes", "with several attributes") ]
+  ; (1, get_k_ax_several_attr  cd,    "with several attributes", "with several attributes") ]
 
 let extract_info_after cd =
-  [ (0, get_real_import cd,          "import",          "imports")
-  ; (0, get_real_symbol cd,          "symbol",          "symbols")
+  [ (0, get_real_import cd,          "import",            "imports")
+  ; (0, get_real_symbol cd,          "symbol",            "symbols")
   ; (0, get_additional_symbol cd,    "additional symbol", "additional symbols")
-  ; (0, get_real_induc cd,           "inductive type",  "inductive types")
-  ; (0, get_real_rule cd,            "rewriting rule",  "rewriting rules") ]
+  ; (0, get_real_induc cd,           "inductive type",    "inductive types")
+  ; (0, get_real_rule cd,            "rewriting rule",    "rewriting rules") ]

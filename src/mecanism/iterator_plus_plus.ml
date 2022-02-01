@@ -190,7 +190,7 @@ let kommand_iter_without_alias
           let xattr_l = attr_l@attr_l_ax in
           if Translation.Axiom.is_rule ax
           then
-            (Format.printf (Common.Color.yel "%b") (Translation.Axiom.is_cooling_rule attr_l_ax) ;
+            ((* Format.printf (Common.Color.yel "%b") (Translation.Axiom.is_cooling_rule attr_l_ax) ; *)
              if Translation.Axiom.is_cooling_rule attr_l_ax
              then
                (Translation.Axiom.do_specific_thing := true ;

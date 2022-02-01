@@ -57,7 +57,6 @@ let specific_var : (string * p_term) ref = ref init_var
 let reset_var : unit -> unit = fun () -> specific_var := init_var
 
 let change_sort_inj : p_term -> p_term = fun t ->
-  Format.printf "coucoub" ;
   let rec aux t = match t with
     | P_Appl(
         {elt=P_Appl(
@@ -72,11 +71,8 @@ let change_sort_inj : p_term -> p_term = fun t ->
          then key ^ acc
          else "" ^ acc
        in
-       Format.printf (Common.Color.yel "coucou") ;
        let new_s = StrMap.fold f !subsort_data "" in
-       Format.printf (Common.Color.yel "%s\n") n ;
        let new_s = if new_s = "" then s1 else new_s in
-       Format.printf (Common.Color.yel "%s\n") new_s ;
        let res s2 =
          P_Appl(
              {elt=P_Appl(
@@ -108,24 +104,19 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
            let res = List.fold_left create_appl p_INJ tmp in
            let res = List.fold_left f_sym res a_l in
            if !do_specific_thing
-           then (Format.printf (Common.Color.yel "no! \n") ;
-                 change_sort_inj res)
+           then change_sort_inj res
            else res
         | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
         | Var(n, _) -> (if StrMap.mem n !data_matching
-                        then
-                          (Format.printf (Common.Color.yel "\n curry ") ;
-                           let res = StrMap.find n !data_matching in res)
+                        then StrMap.find n !data_matching
                         else
                           (if !do_specific_thing
                            then
-                             (Format.printf (Common.Color.yel "\nSpecific var: %s\n") (fst !specific_var) ;
-                              Format.printf (Common.Color.yel "\nSpecific var: %s\n") n ;
+                             ( (* Format.printf (Common.Color.yel "\nSpecific var: %s\n") (fst !specific_var) ;
+                                  Format.printf (Common.Color.yel "\nSpecific var: %s\n") n ; *)
                               if (fst !specific_var) = (Interface.Output.pp n)
                               then snd !specific_var
-                              else
-                                (Format.printf (Common.Color.yel "no! \n") ;
-                                 change_sort_inj (f_var n)))
+                              else change_sort_inj (f_var n))
                            else f_var n))
        end
     | Dom_val("SortId", name) ->

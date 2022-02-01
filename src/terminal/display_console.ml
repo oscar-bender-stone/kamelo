@@ -23,7 +23,7 @@ let print_count_data : count_data -> unit = fun cd -> List.iter print_info (extr
     *)
 
 let print_info : int * int * string * string -> unit = fun (cran, nb, one, several) ->
-  let text =  if nb > 2 then several else one in
+  let text =  if nb >= 2 then several else one in
 
   if nb <= 0 then ()
   else
