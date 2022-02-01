@@ -1,4 +1,4 @@
-open Common.Error
+open Dcommon.Error
 
 let format_of_sep str ppc () : unit = print ppc "%s" str
 

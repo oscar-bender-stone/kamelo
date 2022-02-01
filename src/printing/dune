@@ -1,4 +1,4 @@
 (library
   (name printing)
   (modules :standard)
-  (libraries common translation mecanism))
+  (libraries common translation mecanism DiaLeKTo))

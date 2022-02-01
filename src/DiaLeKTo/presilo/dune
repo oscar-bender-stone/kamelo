@@ -1,4 +1,4 @@
 (library
   (name presilo)
   (modules :standard)
-  (libraries type common constructor))
+  (libraries type Dcommon constructor))

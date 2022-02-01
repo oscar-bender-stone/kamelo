@@ -1,7 +1,7 @@
 open Constructor.Command
 open Constructor.Term
 
-open Common.Error
+open Dcommon.Error
 
 let count = ref 1
 

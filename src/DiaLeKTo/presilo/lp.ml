@@ -2,7 +2,7 @@
 
 open Common_presilo
 
-open Common.Error
+open Dcommon.Error
 open Type.Command
 open Type.Term
 
