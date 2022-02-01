@@ -1,7 +1,8 @@
 KaMeLo  
 ========  
 
-KaMeLo is a translator from the framework K to the framework Dedukti.  
+KaMeLo is a translator from **the semantical framework K** to **the logical framework Dedukti**.  
+More precisely, KaMeLo takes as input **a Kore file**, that is the translation of a K semantic into **a Matching Logic theory**, and generates a Lambdapi file or a Dedukti file.  
 More concretly, you can translate a K semantic, let say *imp.k*, into Dedukti as follow:  
   - *kompile imp.k*  
   - *cd kamelo*  
@@ -49,16 +50,16 @@ The hierarchy of files is:
    ├── printing/  
    │   ├── import.ml: *About file management*  
    │   ├── prelude.ml: *To print the prelude*  
-   │   └── printer.ml: *To print Lambdapi, Dedukti or Kore syntax*__
+   │   └── printer.ml: *To print Lambdapi, Dedukti or Kore syntax*  
    ├── terminal/: *Management of the terminal*  
    │   ├── cmd_line.ml: *To parse the command line*  
-   │   ├── display_console.ml: *To print the recap if the translation in the terminal*  
+   │   ├── display_console.ml: *To print the recap of the translation in the terminal*  
    │   └── preprocessing.ml: **This file is OBSOLETE**  
    └── translation/: *The translation of...*  
-       ├── axiom.ml: *... the axioms*  
-       ├── symbol.ml: *... the symbols*  
-       ├── translate.ml: *... a file*  
-       └── viry.ml: *... the conditional rewriting rules*  
+       ├── axiom.ml: *... the axioms*  
+       ├── symbol.ml: *... the symbols*  
+       ├── translate.ml: *... a file*  
+       └── viry.ml: *... the conditional rewriting rules*  
  
 
 Note: The files "dune" and "dune-project" are just here to compile the OCaml code.  
