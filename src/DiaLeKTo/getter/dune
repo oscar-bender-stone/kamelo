@@ -1,0 +1,4 @@
+(library
+  (name getter)
+  (modules :standard)
+  (libraries type))
