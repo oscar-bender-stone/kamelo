@@ -125,6 +125,17 @@
   | SORTINJECT
   | HASDOMAINVAL
 
+exception Fatal of string
+
+(** Short name for a standard formatter with continuation. *)
+type ('a,'b) koutfmt = ('a, Format.formatter, unit, unit, unit, 'b) format6
+
+(** [fatal popt fmt] raises the [Fatal(popt,msg)] exception, in which [msg] is
+    built from the format [fmt] (provided the necessary arguments). *)
+let fatal : ('a,'b) koutfmt -> 'a = fun fmt ->
+  let cont _ = raise (Fatal(Format.flush_str_formatter ())) in
+  Format.kfprintf cont Format.str_formatter fmt
+
 (** [locate loc] converts the pair of position [loc] of the Lexing library
     into a quadruplet (start_line, start_col, end_line, end_col). *)
 let locate : Lexing.position * Lexing.position -> int * int * int * int =
@@ -137,8 +148,7 @@ let locate : Lexing.position * Lexing.position -> int * int * int * int =
 
 let unexpected_char : Lexing.lexbuf -> char -> token = fun lexbuf c ->
   let sl, sc, el, ec = locate (lexbuf.lex_start_p, lexbuf.lex_curr_p) in
-  LP.Pos.fatal None
-     "Unexpected characters [%c] between %i:%i to %i:%i." c sl sc el ec
+  fatal "Unexpected characters [%c] between %i:%i to %i:%i." c sl sc el ec
 
 exception SyntaxError
 
