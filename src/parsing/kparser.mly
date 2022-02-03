@@ -337,9 +337,9 @@ attribute:
   | PROJECTION     attri_params { let a1,a2 = $2 in Projection(a1, a2)   }
   | INITIALIZER    attri_params { let a1,a2 = $2 in Initializer(a1, a2)  }
 
-  | name           attri_params { wrn_1 _STDOUT "WARNING: Attribute named
-                                                 %s is new!" $1;
-                                  let a1,a2 = $2 in Other($1, (a1, a2))  }
+  | name           attri_params
+      { wrn_1 _STDOUT "WARNING: Attribute named %s is new!" $1;
+        let a1,a2 = $2 in Other($1, (a1, a2))                            }
 
 core_attributes:
   | attribute                               {  [$1]  }

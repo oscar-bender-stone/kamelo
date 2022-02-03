@@ -1,41 +1,45 @@
 
-type cd_exists_ax = { total : int ref ; subsort : int ref ; functional : int ref }
+type cd_exists_ax =
+  { total : int ref ; subsort : int ref ; functional : int ref }
 
-let reset_cd_exists_ax : int -> cd_exists_ax =
-  fun i -> { total = ref i ; subsort = ref i ; functional = ref i }
+let reset_cd_exists_ax : int -> cd_exists_ax = fun i ->
+  { total = ref i ; subsort = ref i ; functional = ref i }
 
 type cd_equals_ax =
   { total : int ref ;
     assoc : int ref ; comm : int ref ;
     idem  : int ref ; unit : int ref }
 
-let reset_cd_equals_ax : int -> cd_equals_ax =
-  fun i -> { total = ref i ; assoc = ref i ; comm = ref i ; idem = ref i ; unit = ref i }
+let reset_cd_equals_ax : int -> cd_equals_ax = fun i ->
+  { total = ref i ;
+    assoc = ref i ; comm = ref i ; idem = ref i ; unit = ref i }
 
-type cd_or_ax     = { total : int ref ; constructor : int ref }
+type cd_or_ax = { total : int ref ; constructor : int ref }
 
-let reset_cd_or_ax : int -> cd_or_ax =
-  fun i -> { total = ref i ; constructor = ref i }
+let reset_cd_or_ax : int -> cd_or_ax = fun i ->
+  { total = ref i ; constructor = ref i }
 
 type cd_bottom_ax = { total : int ref ; constructor : int ref }
 
-let reset_cd_bottom_ax : int -> cd_bottom_ax =
-  fun i -> { total = ref i ; constructor = ref i }
+let reset_cd_bottom_ax : int -> cd_bottom_ax = fun i ->
+  { total = ref i ; constructor = ref i }
 
-type cd_not_ax    = { total : int ref ; constructor : int ref }
+type cd_not_ax = { total : int ref ; constructor : int ref }
 
-let reset_cd_not_ax : int -> cd_not_ax =
-  fun i -> { total = ref i ; constructor = ref i }
+let reset_cd_not_ax : int -> cd_not_ax = fun i ->
+  { total = ref i ; constructor = ref i }
 
 type cd_implies_ax =
-  { total : int ref ; constructor : int ref ; init : int ref ; projection : int ref ;
+  { total : int ref ;
+    constructor : int ref ; init : int ref ; projection : int ref ;
     predicate_false : int ref ; predicate_true : int ref ;
     owise : int ref ; with_one_attr : int ref }
 
-let reset_cd_implies_ax : int -> cd_implies_ax =
-  fun i -> { total = ref i ; constructor = ref i ; init = ref i ; projection = ref i ;
-             predicate_false = ref i ; predicate_true = ref i ;
-             owise = ref i ; with_one_attr = ref i }
+let reset_cd_implies_ax : int -> cd_implies_ax = fun i ->
+  { total = ref i ;
+    constructor = ref i ; init = ref i ; projection = ref i ;
+    predicate_false = ref i ; predicate_true = ref i ;
+    owise = ref i ; with_one_attr = ref i }
 
 type count_data_k =
   { import : int ref ;
@@ -55,14 +59,15 @@ type count_data_k =
 
 (** [reset_count_data_k i] returns a value of type "count_data_k"
     where all internal values are initialised at [i]. *)
-let reset_count_data_k : int -> count_data_k =
-  fun i -> { import = ref i ; sort = ref i ; hooked_sort = ref i ;
-             symbol = ref i ; hooked_symbol = ref i ; alias = ref i ;
-             axiom  = ref i ;
-             exists_ax = reset_cd_exists_ax i ; equals_ax = reset_cd_equals_ax i ;
-             or_ax = reset_cd_or_ax i ; bottom_ax = reset_cd_bottom_ax i ;
-             not_ax = reset_cd_not_ax i ; implies_ax = reset_cd_implies_ax i ;
-             rewriting_ax = ref i ; ax_without_attr = ref i ; ax_several_attr = ref i }
+let reset_count_data_k : int -> count_data_k = fun i ->
+  { import = ref i ; sort = ref i ; hooked_sort = ref i ;
+    symbol = ref i ; hooked_symbol = ref i ; alias = ref i ;
+    axiom  = ref i ;
+    exists_ax = reset_cd_exists_ax i ; equals_ax = reset_cd_equals_ax i ;
+    or_ax = reset_cd_or_ax i ; bottom_ax = reset_cd_bottom_ax i ;
+    not_ax = reset_cd_not_ax i ; implies_ax = reset_cd_implies_ax i ;
+    rewriting_ax = ref i ; ax_without_attr = ref i ;
+    ax_several_attr = ref i }
 
 type count_data_dk =
   { import : int ref ; symbol : int ref ; hooked_symbol : int ref ;
@@ -70,16 +75,16 @@ type count_data_dk =
 
 (** [reset_count_data_dk i] returns a value of type "count_data_dk"
     where all internal values are initialised at [i]. *)
-let reset_count_data_dk : int -> count_data_dk =
-  fun i -> { import = ref i ; symbol = ref i ; hooked_symbol = ref i ;
-             additional_sym = ref i ; inductive = ref i ; rule = ref i }
+let reset_count_data_dk : int -> count_data_dk = fun i ->
+  { import = ref i ; symbol = ref i ; hooked_symbol = ref i ;
+    additional_sym = ref i ; inductive = ref i ; rule = ref i }
 
 type count_data = { k : count_data_k ; dk : count_data_dk }
 
 (** [reset_count_data i] returns a value of type "count_data"
     where all internal values are initialised at [i]. *)
-let reset_count_data : int -> count_data =
-  fun i -> { k = reset_count_data_k i ; dk = reset_count_data_dk i }
+let reset_count_data : int -> count_data = fun i ->
+  { k = reset_count_data_k i ; dk = reset_count_data_dk i }
 
 (** Data about the K commands *)
 

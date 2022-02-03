@@ -7,6 +7,10 @@ type t = axiom
 exception KComputation of string
 exception ConditionalRule of string
 
+(** ****************************************************** *)
+(** To translate exists-axioms (functional or subsort one) *)
+(** ****************************************************** *)
+
 module StrMap : Map.S with type key = string
 
 val free_var : (string list) StrMap.t ref
@@ -20,14 +24,27 @@ val reset_var : unit -> unit
 
 val change_sort_inj : p_term -> p_term
 
+(* val subsort_data : (string list) StrMap.t ref *)
+val from_subsort_axiom : string -> string -> unit
+
+
+
+
 val curry : (string -> p_term) -> t -> p_term
 val curry_ident   : t -> p_term
 val curry_pattern : t -> p_term
 
+
+(** **************************************************** *)
+(** To translate equals-axioms
+    (Associative, Commutative, Unit and Idempotence one) *)
+(** **************************************************** *)
+
 val of_equality_axiom : t -> p_rule
 
-(* val subsort_data : (string list) StrMap.t ref *)
-val from_subsort_axiom : string -> string -> unit
+(** ****************************** *)
+(** To translate implies-axioms    *)
+(** ****************************** *)
 
 (** Type of extra data about a rule *) (* Mettre aussi priority ? *)
 type extra_data_rule =
@@ -42,6 +59,11 @@ type ctrs_rule = p_rule * extra_data_rule * int
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
     to a rewriting rule. *)
 val of_implies_axiom : t -> ctrs_rule
+
+
+(** ********************************** *)
+(** To translate rewriting axioms      *)
+(** ********************************** *)
 
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)
