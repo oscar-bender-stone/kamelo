@@ -262,52 +262,6 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
                    Please, raise an issue."
 
 
-let rec is_predicate : t -> bool = fun a ->
-  match a with
-  | Equals(_,a1,a2)  -> is_predicate a1 || is_predicate a2
-  | Exists(_,_,a)    -> is_predicate a
-  | And(_,a1,a2)     -> is_predicate a1 || is_predicate a2
-  | Or(_,a1,a2)      -> is_predicate a1 || is_predicate a2
-  | Not(_,a)         -> is_predicate a
-  | Implies(_,a1,a2) -> is_predicate a1 || is_predicate a2
-  | Bottom   _  -> false
-  | Top      _  -> false
-  | Rewrites _  -> false (* users' rule *)
-  | In(_,_,a)        -> is_predicate a
-  | Dom_val  _  -> false
-  | Predicate p -> match p with
-                   | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
-                      begin
-                       try
-                         let res = String.sub n 0 5 in String.equal res "Lblis"
-                       with _ -> false
-                      end
-                   | Var _ -> false
-
-let is_rule : t -> bool = fun a ->
-  match a with
-  | Rewrites _ -> true
-  | _ -> false
-
-let is_conditional_rule : t -> bool = fun a ->
-  match a with
-  | Top _ -> false
-  | _     -> true
-
-let is_cooling_rule : attribute list -> bool = fun l ->
-  let f a = match a with
-    | Cool _ -> true
-    | _ -> false
-  in
-  List.fold_left (fun acc x -> f x || acc) false l
-
-let is_heating_rule : attribute list -> bool = fun l ->
-  let f a = match a with
-    | Heat _ -> true
-    | _ -> false
-  in
-  List.fold_left (fun acc x -> f x || acc) false l
-
 exception KComputation of string
 exception ConditionalRule of string
 

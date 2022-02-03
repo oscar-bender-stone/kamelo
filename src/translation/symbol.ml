@@ -3,13 +3,6 @@ open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
 
-open Common.Color
-
-let has_no_param : symbol -> bool = fun (_, _, p_l, _) ->
-  match p_l with
-  | [] -> true
-  | _  -> false
-
 
 (*
   (* Etre constant n'implique pas qu'on n'est pas une fonction : cela
@@ -21,6 +14,9 @@ let has_no_param : symbol -> bool = fun (_, _, p_l, _) ->
 
    (is_constant, is_injective, is_constructor, is_comm, is_assoc,
     is_left, is_right) *)
+
+(** To translate a list of attributes into a property *)
+
 type t = { is_constant    : bool
          ; is_injective   : bool
          ; is_constructor : bool
@@ -37,12 +33,18 @@ let no_information = { is_constant    = false
                      ; is_left        = false
                      ; is_right       = false }
 
-let set_injec       : t -> bool -> t = fun v b -> { v with is_injective = b   }
-let set_constructor : t -> bool -> t = fun v b -> { v with is_constructor = b }
-let set_comm        : t -> bool -> t = fun v b -> { v with is_comm = b        }
-let set_assoc       : t -> bool -> t = fun v b -> { v with is_assoc = b       }
-(*let set_left        : t -> bool -> t = fun v b -> { v with is_left = b        }
-let set_right       : t -> bool -> t = fun v b -> { v with is_right = b       }*)
+let set_injec       : t -> bool -> t = fun v b ->
+  { v with is_injective = b   }
+let set_constructor : t -> bool -> t = fun v b ->
+  { v with is_constructor = b }
+let set_comm        : t -> bool -> t = fun v b ->
+  { v with is_comm = b        }
+let set_assoc       : t -> bool -> t = fun v b ->
+  { v with is_assoc = b       }
+(*let set_left        : t -> bool -> t = fun v b ->
+   { v with is_left = b        }
+let set_right       : t -> bool -> t = fun v b ->
+  { v with is_right = b       }*)
 
 let get_injec       : t -> bool = fun v -> v.is_injective
 let get_constructor : t -> bool = fun v -> v.is_constructor
@@ -108,33 +110,12 @@ let get_modifier : attribute list -> p_modifier list = fun attr_l ->
   (* @TODO Const ? *)
   res
 
-let get_param : symbol -> param = fun s ->
-  let (_, _, _, p) = s in p
+(** To translate symbol *)
 
-let get_sort : symbol -> sort = fun s ->
-  let p = get_param s in
-  match p with
-  | S s -> s
-  | Q _ -> failwith "No sort"
-
-let get_name : symbol -> name = fun s ->
-  let (n, _, _, _) = s in n
-
-let is_constructor : symbol -> attribute list -> sort option = fun s attri_l ->
-  let rec aux l acc = match l with
-    | []   -> acc
-    | t::q -> match t with
-              | Constructor _ -> aux q (true, snd acc)
-              | Injective   _ -> aux q (fst acc, true)
-              | _             -> aux q acc
-  in
-  let is_cons, is_inj = aux attri_l (false, false) in
-  match is_cons, is_inj with
-  | (false, _) -> None
-  | (true, true)   -> Some (get_sort s)
-  | (true, false)  ->
-     Printf.fprintf stdout (yel "WARNING The symbol (%s) is declared 'constructor' but not 'injective'!\n") (get_name s) ; None
-
+(** [cr_type s] creates the type :
+      - _SORTK       if s = _SORTK
+      - p_INJD (f s) otherwise
+    Note: f transforms s into a p_term. *)
 let get_type : string -> p_term = fun s ->
   let p_s = create_ident s in
   if s = _SORTK then p_s else create_appl p_INJD p_s
@@ -149,54 +130,3 @@ let sym_curry : symbol -> p_term = fun s ->
   let f = fun a b ->
     match a with | S x | Q x -> create_arrow (get_type x) b in
   List.fold_right f p_l (g p)
-
-let def_to_p_term : def -> p_term = fun d ->
-  match d with
-  | A ax    ->
-     begin
-       match ax with
-       | And(_,a1,a2) ->
-          if Axiom.is_conditional_rule a1 then
-            (* raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")*)
-            p_TYPE
-          else
-            (try Axiom.curry_ident a2
-             with Axiom.KComputation _ ->
-               Format.printf (yel "WARNING: K computation found\n") ; p_TYPE)
-       | Predicate p -> (match p with Sym _ -> p_TYPE | Var _ -> p_TYPE)
-       |  _ -> failwith "In LHS: Not yet implemented"
-     end
-  | D (n,_) -> create_ident n
-
-let param_to_p_term p = match p with S s -> get_type s | Q _ -> p_TYPE
-
-(** [create_p_params_expl l] creates explicit parameters, which have the current given type,
-    without position. Note: p_params = p_ident option list * p_term option * bool. *)
-let create_p_params_expl : (name * param) list -> p_params list = fun s_l ->
-  let is_implicit = false in
-  let f (n,p) = ([Some (create_p_ident n)], Some (param_to_p_term p), is_implicit)  in
-  List.map f s_l
-
-(** [create_p_params s_l] creates implicit parameters, which have the type _SORTK,
-    without position. Note: p_params = p_ident option list * p_term option * bool. *)
-let create_p_params : string list -> p_params list = fun s_l ->
-  match s_l with
-  | []   -> []
-  | _::_ ->
-     let unique_name s = Some (no_pos s)  in
-     let typ = Some p_SORTK in
-     let is_implicit = true in
-     [ List.map unique_name s_l, typ, is_implicit ]
-
-let alias_to_definition : alias -> p_command = fun al ->
-  let (name, qv_l, _, p), (name_bis, qv_l_bis, expl_l, def) = al in
-  let _ =
-    if not(name = name_bis) (* && qv_l = qv_l_bis) *) then qv_l else qv_l_bis
-  in
-  (* STEP 0: Get the signature *)
-
-  (* STEP 1: Get the definition of the symbol *)
-  let body = def_to_p_term def in
-  (* STEP 2: Build the p_symbol *)
-  let p_l = create_p_params qv_l @ (create_p_params_expl expl_l) in
-  no_pos (P_symbol (create_p_symbol [] name p_l (Some (param_to_p_term p)) (Some body)))

@@ -23,6 +23,8 @@ exception InternalError of string
 
 type 'a meta_axiom = attribute list -> 'a -> quant_var list -> axiom -> 'a
 
+(** [axiom_cases cd attr_l curr_attr acc qv_l ax f_exists f_equals f_or_bottom f_not f_implies]
+    acc ~ extra_data *)
 let axiom_cases
       (cd : count_data) (attr_l : attribute list) (curr_attr : attribute option)
       (acc : 'a) (qv_l : quant_var list) (ax : axiom)
@@ -85,15 +87,15 @@ let axiom_cases
       | Some (Projection  _) ->
          incr_k_ax_projection  cd ; f_implies_ax_projection attr_l acc (qv_l, ax)
       | Some (Owise _) ->
-         if Translation.Axiom.is_predicate ax
+         if is_predicate ax
          then (incr_k_ax_predicate_false cd ; f_implies_ax_predicate_false attr_l acc (qv_l, ax))
          else (incr_k_ax_owise    cd ; f_implies_ax_owise attr_l acc (qv_l, ax))
       | None ->
-         if Translation.Axiom.is_predicate ax
+         if is_predicate ax
          then (incr_k_ax_predicate_true cd ; f_implies_ax_predicate_true attr_l acc (qv_l, ax))
          else (incr_k_ax_without_attr cd ; f_implies_ax_default attr_l acc (qv_l, ax))
       | _ ->
-         if Translation.Axiom.is_predicate ax
+         if is_predicate ax
          then (incr_k_ax_predicate_true cd ; f_implies_ax_predicate_true attr_l acc (qv_l, ax))
          else (incr_k_ax_with_one_attr cd ; f_implies_ax_default attr_l acc (qv_l, ax)))
         (* raise (InternalError "Need to update [axiom_cases], case Implies.")) *)
@@ -131,7 +133,7 @@ let meta_kommand_iter
     : 'a =
   let g_attr : 'a meta_axiom = fun attr_l acc qv_l ax ->
     match attr_l with
-    | [] -> (if Translation.Axiom.is_predicate ax
+    | [] -> (if is_predicate ax
              then (incr_k_implies_ax cd ; incr_k_ax_predicate_true cd ; f_implies_ax_predicate_true attr_l acc (qv_l, ax)) (* TODO Fix? *)
              else (axiom_cases cd attr_l None acc qv_l ax f_exists f_equals f_or_bottom f_not f_implies)) (* f_ax_default attr_l acc (qv_l, ax)) *)
     | [attr] -> axiom_cases cd attr_l (Some attr) acc qv_l ax f_exists f_equals f_or_bottom f_not f_implies
@@ -188,10 +190,10 @@ let kommand_iter_without_alias
        match h with
        | Axiom(qv_l, ax), attr_l_ax ->
           let xattr_l = attr_l@attr_l_ax in
-          if Translation.Axiom.is_rule ax
+          if is_rule ax
           then
-            ((* Format.printf (Common.Color.yel "%b") (Translation.Axiom.is_cooling_rule attr_l_ax) ; *)
-             if Translation.Axiom.is_cooling_rule attr_l_ax
+            ((* Format.printf (Common.Color.yel "%b") (is_cooling_rule attr_l_ax) ; *)
+             if is_cooling_rule attr_l_ax
              then
                (Translation.Axiom.do_specific_thing := true ;
                 incr_k_rewriting_ax cd ;
@@ -235,7 +237,7 @@ let kommand_iter_with_alias
   =
   let meta_f_alias _ attr_l acc al = incr_k_alias cd ; f_alias attr_l acc al in
   let meta_f_axiom g_attr attr_l acc qv_l ax =
-    if Translation.Axiom.is_rule ax
+    if is_rule ax
     then (incr_k_rewriting_ax cd ; f_rewrite attr_l acc (qv_l, ax))
     else g_attr attr_l acc qv_l ax
   in

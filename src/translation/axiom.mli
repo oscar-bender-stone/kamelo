@@ -43,12 +43,6 @@ type ctrs_rule = p_rule * extra_data_rule * int
     to a rewriting rule. *)
 val of_implies_axiom : t -> ctrs_rule
 
-val is_predicate : t -> bool
-val is_rule      : t -> bool
-val is_conditional_rule : t -> bool
-val is_cooling_rule : attribute list -> bool
-val is_heating_rule : attribute list -> bool
-
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)
 val create_rewriting_rule : alias -> t -> p_rule

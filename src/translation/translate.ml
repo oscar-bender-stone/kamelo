@@ -6,6 +6,7 @@ open Interface.K_prelude
 
 open Symbol
 open Axiom
+open Alias
 
 (** Importation *)
 

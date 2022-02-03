@@ -45,7 +45,7 @@ let pp_alias : output -> count_data -> printer ->
        incr_real_rule cd
      with Axiom.ConditionalRule _ -> ()
 
-let pp_alias_bis ppf prt al : unit = prt ppf (Symbol.alias_to_definition al)
+let pp_alias_bis ppf prt al : unit = prt ppf (Alias.alias_to_definition al)
 
 let pp_axiom : output -> count_data -> printer -> quant_var list * axiom * attribute list -> unit =
   fun ppf cd prt (_, ax, attr_l) ->
@@ -65,7 +65,7 @@ let pp_axiom_bis : output -> count_data -> printer -> quant_var list * axiom -> 
   fun ppf _ prt (_,ax) ->
   match ax with
     | Rewrites(_,lhs,And(_,a1,a2)) ->
-       if Axiom.is_conditional_rule a1 then
+       if is_conditional_rule a1 then
          raise (Axiom.ConditionalRule "Conditional rewriting rule not supported yet.")
        else
          prt ppf (Interface.LP_p_term.no_pos (P_rules [Interface.LP_p_term.no_pos (Axiom.curry_pattern lhs, Axiom.curry_pattern a2)]))
@@ -140,7 +140,7 @@ let encoding :
   (* STEP 1: From K commands to CTRS rules (and partial printing). *)
   let f_sort _ acc s = pp_sort ppf cd printing s ; acc in
   let f_symbol attr_l acc s =
-    (match Translation.Symbol.is_constructor s attr_l with
+    (match is_constructor s attr_l with
      | Some sort ->
         let f new_v old_v = match old_v with None -> Some [new_v] | Some q -> Some (new_v::q) in
         data_induc := Induc.update sort (f s) !data_induc
