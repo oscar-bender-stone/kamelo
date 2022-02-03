@@ -1,4 +1,15 @@
 
+type mimic_management = K | Kore | Dedukti
+val mimic : mimic_management ref
+
+type output_management = LP | Dedukti | Kore
+val output : output_management ref
+
+val create_filename : string -> string
+
+
+val verbose : bool ref
+
 val filename_exec : string ref
 val semantics_file : string ref
 val input : in_channel ref

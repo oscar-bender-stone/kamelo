@@ -2,8 +2,24 @@ open Arg
 
 open Common.Color
 open Interface.Output
-open Printing.Printer
 open Preprocessing
+
+type mimic_management = K | Kore | Dedukti
+let mimic = ref Kore
+
+type output_management = LP | Dedukti | Kore
+let output = ref LP
+
+let create_filename name =
+  let tmp = String.lowercase_ascii name in
+  match !output with
+  | Dedukti -> tmp ^ ".dk"
+  | LP      -> tmp ^ ".lp"
+  | Kore    -> tmp ^ ".mykore"
+
+
+
+let verbose = ref false
 
 let filename_exec = ref ""
 let semantics_file = ref ""

@@ -1,6 +1,5 @@
 open Common.Type
 open Terminal.Display_console
-open Interface.Output
 
 open Printing.Prelude (* TODO delete *)
 
@@ -14,7 +13,7 @@ let () =
   | F_exec(exec) ->
      (* STEP C: Create the new file *)
      let name = !Terminal.Cmd_line.filename_exec in
-     let filename = create_filename name in
+     let filename = Terminal.Cmd_line.create_filename name in (* TODO *)
      let f  = open_out filename in
      let ff = Format.formatter_of_out_channel f in
      (* STEP : Add the import of the semantic *)
@@ -53,7 +52,9 @@ let () =
        | ["BASIC-K";"KSEQ";"INJ";"K";x] -> x
        | _ -> failwith "WARNING: The prelude isn't the one expected."
      in
-     let filename = create_filename semantics_module_name in
+     let filename =
+       Terminal.Cmd_line.create_filename semantics_module_name (* TODO *)
+     in
      let f  = open_out filename in
      let ff = Format.formatter_of_out_channel f in
 
@@ -63,7 +64,7 @@ let () =
    let lp_pkg = "root_KaMeLo" in
   let prelude_name = "prelude" in *)
      (* STEP 2: Import management *)
-     let printing = match !output with
+     let printing = match !Terminal.Cmd_line.output with
        | LP      -> LP.LP_printer.pp_command
        | Dedukti -> fun _ _ -> () (* @TODO *)
        | Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
@@ -103,13 +104,13 @@ let () =
        if !Terminal.Cmd_line.old then Terminal.Preprocessing.old ff m cd
        else
          begin
-           match !mimic with
+           match !Terminal.Cmd_line.mimic with
            | Kore    ->
-              (match !output with
+              (match !Terminal.Cmd_line.output with
                | LP | Dedukti ->
-                  Printing.Printer.encoding ff cd printing kommand_l (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
-               | Kore -> Printing.Printer.pp_kore_kommand ff cd kommand_l)
-           | K       -> Printing.Printer.encoding ff cd printing kommand_l
+                  Printing.Main_encoding.encoding ff cd printing kommand_l (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
+               | Kore -> Terminal.Kore_printer.pp_kore_kommand ff cd kommand_l)
+           | K       -> Printing.Main_encoding.encoding ff cd printing kommand_l
            (* Printing.Printer.pp_kommand_bis ff cd printing kommand_l *)
            | Dedukti -> ()
          (*  let g =
