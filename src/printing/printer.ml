@@ -227,7 +227,7 @@ let encoding :
       attribute list -> alias -> axiom -> ctrs_rule list
     = fun attr_l al ax ->
     if is_cooling_rule attr_l then do_specific_thing := true ;
-    (* Format.printf (Common.Color.yel "\n In CTRS VIRY %b\n") (is_cooling_rule attr_l); *)
+    (* wrn_1 _STDOUT "\n In CTRS VIRY %b" (is_cooling_rule attr_l); *)
     data_matching := StrMap.empty ; reset_var() ;
     (* Be careful: the order of the computation is important
        because of references *)

@@ -62,9 +62,9 @@ let add_node = Gname.add_vertex
 (*
 let restore : Gname.t -> Name.t -> command Link.t -> Gname.t = fun g n deleted ->
   if Link.find n deleted then
-    Format.printf (Color.yel "WARNING: %s has been restored.\n") n ; add_node g n
+    wrn_1 _STDOUT "WARNING: %s has been restored." n ; add_node g n
   else
-    Format.printf (Color.yel "WARNING: %s doesn't exist.\n") n ; g
+    wrn_1 _STDOUT "WARNING: %s doesn't exist." n ; g
 
 let add_egde g n1 n2 =
   if Gname.mem_vertex g n1 then
@@ -144,7 +144,7 @@ let create_dependence_graph_gen f_iter f_alias f_rewrite cd l =
   let init_graph = Gname.empty in
   let do_nothing = fun _ g _ -> g in
   let f_hooked_sort attr_l g s =
-    Format.printf (Common.Color.yel "WARNING: %s need to be defined in the prelude.\n") s ;
+    wrn_1 _STDOUT "WARNING: %s need to be defined in the prelude." s ;
     in_prelude := StrMap.add s (H_sort s, attr_l) !in_prelude ;
     g
   in

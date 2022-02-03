@@ -57,7 +57,7 @@ let axiom_cases (cd : count_data) (attr_l : attribute list) (curr_attr : attribu
       if Translation.Axiom.is_predicate ax
       then (incr_k_ax_predicat cd ; f_ax_predicat attr_l acc (qv_l, ax))
       else (incr_k_ax_owise    cd ; f_ax_owise    attr_l acc (qv_l, ax))
-   | _ -> (* Format.printf (Color.yel "WARNING: %s is the only one for a rule") attr * ; @TODO *)
+   | _ -> (* wrn_1 _STDOUT "WARNING: %s is the only one for a rule" attr ; @TODO *)
       incr_k_ax_with_one_attr cd ; f_ax_default attr_l acc (qv_l, ax))
 
 type 'a meta_axiom = attribute list -> 'a -> quant_var list -> axiom -> 'a
@@ -94,8 +94,7 @@ let meta_kommand_iter
     | [attr] -> axiom_cases cd attr_l attr acc qv_l ax f_ax_default transformation
     | _ ->
        (incr_k_ax_several_attr cd ;
-        (* Format.printf (yel "There is an axiom with more than one attribute.\n") ;
-         * @TODO print the list *)
+        (* wrn_msg _STDOUT "There is an axiom with more than one attribute." ; (* @TODO print the list *)
         f_ax_default attr_l acc (qv_l, ax))
   in
   let rec aux l acc = match l with
