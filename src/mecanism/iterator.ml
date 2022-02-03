@@ -182,3 +182,4 @@ let kommand_iter_with_alias
     f_symbol f_hooked_symbol f_alias f_rewrite f_ax_default transformation f_each_end_iter
 
  *)
+ *)
