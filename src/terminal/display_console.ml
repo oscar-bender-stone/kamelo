@@ -1,39 +1,23 @@
-
 open Common.Error
 open Mecanism.Count_data
 
-   (*
-let print_info : int option * int option * string * string -> unit = fun (i, j, one, several) ->
-  let denomi = match j with
-    | None -> "?"
-    | Some x -> string_of_int x
-  in
-  let is_zero = (j = Some 0) in
-  match i with
-  | None -> if not(is_zero) then Format.printf (cya "  * %s %s\n") denomi several
-  | Some i ->
-     if is_zero && i = 0
-     then ()
-     else
-       if i < 2
-       then Format.printf "%i / %s %s translated.\n" i denomi one
-       else Format.printf "%i / %s %s translated.\n" i denomi several
-
-let print_count_data : count_data -> unit = fun cd -> List.iter print_info (extract_info cd)
-    *)
-
+(** [print_info (cran, nb, one, several)] prints only one result of
+    the review, where:
+      - [cran] is the number of indentations before printing the result,
+      - [nb]   is the number of the specific command,
+      - [one]     is the printing message if [nb] = 1,
+      - [several] is the printing message if [nb] >= 2. *)
 let print_info : int * int * string * string -> unit =
   fun (cran, nb, one, several) ->
   let text =  if nb >= 2 then several else one in
-
   if nb <= 0 then ()
   else
     (let nb = string_of_int nb in
      match cran with
-     | 0 -> msg_2 _STDOUT "  %s %s" nb text
+     | 0 -> msg_2       _STDOUT "  %s %s" nb text
      | 1 -> cyan_msg_2  _STDOUT "    * %s %s" nb text
      | 2 -> green_msg_2 _STDOUT "       - %s %s" nb text
-     | _ -> raise (InternalError "Need to update extract_info"))
+     | _ -> raise (InternalError "Need to update [print_info]"))
 
 let print_count_data : count_data -> unit = fun cd ->
   red_msg _STDOUT "Before translating..." ;
@@ -51,14 +35,15 @@ let print_nb_total_commands nb =
   red_msg_1 _STDOUT "There are %i commands" nb
 
 let separator =
-  "------------------------------------------------------------\n"
+  "------------------------------------------------------------"
 let print_footer_file : unit -> unit =
   fun () -> print _STDOUT "%s" separator
 
 let print_footer_kamelo : unit -> unit =
   fun () -> green_msg_1 _STDOUT "%s" separator
 
-let print_module_message : string -> int -> count_data -> unit = fun filename nb cd ->
+let print_module_message : string -> int -> count_data -> unit =
+  fun filename nb cd ->
   print_header_file filename;
   print_nb_total_commands nb;
   print_count_data cd;

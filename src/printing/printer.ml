@@ -7,6 +7,8 @@ open Interface.Output
 
 open Translation
 
+open Common.Error
+
 type output  = Format.formatter
 type printer = output -> p_command -> unit
 
@@ -217,7 +219,7 @@ let encoding :
   let create_RHS : t -> p_term = fun ax ->
     match ax with
     | Rewrites(_,_,And(_,a1,a2)) ->
-       if is_conditional_rule a1 then (Format.fprintf Format.std_formatter "One KProver claim\n" ; p_TYPE)
+       if is_conditional_rule a1 then (print _STDOUT "One KProver claim." ; p_TYPE)
          (* raise (ConditionalRule "KProver claim not supported yet.") *)
        else
          Translation.Axiom.curry_pattern a2
