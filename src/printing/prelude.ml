@@ -335,62 +335,53 @@ let semantic_rule () =
   ; (create_ident _ADD_INT_, [create_ident "0" ; create_pattern_var "n"]), (create_pattern_var "n", [])
   ]
 
-let create_symbol : string -> p_term -> p_symbol = fun name typ ->
-  create_p_symbol [] name [] (Some typ) None
-
 (** [wrap s] creates the p_term δ [s]. *)
 let wrap : string -> p_term = fun s -> create_appl p_INJD (create_ident s)
 
-open Printer
+open Common.Error
 open Mecanism.Count_data
 
 (* let print_comment : output -> string -> unit = fun ppf message -> *)
-let print_comment ppf message =
-  printing ppf "\n// " ; printing ppf message ; printing ppf "\n"
+let print_comment ppc message =
+  print ppc "\n// " ; print ppc message ; print ppc "\n"
 
-let pp_symbol_prelude : output -> count_data -> printer -> p_symbol -> unit =
-  fun ppf cd prt sym ->
+let pp_symbol_prelude ppc cd prt : p_symbol -> unit = fun sym ->
   incr_real_symbol cd ;
   (match sym.p_sym_typ with
    | Some v ->
       Translation.Translate.symb_signature :=
         Translation.Axiom.StrMap.add sym.p_sym_nam.elt v !Translation.Translate.symb_signature
-   | None -> ()) ;
-  prt ppf (no_pos (P_symbol sym))
+   | None -> ()) ; prt ppc (no_pos (P_symbol sym))
 
-let pp_sort_prelude : output -> count_data -> printer -> p_symbol -> unit =
-  fun ppf cd prt sym ->
+let pp_sort_prelude ppc cd prt : p_symbol -> unit = fun sym ->
   incr_real_symbol cd ;
   (match sym.p_sym_typ with
    | Some v ->
       Translation.Axiom.sort_signature :=
         Translation.Axiom.StrMap.add sym.p_sym_nam.elt v !Translation.Axiom.sort_signature
-   | None -> ()) ;
-  prt ppf (no_pos (P_symbol sym))
+   | None -> ()) ; prt ppc (no_pos (P_symbol sym))
 
 
-let pp_builtin_prelude : output -> count_data -> printer -> p_command -> unit =
-  fun ppf _ prt b -> prt ppf b
+let pp_builtin_prelude ppc _ prt : p_command -> unit = fun b -> prt ppc b
 
-let pp_rule_prelude : output -> count_data -> printer -> p_rule -> unit =
-  fun ppf _ prt r -> prt ppf (no_pos (P_rules [r]))
+let pp_rule_prelude ppc _ prt : p_rule -> unit = fun r ->
+  prt ppc (no_pos (P_rules [r]))
 
-let create_prelude : output -> printer -> string -> unit =
-  fun ppf prt _ ->
+let create_prelude ppc prt : string -> unit = fun _ ->
   let cd = Mecanism.Count_data.reset_count_data 0 in
-  let pp_sort = pp_sort_prelude ppf cd prt in
-  let pp_symb = pp_symbol_prelude ppf cd prt in
-  let pp_b = pp_builtin_prelude ppf cd prt in
-  let pp_r = pp_rule_prelude ppf cd prt in
+  let pp_sort = pp_sort_prelude ppc cd prt in
+  let pp_symb = pp_symbol_prelude ppc cd prt in
+  let pp_b = pp_builtin_prelude ppc cd prt in
+  let pp_r = pp_rule_prelude ppc cd prt in
   (* STEP 1: The injection _INJD: injective symbol δ : SortK → TYPE; *)
-  print_comment ppf "Our injection between K and Dedukti";
+  print_comment ppc "Our injection between K and Dedukti";
   pp_symb (create_p_symbol [no_pos (P_prop Injec)] "δ" []
              (Some (create_arrow p_SORTK p_TYPE)) None) ;
   (* Hooked-sort *)
-  print_comment ppf "Translation of hooked sorts";
+  print_comment ppc "Translation of hooked sorts";
   List.iter (fun n -> pp_sort (create_symbol n p_SORTK)) hooked_sort ;
   (* STEP 2: Some constructors and builtin *)
-     print_comment ppf "Some builtins for Lambdapi and constructors";
+     print_comment ppc "Some builtins for Lambdapi and constructors";
      (* For inductive type *)
      (* symbol Prop : TYPE; *)
      pp_symb (create_symbol "Prop" p_TYPE) ;
@@ -400,7 +391,7 @@ let create_prelude : output -> printer -> string -> unit =
      pp_b (create_builtin_command "Prop" ([], "Prop")) ;
      (* builtin "P" ≔ P; *)
      pp_b (create_builtin_command "P" ([], "P")) ;
-     printing ppf "\n";
+     print ppc "\n";
      (* symbol true : injK SortBool; *)
      pp_symb (create_symbol "true" (wrap "SortBool")) ;
      (* symbol false : injK SortBool; *)
@@ -409,13 +400,13 @@ let create_prelude : output -> printer -> string -> unit =
      pp_symb (create_symbol "zero" (wrap "SortInt")) ;
      (* constant symbol succ : injK SortInt → injK SortInt; *)
      pp_symb (create_symbol "succ" (create_arrow (wrap "SortInt") (wrap "SortInt"))) ;
-     printing ppf "\n";
+     print ppc "\n";
      (* builtin "0"  ≔ zero; *)
      pp_b (create_builtin_command "0" ([], "zero")) ;
      (* builtin "+1" ≔ succ; *)
      pp_b (create_builtin_command "+1" ([], "succ")) ;
      (* STEP 3: Hooked-symbol *)
-     print_comment ppf "Translation of hooked symbols";
+     print_comment ppc "Translation of hooked symbols";
      let create_type : string * string list -> p_term = fun (name, type_l) ->
        let rec split_last_value l acc = match l with
          | []  -> failwith ("The symbol " ^ name ^ " has no type.")
@@ -428,5 +419,5 @@ let create_prelude : output -> printer -> string -> unit =
      in
      List.iter (fun (n,l) -> pp_symb (create_symbol n (create_type (n,l)))) hooked_symbol ;
      (* STEP 4: Add semantic rules *)
-     print_comment ppf "Translation of semantic rules";
+     print_comment ppc "Translation of semantic rules";
      List.iter (fun ((hl, bl), (hr, br)) -> pp_r (no_pos (List.fold_left create_appl hl bl, List.fold_left create_appl hr br))) (semantic_rule())

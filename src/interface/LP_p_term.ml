@@ -92,9 +92,14 @@ let create_p_symbol (mod_l : p_modifier list) (name : string) (param_l : p_param
   ; p_sym_prf = None
   ; p_sym_def = is_def}
 
+  (*
 (** [create_symbol sym] creates a symbol without position. *)
 let create_symbol : p_symbol -> p_command = fun sym ->
    no_pos (P_symbol sym)
+   *)
+
+let create_symbol : string -> p_term -> p_symbol =
+  fun name typ -> create_p_symbol [] name [] (Some typ) None
 
 (** [create_compute_command p] creates a command to compute the p_term [p]. *)
 let create_compute_command : p_term -> p_command = fun p ->

@@ -33,7 +33,7 @@ let () =
        let comm name =
          Printing.Prelude.pp_symbol_prelude ff cd
            (LP.LP_printer.pp_command)
-           (Printing.Prelude.create_symbol name var_type)
+           (Interface.LP_p_term.create_symbol name var_type)
        in
        List.iter (fun name -> comm name) var_l
      in
@@ -87,9 +87,9 @@ let () =
      let module_to_file : kmodule -> unit = fun m ->
        (* let name, import_l, command_l, attribut_l = m in *)
        let name, _, kommand_l, _ = m in
-       Printing.Printer.printing ff "\n// Translation of the module ";
+       Common.Error.print ff "\n// Translation of the module ";
        Format.pp_print_string ff name;
-       Printing.Printer.printing ff "\n";
+       Common.Error.print ff "\n";
        (* Mecanism.Dependency_graph.data_syntax := LP_interface.LP_p_term.StrMap.empty ; @TODO arg *)
        (* STEP 0: Reset count data *)
        let cd = Mecanism.Count_data.reset_count_data 0 in
