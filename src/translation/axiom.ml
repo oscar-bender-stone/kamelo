@@ -4,7 +4,7 @@ open Interface.K_prelude
 open Common.Type
 open LP.Syntax
 
-open Common.Color
+open Common.Error
 
 type t = axiom
 
@@ -112,8 +112,8 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
                         else
                           (if !do_specific_thing
                            then
-                             ( (* Format.printf (Common.Color.yel "\nSpecific var: %s\n") (fst !specific_var) ;
-                                  Format.printf (Common.Color.yel "\nSpecific var: %s\n") n ; *)
+                             ( (* wrn_1 "\nSpecific var: %s") (fst !specific_var) ;
+                                  wrn_1 "\nSpecific var: %s\n" n ; *)
                               if (fst !specific_var) = (Interface.Output.pp n)
                               then snd !specific_var
                               else change_sort_inj (f_var n))
@@ -279,7 +279,7 @@ let create_LHS : alias -> p_term = fun al ->
          else
            (try curry_pattern a2
             with KComputation _ ->
-              Format.printf (yel "WARNING: K computation found\n") ; p_TYPE)
+              wrn_msg _STDOUT "WARNING: K computation found." ; p_TYPE)
       (* _ -> failwith "LHS"*)
       |  _ -> failwith "In LHS: Not yet implemented"
      end
@@ -307,7 +307,7 @@ let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
       let rhs = create_RHS ax in
       (lhs, rhs)
     with ConditionalRule _ ->
-      Format.printf (yel "WARNING: Conditional rewriting rule.\n") ;
+      wrn_msg _STDOUT "WARNING: Conditional rewriting rule." ;
       (p_TYPE, p_TYPE)
   in
   no_pos rule

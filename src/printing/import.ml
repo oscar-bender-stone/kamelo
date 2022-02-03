@@ -1,5 +1,5 @@
 open Common.Type
-open Common.Count_data
+open Mecanism.Count_data
 open Printer
 
 let lp_pkg = "root_KaMeLo"

@@ -1,9 +1,9 @@
 open Common.Type
-open Common.Color
+open Common.Error
 
 open Translation.Axiom
 
-open Common.Count_data
+open Mecanism.Count_data
 open LP.LP_printer
 open Printing.Printer
 
@@ -39,9 +39,9 @@ let print_new_attribute : name -> attribute list -> unit = fun name attri_l ->
   match res with
   | [] -> ()
   | _::_ as l ->
-     Format.printf (yel "WARNING: The symbol %s has new attribut(s): ") name;
-     List.iter (fun n -> Format.printf (yel "%s ") n) l;
-     Format.printf (yel ".\n")
+     wrn_1 _STDOUT "WARNING: The symbol %s has new attribut(s): " name;
+     List.iter (fun n -> wrn_1 _STDOUT "%s " n) l;
+     wrn_msg _STDOUT "."
 
 (* Il n'y a rien qui indique que l'axiome a été généré car un symbole
    est un prédicat : il faut peut-être le rajouter ?

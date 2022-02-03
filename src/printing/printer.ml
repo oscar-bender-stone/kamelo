@@ -1,6 +1,6 @@
 
 open Common.Type
-open Common.Count_data
+open Mecanism.Count_data
 open Mecanism.Iterator_plus_plus   (* @TODO improve? *)
 open! LP.Syntax
 open Interface.Output

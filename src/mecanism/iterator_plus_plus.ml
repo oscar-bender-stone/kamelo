@@ -1,5 +1,7 @@
 open Common.Type
-open Common.Count_data
+open Common.Error
+
+open Count_data
 
 type rewrite = { lhs : alias ; rhs : quant_var list * axiom }
 type common_data = Format.formatter * count_data * attribute list
@@ -18,8 +20,6 @@ let check_is_predicat (cd : count_data) (attr_l : attribute list) (acc : 'a)
       then (incr_k_ax_predicat cd ; f_ax_predicat acc (qv_l, ax))
       else (incr_k_ax_owise    cd ; f_ax_owise    acc (qv_l, ax))
 *)
-
-exception InternalError of string
 
 type 'a meta_axiom = attribute list -> 'a -> quant_var list -> axiom -> 'a
 
@@ -139,7 +139,7 @@ let meta_kommand_iter
     | [attr] -> axiom_cases cd attr_l (Some attr) acc qv_l ax f_exists f_equals f_or_bottom f_not f_implies
     | _ ->
        (incr_k_ax_several_attr cd ;
-        (* Format.printf (yel "There is an axiom with more than one attribute.\n") ;
+        (* wrn_msg "There is an axiom with more than one attribute." ;
          * @TODO print the list *)
         f_ax_default attr_l acc (qv_l, ax))
   in
@@ -192,7 +192,7 @@ let kommand_iter_without_alias
           let xattr_l = attr_l@attr_l_ax in
           if is_rule ax
           then
-            ((* Format.printf (Common.Color.yel "%b") (is_cooling_rule attr_l_ax) ; *)
+            ((* wrn_1 "%b" (is_cooling_rule attr_l_ax) ; *)
              if is_cooling_rule attr_l_ax
              then
                (Translation.Axiom.do_specific_thing := true ;

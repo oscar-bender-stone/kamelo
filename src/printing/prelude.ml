@@ -342,7 +342,7 @@ let create_symbol : string -> p_term -> p_symbol = fun name typ ->
 let wrap : string -> p_term = fun s -> create_appl p_INJD (create_ident s)
 
 open Printer
-open Common.Count_data
+open Mecanism.Count_data
 
 (* let print_comment : output -> string -> unit = fun ppf message -> *)
 let print_comment ppf message =
@@ -377,7 +377,7 @@ let pp_rule_prelude : output -> count_data -> printer -> p_rule -> unit =
 
 let create_prelude : output -> printer -> string -> unit =
   fun ppf prt _ ->
-  let cd = Common.Count_data.reset_count_data 0 in
+  let cd = Mecanism.Count_data.reset_count_data 0 in
   let pp_sort = pp_sort_prelude ppf cd prt in
   let pp_symb = pp_symbol_prelude ppf cd prt in
   let pp_b = pp_builtin_prelude ppf cd prt in

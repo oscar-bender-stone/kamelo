@@ -1,5 +1,5 @@
 open Common.Type
-open Common.Color
+open Common.Error
 
 open LP.Syntax
 open Interface.LP_p_term
@@ -20,7 +20,7 @@ let def_to_p_term : def -> p_term = fun d ->
           else
             (try curry_ident a2
              with KComputation _ ->
-               Format.printf (yel "WARNING: K computation found\n") ; p_TYPE)
+               wrn_msg _STDOUT "WARNING: K computation found" ; p_TYPE)
        | Predicate p -> (match p with Sym _ -> p_TYPE | Var _ -> p_TYPE)
        |  _ -> failwith "In LHS: Not yet implemented"
      end

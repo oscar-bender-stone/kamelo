@@ -1,4 +1,6 @@
 
+open Error
+
 (** Type to abstract the Kore files *)
 
 type name = string
@@ -172,7 +174,9 @@ let is_constructor : symbol -> attribute list -> sort option =
   | (false, _)     -> None
   | (true, true)   -> Some (get_sort s)
   | (true, false)  ->
-     Printf.fprintf stdout (Color.yel "WARNING The symbol (%s) is declared 'constructor' but not 'injective'!\n") (get_name s) ; None
+     wrn_1 _STDOUT "WARNING The symbol (%s) is declared
+                    'constructor' but not 'injective'!" (get_name s) ;
+     None
 
 
 

@@ -1,6 +1,7 @@
 
 open Common.Color
-open Common.Count_data
+open Common.Error
+open Mecanism.Count_data
 
    (*
 let print_info : int option * int option * string * string -> unit = fun (i, j, one, several) ->
@@ -32,7 +33,7 @@ let print_info : int * int * string * string -> unit = fun (cran, nb, one, sever
      | 0 -> Format.printf "  %s %s\n" nb text
      | 1 -> Format.printf (cya "    * %s %s\n") nb text
      | 2 -> Format.printf (gre "       - %s %s\n") nb text
-     | _ -> failwith "Internal error: Need to update extract_info")
+     | _ -> raise (InternalError "Need to update extract_info"))
 
 let print_count_data : count_data -> unit = fun cd ->
   Format.printf (red "Before translating...\n") ;

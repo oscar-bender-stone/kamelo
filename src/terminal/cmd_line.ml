@@ -12,11 +12,14 @@ let set_semantics s = semantics_file := s
 let input = ref stdin
 let old = ref false
 
-(** [check_extension s] checks that the input file has the extension .kore. *)
+(** [check_extension s] checks that the input file has the extension
+    ".kore". *)
 let check_extension s =
   let len = String.length s in
   if len > 5 then
-    (if not (s.[len-5] = '.' && s.[len-4] = 'k' && s.[len-3] = 'o' && s.[len-2] = 'r' && s.[len-1] = 'e') then
+    (if not (s.[len-5] = '.' && s.[len-4] = 'k' &&
+               s.[len-3] = 'o' && s.[len-2] = 'r' && s.[len-1] = 'e')
+     then
        raise (Invalid_argument "Expected extension: .kore"))
   else
     raise (Invalid_argument "Name file very short")
@@ -44,26 +47,44 @@ let set_output o = if List.mem o dk_output then output := Dedukti
                        else failwith ("The option"^ o ^ "is unknow")
 
 let parse : unit -> unit = fun () ->
-  let usage_msg = "usage: ./KaMeLo [--semantics (.lp|.dk)] [--mimic (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)] [--inductive] [--readable] [--no-color] kore_file" in
+  let usage_msg = "usage: ./KaMeLo [--semantics (.lp|.dk)]
+                   [--mimic (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)]
+                   [--inductive] [--readable] [--no-color] kore_file"
+  in
   parse
-    [("--semantics",  String (fun o -> set_semantics o), "Select the semantics to run the input programm");
-     ("-s",       String (fun o -> set_semantics o), "Select the semantics to run the input programm");
-     ("--mimic",  String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
-     ("-m",       String (fun o -> set_mimic o), "Mimic the format of K, Kore or Dedukti, especially the ordering of commands");
-     ("--output", String (fun o -> set_output o), "Generate files with the extension .dk, .lp or .mykore");
-     ("-o",       String (fun o -> set_output o), "Generate files with the extension .dk, .lp or .mykore");
+    [("--semantics",  String (fun o -> set_semantics o),
+      "Select the semantics to run the input programm");
+     ("-s",       String (fun o -> set_semantics o),
+      "Select the semantics to run the input programm");
+     ("--mimic",  String (fun o -> set_mimic o),
+      "Mimic the format of K, Kore or Dedukti, especially the ordering
+       of commands");
+     ("-m",       String (fun o -> set_mimic o),
+      "Mimic the format of K, Kore or Dedukti, especially the ordering
+       of commands");
+     ("--output", String (fun o -> set_output o),
+      "Generate files with the extension .dk, .lp or .mykore");
+     ("-o",       String (fun o -> set_output o),
+      "Generate files with the extension .dk, .lp or .mykore");
 
-     ("--inductive", Unit (fun () -> check_induc:=true),  "Use inductive types");
-     ("-i",          Unit (fun () -> check_induc:=true),  "Use inductive types");
+     ("--inductive", Unit (fun () -> check_induc:=true),
+      "Use inductive types");
+     ("-i",          Unit (fun () -> check_induc:=true),
+      "Use inductive types");
 
-     ("--old",  Unit (fun () -> old:=true),  "Use the old preprocessing algorithm");
+     ("--old",  Unit (fun () -> old:=true),
+      "Use the old preprocessing algorithm");
 
-     ("--readable", Unit (fun () -> readable:=true),  "Generate identifiers more readable");
-     ("-r",         Unit (fun () -> readable:=true),  "Generate identifiers more readable");
-     ("-v",  Unit (fun () -> verbose:=true), "Print #Var and #Sym in Kore output mode");
+     ("--readable", Unit (fun () -> readable:=true),
+      "Generate identifiers more readable");
+     ("-r",         Unit (fun () -> readable:=true),
+      "Generate identifiers more readable");
+     ("-v",  Unit (fun () -> verbose:=true),
+      "Print #Var and #Sym in Kore output mode");
      (*("-v1", Unit (fun () -> verbose:=1), "reports stuff");
      ("-v2", Unit (fun () -> verbose:=2), "reports stuff, and stuff");*)
-     ("--no-color", Unit (fun () -> no_color:=true),  "Disable colors on the main message")]
+     ("--no-color", Unit (fun () -> no_color:=true),
+      "Disable colors on the main message")]
     (fun s ->
       check_extension s;
       filename_exec := String.sub s 0 ((String.length s)-5);

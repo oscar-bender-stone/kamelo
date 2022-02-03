@@ -18,7 +18,7 @@ let () =
      let f  = open_out filename in
      let ff = Format.formatter_of_out_channel f in
      (* STEP : Add the import of the semantic *)
-     let cd = Common.Count_data.reset_count_data 0 in
+     let cd = Mecanism.Count_data.reset_count_data 0 in
      Printing.Printer.pp_import ff cd
        (LP.LP_printer.pp_command) (["sem_root"])
        (!Terminal.Cmd_line.semantics_file, []);
@@ -92,7 +92,7 @@ let () =
        Printing.Printer.printing ff "\n";
        (* Mecanism.Dependency_graph.data_syntax := LP_interface.LP_p_term.StrMap.empty ; @TODO arg *)
        (* STEP 0: Reset count data *)
-       let cd = Common.Count_data.reset_count_data 0 in
+       let cd = Mecanism.Count_data.reset_count_data 0 in
        (* STEP 1: Create the new file *)
        (* let filename = get_filename name in
     let f  = open_out filename in
@@ -119,7 +119,7 @@ let () =
              try
                Some (LP_interface.LP_p_term.StrMap.find node !Mecanism.Dependency_graph.data_syntax)
              with Not_found -> (if not(LP_interface.LP_p_term.StrMap.mem node !Mecanism.Dependency_graph.in_prelude)
-                                then Format.printf (Common.Color.yel "WARNING: Need to be fixed: %s doesn't exist.\n") node ; None)
+                                then wrn_1 "WARNING: Need to be fixed: %s doesn't exist." node ; None)
            in
            let f node = match tmp node with | Some x -> Printing.Printer.pp_kommand ff cd printing x | None -> () in
            Mecanism.Dependency_graph.T.iter f g *)
