@@ -65,9 +65,9 @@ let () =
   let prelude_name = "prelude" in *)
      (* STEP 2: Import management *)
      let printing = match !Terminal.Cmd_line.output with
-       | LP      -> LP.LP_printer.pp_command
-       | Dedukti -> fun _ _ -> () (* @TODO *)
-       | Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
+       | O_LP      -> LP.LP_printer.pp_command
+       | O_Dedukti -> fun _ _ -> () (* @TODO *)
+       | O_Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
      in
      (* cd.k_import := 1;
   pp_import ff cd printing (lp_pkg) (prelude_name, []);
@@ -101,18 +101,18 @@ let () =
 
        (* Printing.Import.with_prelude ff printing kimport_l cd; *)
        (* STEP 3: Main translation *)
-       if !Terminal.Cmd_line.old then Terminal.Preprocessing.old ff m cd
+       if !Terminal.Cmd_line.old then Terminal.Preprocessing.old ff cd m
        else
          begin
            match !Terminal.Cmd_line.mimic with
-           | Kore    ->
+           | M_Kore    ->
               (match !Terminal.Cmd_line.output with
-               | LP | Dedukti ->
+               | O_LP | O_Dedukti ->
                   Printing.Main_encoding.encoding ff cd printing kommand_l (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
-               | Kore -> Terminal.Kore_printer.pp_kore_kommand ff cd kommand_l)
-           | K       -> Printing.Main_encoding.encoding ff cd printing kommand_l
+               | O_Kore -> Terminal.Kore_printer.pp_kore_kommand ff cd kommand_l)
+           | M_K       -> Printing.Main_encoding.encoding ff cd printing kommand_l
            (* Printing.Printer.pp_kommand_bis ff cd printing kommand_l *)
-           | Dedukti -> ()
+           | M_Dedukti -> ()
          (*  let g =
              Mecanism.Dependency_graph.create_dependence_graph cd kommand_l
            in

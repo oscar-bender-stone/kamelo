@@ -7,6 +7,8 @@ open Mecanism.Count_data
 open LP.LP_printer
 open Printing.Printer
 
+open Cmd_line
+
 module Sort = struct
   type t = sort
   let compare = String.compare
@@ -15,7 +17,7 @@ module Induc = Map.Make(Sort)
 
 ;; (* ( sort |-> symbol list) *)
 
-let check_induc = ref false
+
 
 (* 1 : remonter les symboles des types inductifs + descendre les sorts des types inductifs
  * 2 : Enlever les axiomes qui ne nous intéressent pas
@@ -122,16 +124,15 @@ let preprocessing :
   let sort_l, induc_m, sym_l, alias_l, ax_l = aux c_l ([], Induc.empty, [], [], []) in
   (name, List.rev sort_l, induc_m, List.rev sym_l, List.rev alias_l, List.rev ax_l)
 
-let old : Format.formatter -> kmodule -> count_data -> unit = fun ff m cd ->
-
+let old ppc cd : kmodule -> unit = fun m ->
   let _, sort_l, induc_m, sym_l, alias_l, ax_l = preprocessing m cd in
 
   (* let import_l = if Induc.is_empty induc_m then import_l else ("prelude", [])::import_l in *)
 
-  List.iter (pp_sort ff cd pp_command) sort_l;
-  List.iter (pp_induc ff cd pp_command) (List.rev (Induc.bindings induc_m));
-  List.iter (pp_symbol ff cd pp_command) sym_l;
-  (*List.iter (trans_command ff) command_l;*)
-  List.iter (pp_alias ff cd pp_command) alias_l;
-  List.iter (pp_axiom ff cd pp_command) ax_l;
+  List.iter (pp_sort ppc cd pp_command) sort_l;
+  List.iter (pp_induc ppc cd pp_command) (List.rev (Induc.bindings induc_m));
+  List.iter (pp_symbol ppc cd pp_command) sym_l;
+  (*List.iter (trans_command ppc) command_l;*)
+  List.iter (pp_alias ppc cd pp_command) alias_l;
+  List.iter (pp_axiom ppc cd pp_command) ax_l;
   (*List.iter (trans_command Format.std_formatter) command_l;*)
