@@ -174,7 +174,7 @@ let is_constructor : symbol -> attribute list -> sort option =
   | (false, _)     -> None
   | (true, true)   -> Some (get_sort s)
   | (true, false)  ->
-     wrn_1 _STDOUT "WARNING The symbol (%s) is declared
+     wrn_1 _STDOUT "WARNING The symbol (%s) is declared \
                     'constructor' but not 'injective'!" (get_name s) ;
      None
 

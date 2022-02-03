@@ -37,7 +37,7 @@ let print_nb_total_commands nb =
 let separator =
   "------------------------------------------------------------"
 let print_footer_file : unit -> unit =
-  fun () -> print _STDOUT "%s" separator
+  fun () -> print _STDOUT "%s\n" separator
 
 let print_footer_kamelo : unit -> unit =
   fun () -> green_msg_1 _STDOUT "%s" separator
