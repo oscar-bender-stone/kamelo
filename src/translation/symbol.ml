@@ -1,8 +1,7 @@
 open Common.Type
 open LP.Syntax
 open Interface.LP_p_term
-open Interface.K_prelude
-
+open Interface.Getter_term
 
 (*
   (* Etre constant n'implique pas qu'on n'est pas une fonction : cela
@@ -112,21 +111,13 @@ let get_modifier : attribute list -> p_modifier list = fun attr_l ->
 
 (** To translate symbol *)
 
-(** [cr_type s] creates the type :
-      - _SORTK       if s = _SORTK
-      - p_INJD (f s) otherwise
-    Note: f transforms s into a p_term. *)
-let get_type : string -> p_term = fun s ->
-  let p_s = create_ident s in
-  if s = _SORTK then p_s else create_appl p_INJD p_s
-
 let sym_curry : symbol -> p_term = fun s ->
   let _, _, p_l, p = s in
   (* let f = fun (a:p_term) (b:axiom) : p_term -> create_arrow a (sym_curry b) in *)
   let g = fun a ->
     match a with
-    | S x | Q x -> get_type x
+    | S x | Q x -> create_type_atomic x
   in
   let f = fun a b ->
-    match a with | S x | Q x -> create_arrow (get_type x) b in
+    match a with | S x | Q x -> create_arrow (create_type_atomic x) b in
   List.fold_right f p_l (g p)

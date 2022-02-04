@@ -5,9 +5,9 @@ open Common.Error
 open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
+open Interface.Getter_term
 
 open Axiom
-open Symbol
 
 let def_to_p_term : def -> p_term = fun d ->
   match d with
@@ -27,7 +27,9 @@ let def_to_p_term : def -> p_term = fun d ->
      end
   | D (n,_) -> create_ident n
 
-let param_to_p_term p = match p with S s -> get_type s | Q _ -> p_TYPE
+let param_to_p_term p = match p with
+  | S s -> create_type_atomic s
+  | Q _ -> p_TYPE
 
 (** [create_p_params_expl l] creates explicit parameters, which have the current given type,
     without position. Note: p_params = p_ident option list * p_term option * bool. *)

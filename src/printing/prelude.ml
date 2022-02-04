@@ -2,6 +2,7 @@
 open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
+open Interface.Getter_term
 
 let hooked_sort =
   [ "SortList"   (* hook{}("LIST.List")     *)
@@ -407,17 +408,12 @@ let create_prelude ppc prt : string -> unit = fun _ ->
      pp_b (create_builtin_command "+1" ([], "succ")) ;
      (* STEP 3: Hooked-symbol *)
      print_comment ppc "Translation of hooked symbols";
-     let create_type : string * string list -> p_term = fun (name, type_l) ->
-       let rec split_last_value l acc = match l with
-         | []  -> failwith ("The symbol " ^ name ^ " has no type.")
-         | [t]  -> List.rev acc, t
-         | t::q -> split_last_value q (t::acc)
-       in
-       let head, last = split_last_value type_l [] in
-       let f t1 t2 = create_arrow (Translation.Symbol.get_type t1) t2 in
-       List.fold_right f head (Translation.Symbol.get_type last)
-     in
-     List.iter (fun (n,l) -> pp_symb (create_symbol n (create_type (n,l)))) hooked_symbol ;
+     let f (n,l) = pp_symb (create_symbol n (create_type_arrow (n,l))) in
+     List.iter f hooked_symbol ;
      (* STEP 4: Add semantic rules *)
      print_comment ppc "Translation of semantic rules";
-     List.iter (fun ((hl, bl), (hr, br)) -> pp_r (no_pos (List.fold_left create_appl hl bl, List.fold_left create_appl hr br))) (semantic_rule())
+     let g ((hl, bl), (hr, br)) =
+       pp_r (no_pos (List.fold_left create_appl hl bl,
+                     List.fold_left create_appl hr br))
+     in
+     List.iter g (semantic_rule())
