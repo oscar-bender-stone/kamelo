@@ -4,15 +4,15 @@ open Common.Type
 open Common.Getter
 open Interface.LP_p_term
 open Interface.K_prelude
+open Interface.Getter_term
 
 open Symbol
 open Axiom
-open Alias
 
 (** Importation *)
 
-(** [import_to_require_open path i] translates a Kore import to a "require open"
-    command, with only one path and without position. *)
+(** [import_to_require_open path i] translates a Kore import to a
+    "require open" command, with only one path and without position. *)
 let import_to_require_open : string list -> import -> p_command = fun path i ->
   let filename = String.lowercase_ascii (fst i)  in
   let path = [create_p_path (path @ [filename])] in
