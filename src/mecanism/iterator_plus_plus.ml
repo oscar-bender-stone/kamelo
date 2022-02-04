@@ -1,4 +1,5 @@
 open Common.Type
+open Common.Getter
 open Common.Error
 
 open Count_data

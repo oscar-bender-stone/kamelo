@@ -1,5 +1,6 @@
 
 open Common.Type
+open Common.Getter
 open Mecanism.Count_data
 open! LP.Syntax
 open Interface.Output
