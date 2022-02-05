@@ -33,7 +33,8 @@ let sort_to_p_symbol : sort -> p_command = fun s ->
   (* modifier = Const ? *)
 
 (** Symbol *)
-let symbol_to_p_symbol : symbol -> attribute list -> p_command = fun s attr_l ->
+let symbol_to_p_symbol : symbol -> attribute list -> p_command =
+  fun s attr_l ->
   let name, qvar_l, _, _ = s in
   symb_signature := StrMap.add name (sym_curry s) !symb_signature ;
   let param_l = create_p_params qvar_l in
@@ -41,19 +42,20 @@ let symbol_to_p_symbol : symbol -> attribute list -> p_command = fun s attr_l ->
   no_pos (P_symbol res)
 
 (** Inductive type *)
-let induc_to_p_inductive : sort * symbol list -> p_inductive = fun (sort, s_l) ->
+let induc_to_p_inductive : sort * symbol list -> p_inductive =
+  fun (sort, s_l) ->
   (* p_inductive_aux = p_ident * p_term * (p_ident * p_term) list *)
   let f s = (create_p_ident (get_name s), sym_curry s) in
   no_pos (create_p_ident sort, p_TYPE, List.map f s_l)
 
-(** [create_inductive_type i] creates non-mutual inductive type without parameter
-    and position. *)
+(** [create_inductive_type i] creates non-mutual inductive type
+    without parameter and position. *)
 let create_inductive_type : sort * symbol list -> p_command = fun i ->
   no_pos (P_inductive ([], [], [induc_to_p_inductive i]))
 
 (** Alias *)
-let unconditional_rule_to_p_rule : alias -> axiom -> p_command = fun al ax ->
-  no_pos (P_rules [create_rewriting_rule al ax])
+let unconditional_rule_to_p_rule : alias -> axiom -> p_command =
+  fun al ax -> no_pos (P_rules [create_rewriting_rule al ax])
 
 (** Axiom *)
 let equality_axiom_to_p_rule : axiom -> p_command = fun ax ->

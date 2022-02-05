@@ -48,7 +48,7 @@ val of_equality_axiom : t -> p_rule
 
 (** Type of extra data about a rule *) (* Mettre aussi priority ? *)
 type extra_data_rule =
-   Uncond         (* A uncondtional rule *)
+ | Uncond         (* A uncondtional rule *)
  | Cond of p_term (* A conditional rule with a condition *)
  | OwiseRule      (* A rule with the attribut "owise" *)
 

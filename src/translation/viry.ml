@@ -1,162 +1,150 @@
 
-(** This file generates the variante of Viry's transformation
-    from Conditional Term Rewriting System (CTRS) to Term
-    Rewriting System (TRS).  *)
+(** This file generates the variante of Viry's transformation from
+    Conditional Term Rewriting System (CTRS) to Term Rewriting System (TRS).
+    Notre outil effectue deux traductions de CTRS vers TRS, selon que la
+    condition est formée avec le prédicat isKResult, traduction effectuée
+    dans le fichier eval_strategy.ml, ou un autre prédicat, traduction
+    effectuée ici. *)
 
-(** Some definitions:
-      - $Var(t)$ l'ensemble des variables apparaissant dans le terme $t$
-      - Soit $\Sigma$ une signature que nous partitionnons en 2 ensembles disjoints,
-            * $\mathcal{C}$, l'ensemble des constructeurs, et
-            * $\mathcal{D}$, l'ensemble des symboles définis.
-      - Un terme $t$ uniquement composé de variables et de constructeurs est dit être un terme constructeur.
-      - Un terme $f(t_1,...,t_n)$ $(n \ge 0)$ est un pattern si $f \in \mathcal{D}$ et si $t_1,...,t_n$ sont des termes constructeurs.
-      - Un système de réécriture $\mathcal{R}$ est dit basé sur les constructeurs (constructor-based) si pour toute règle de réécriture $l \hookrightarrow r \in \mathcal{R}$,
-            * $l$ et $r$ ont le même type,
-            * $l$ est un pattern
-            * $Var(r) \subseteq Var(l)$.
+(** Encodage sur un exemple
+    -----------------------
 
+    Considérons le système suivant :
+      (1) rule max X Y => Y requires X <Int Y
+      (2) rule max X Y => X requires X >=Int Y
+    L'encodage permet d'obtenir le TRS suivant dans Dedukti :
+      (0)   rule max  $x $y          ↪ ♭max $x $y ♭ ♭
+      (1')  rule ♭max $x $y ♭ $c     ↪ ♭max $x $y ($x < $y) $c
+      (1'') rule ♭max $x $y true $c  ↪ $y
+      (2')  rule ♭max $x $y $c ♭     ↪ ♭max $x $y $c ($x >= $y)
+      (2'') rule ♭max $x $y $c true  ↪ $x
 
-%	\Krule max X Y     => Y requires X <_{Int} Y
-%	\Krule max X (S Y) => X requires X >_{Int} Y
-%	\Krule max X 0     => X requires X \ge_{Int} 0
+    L'idée générale de l'encodage, inspiré de la proposition de Viry,
+    est d'ajouter, pour un symbole défini avec des règles conditionnelles,
+    autant d'arguments qu'il y a de conditions.
 
-Considérons le système suivant
-(1) \Krule max X Y => Y requires X <_{Int} Y
-(2) \Krule max X Y => X requires X \ge_{Int} Y
-L'encodage permet d'obtenir le système de réécriture suivant dans Dedukti :
-(0)   rule max $x $y --> ♭carrier2 (max $x $y) ♭ ♭
-(1')  rule ♭carrier2 (max $x $y) ♭    _ --> ♭carrier2 (max $x $y) ($x < $y) _
-(1'') rule ♭carrier2 (max $x $y) true _ --> $y
-(2')  rule ♭carrier2 (max $x $y) _ ♭    --> ♭carrier2 (max $x $y) _ ($x \ge $y)
-(2'') rule ♭carrier2 (max $x $y) _ true --> $x
+    La règle (0) réécrit un terme dont le symbole de tête est max, par un
+    terme utilisant la version étendue correspondante d'arité 4, ♭max, où
+    tous les arguments booléens valent ♭, indiquant que les arguments
+    booléens n'ont pas encore été initialisés par une condition.
 
-L'idée générale de l'encodage, proposé dans cette section et initialement proposée par Viry~\cite{viry1999},
-est de stocker dans les arguments d'un symbole, les résultats (pouvant être partiels) de l'évaluation des conditions.
-La règle (0) encapsule le calcul en cours à l'aide du symbole $\flat carrier2$, où tous les arguments booléens valent $\flat$,
-symbole correspondant à $\bot$ dans l'article de Viry, et indiquant que les arguments booléens n'ont pas encore été initialisés par une condition.
-Les règles (1') et (2') initialisent les conditions à calculer, tandis que
-les règles (1'') et (2'') réduisent la taille du terme puisqu'une des conditions a été évaluée à $true$.
+    Les règles (1') et (2') initialisent les conditions à calculer,
+    tandis que les règles (1'') et (2'') réduisent la taille du terme
+    puisque une des conditions a été évaluée à true. *)
 
-Contrairement à Viry, nous choisissons d'étendre la signature, comme ici avec le symbole $\flat carrier2$,
-plutôt que de remplacer chaque symbole de la signature par un symbole équivalent mais avec une arité plus grande,
-permettant de transporter les calculs des conditions.
-En effet, cela complique le code et oblige à traduire, après coup, les formes normales obtenues.
+(** Formalisation de l'encodage
+    ---------------------------
 
-Une variante de cet encodage~\cite{conditional_narrowing} s'intéresse au cas des CTRS dits basés sur les constructeurs,
-et indique qu'il n'est pas nécessaire de garder en arguments les variables des conditions au moment de l'initialisation de celles-ci.
-Ici, comme le montre l'exemple précédent, nous procédons de même.
+ Hypothèses :
+   - Pour éviter des conflits de nommage, nous supposons que ♭ est un nom de
+     symbole non utilisé, et qu'il n'apparaît en tête d'aucun nom de symbole.
 
-De plus, cet encodage a l'avantage de garder un nombre de règles de réécriture assez proche du nombre de règles initial,
-ainsi que de ne pas fixer l'ordre d'évaluation des conditions, mais augmente le temps de calcul.
+   - L'algorithme présenté ci-dessous prend en argument un ensemble E_DK de
+     triplets de termes Dedukti de la forme (LHS, RHS, c), noté LHS  ↪c  RHS.
 
-Enfin, pour générer les règles précédentes, il faut connaître toutes les conditions qui peuvent s'appliquer, pour un symbole de tête donné.
-Cependant, la quasi-totalité des règles de réécriture écrites dans \K, i.e. celles n'ayant pas l'attribut \KAanywhere, nécessitent d'inférer la configuration.
-Cela implique que si nous considérons la définition usuelle d'un symbole de tête, la quasi-totalité des règles de réécriture auraient le même symbole de tête.
-Dans le cadre de cet article, nous considérerons donc que le symbole de tête d'une règle de réécriture n'ayant pas l'attribut \KAanywhere correspond au symbole de tête
-de la partie du LHS se trouvant dans la cellule \texttt{<k>}.
-Nous notons $head_{<k>}$ la fonction qui renvoie le symbole de tête de la cellule \texttt{<k>}
-\amelie{(ou de l'élément en tête de la K computation dans la cellule \texttt{<k>}) ?},
-si la cellule \texttt{<k>} existe, sinon elle renvoie le symbole de tête au sens usuel.
-Nous notons également $\mathcal{C}_\sigma$, l'ensemble des règles qui donne le même résultat, noté $\sigma$,
-par la fonction $head_{<k>}$, i.e. $l \hookrightarrow r \in \mathcal{C}_\sigma$ si $head_{<k>}~(l \hookrightarrow r) = \sigma$.
+ Notations :
+   - head_<k> : Fonction qui renvoie le symbole de tête de la cellule <k>,
+                pour une règle donnée, sans considérer les symboles dotk,
+                kseq et inj.
+       Il s'agit de la définition de symbole de tête que nous considérons pour
+       une règle de réécriture donnée.
+   - C_σ : Ensemble des règles qui partagent le même symbole de tête σ,
+           soit C_σ = { l ↪c r | head_<k> (l ↪c r) = σ }.
+   - X : Nombre de règles conditionnelles dans C_σ.
+	 - t_1[t_2]_σ : Substitution de t_2 au sous-terme ayant pour symbole de
+                  tête σ dans t_1.
+	 - arg_i(t) : i-ème argument de t.
+   - arity(t) : Nombre d'arguments de t.
+	 - mglhs_σ  : Configuration initiale où les cellules les plus profondes
+                deviennent
+                  <c> y_i    si <c> ≠ <k>,
+	                <k> (kseq (inj σ  z_1 ... z_(arity(σ)) L) sinon,
+                avec y_i et z_i des variables fraîches et, L une K computation.
+	* update_diff(σ, ♭σ, s_1, i, s_2) = ♭σ  x_1  ...  x_(arity(σ) + X)
+    avec x_j =
+		            arg_j(σ)   si  1 <= j <= arity(σ)
+		            s_1        si  j = arity(σ) + i
+		            s_2        sinon
+  * update_same(σ, ♭σ, s) = ♭σ  x_1  ...  x_(arity(σ) + X)
+    avec x_j =
+	 		          arg_j(σ)    si  1 <= j <= arity(σ)
+		            s           sinon
 
+ Algorithme :
+   Après avoir construit les C_σ à partir de E_DK, nous déroulons l'algorithme
+   présenté ci-dessous, pour chaque C_σ :
+     [1.] Si X = 0, C_σ est inchangé et l'algorithme s'arrête.
+          Sinon, initialiser i à 0 et aller en 2.
+     [2.] Générer le LHS le plus général pour un symbole σ donné, noté mglhs_σ.
+     [3.] Générer le symbole étendu ♭σ de type
+          T_1 -> ... -> T_{n-1} -> ♭Bool -> ... -> ♭Bool -> T_n,
+          avec X argument(s) de type ♭Bool, où ♭Bool = Bool ∪ { ♭ },
+          et σ de type T_1 -> ... -> T_n.
+	   [4.] Générer la règle de substitution :
+             mglhs_σ ↪ mglhs_σ [ update_same(σ, ♭σ, ♭)  ]_σ
+	   [5.] Pour chaque règle appartenant à C_σ :
+           (a) Si la règle est de la forme l ↪c r ∈ C_σ
+               et n'a pas l'attribut owise (avec c ≠ ⊤) :
+                 - Incrémenter i de 1
+				         - Générer une règle d'initialisation :
+                     l [ update_diff(σ, ♭σ, ♭, i, _) ]_σ ↪
+			               l [ update_diff(σ, ♭σ, c, i, _) ]_σ
+				         - Générer une règle de réduction :
+				             l [ update_diff(σ, ♭σ, true, i, _) ]_σ ↪ r
 
-Algorithm:
+           (b) Si la règle est de la forme l ↪⊤ r ∈ C_σ
+               et n'a pas l'attribut owise, générer la règle de réduction :
+                  l [ update_same(σ, ♭σ, _)  ]_σ ↪ r.
 
-\noindent Soit $\mathfrak{R}$ un système de réécriture conditionnel écrit dans \K et supposé être basé sur les constructeurs.
-Nous supposons également que $\flat$ est un nom non utilisé, même en tête de nom de tout symbole.
-Nous présentons la traduction notée $||~.~||_{CTRS}$ précédemment.
-Celle-ci prend en arguments un ensemble de triplets de termes \Dedukti de la forme $(LHS, RHS, Cond)$, noté $\mathcal{E}_{DK}$ et
-obtenu une fois les traductions \traducKompile{.} et \traducKamelo{.} appliquées sur $\mathfrak{R}$.
-Après avoir construit les $\mathcal{C}_\sigma$ à partir de $\mathcal{E}_{DK}$, nous déroulons l'algorithme suivant pour chaque $\mathcal{C}_\sigma$ :
-	[1.] Calculer le nombre de conditions dans $\mathcal{C}_\sigma$, noté $X$.
-	[2.] Générer le LHS le plus général pour un symbole $\sigma$ donné, noté $mglhs_\sigma$.
-	[3.] Générer le symbole support ♭carrierX de type K -> \Knatif{Bool} -> ... -> \Knatif{Bool}, avec $X$ arguments de type \Knatif{Bool}.
-         \amelie{Il faudrait plutôt considérer le type ♭Bool = \Knatif{Bool} \cup {♭}
-	[4.] Générer la règle d'encapsulation : $mglhs_\sigma --> ♭carrierX mglhs_\sigma ♭ ... ♭, avec un ♭ pour chaque condition.
-	[5.] Initialiser $i$ à 0. Si $|\mathcal{C}_\sigma| = X$, aller en 7, sinon aller en 6.
-	[6.] Pour chaque règle appartenant à $\mathcal{C}_\sigma$ et n'ayant pas l'attribut \KAowise :
-		[A.] Si la règle est de la forme $l \underset{c}{\hookrightarrow} r \in \mathcal{C}_\sigma$, incrémenter $i$ de $1$, puis :
-			  * Générer une règle d'initialisation : ♭carrierX l _ ... _ ♭             _ ... _ --> ♭carrierX l _ ... _ c _ ... _.
-			  * Générer une règle de réduction :     ♭carrierX l _ ... _ \Knatif{true} _ ... _ --> r.
-		      * Remarque : ♭, $c$ et \Knatif{true} se trouvent à la position $i$
-		[B.] Si la règle est de la forme l --> r \in \mathcal{C}_\sigma$, générer : ♭carrierX l _ ... _ --> r.
-		     Remarque : Si $\mathcal{C}_\sigma$ ne possède pas de règles conditionnelles, nous pouvons ne rien changer.
-	[7.] Si une règle l --> r \in \mathcal{C}_\sigma$ à l'attribut \KAowise, générer : ♭carrierX l \Knatif{false} ... \Knatif{false} --> r.
+           (c) Si la règle l ↪⊤ r ∈ C_σ à l'attribut owise,
+               générer la règle de réduction :
+	  		          l [ update_same(σ, ♭σ, false)  ]_σ ↪ r. *)
 
-\amelie{+ Définition formelle de $mglhs_\sigma$}
+(**	Extension de l'encodage à l'attribut owise
+    ------------------------------------------
 
-
-Extension de l'encodage :
-
-Une manière plus succincte d'écrire notre exemple est d'utiliser l'attribut \KAowise :
-\Krule max X Y => Y requires X <_{Int} Y
-\Krule max X Y => X [\KAowise]
-Malheureusement, \K ne génère pas la condition complémentaire dans le fichier \Kore.
-Pour encoder cet attribut, 2 possibilités donc s'offrent à nous :
- * implémenter un algorithme qui détermine la condition complémentaire
- * considérer que toutes les conditions se réduisent nécessairement soit à \Knatif{true}, soit à \Knatif{false}.
-Comme nous ne connaissons pas exactement l'expressivité des conditions pouvant être écrites dans \K, outre qu'elles sont de type \Knatif{Bool},
-nous préférons ajouter l'hypothèse suivante : toute fonction retournant un booléen est une fonction totale.
-Sous cette hypothèse, nous pouvons générer la règle présentée en 7.
-% suivante : $\sigma $x_1 ... $x_n --> \sigma $x_1 ... $x_n false ... false.
-
-\noindent Par la suite, nous comptons étendre encore l'encodage afin de traduire l'attribut \KApriority{\textit{number}}.
-
- *)
-
-
-
+    Une manière plus succincte d'écrire l'exemple précédent est
+    d'utiliser l'attribut owise :
+      rule max X Y => Y requires X <Int Y
+      rule max X Y => X [owise]
+    Comme K ne génère pas la condition complémentaire dans le fichier Kore,
+    nous faisons l'hypothèse que toute fonction construisant un booléen est
+    une fonction totale. Sous cette hypothèse, nous pouvons générer la règle
+    présentée en 5.(c). *)
 
 open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
 open Axiom
 
-(** Generating of conditional rewriting rule *)
-
-(** Consider the following rewriting system:
-  - [<top> (<k> (maxInt $X $Y)) ↪ <top> (<k> $X) requires X >= Y],
-  - [<top> (<k> (maxInt $X $Y)) ↪ <top> (<k> $Y) requires X < Y] and
-  - [<top> (<k> (add (S n) (S m))) ↪ <top> (<k> (add n (S (S m)))) ].
-
- It's possible to generate the following tree according to the previous
- system:
-    {v                                          ├─(<top> (<k> $X), X >= Y)
-                     ├─maxInt─∘─$X─∘─$Y─∘─)─∘─)─↪
- ∘─<top>─∘─(─∘─<k>─(─∘                          └─(<top> (<k> $Y), X < Y)
-                     └─add─∘─(─∘─S─∘─$n─∘─)─∘─(─∘─S─∘─$m─∘─)─↪─ ...
-    v}
- Now, we deduce:
-  - rule <top> (<k> maxInt($X, $Y)) =>
-              (X >= Y, X < Y, <top> (<k> maxInt($X, $Y)))
-  - rule (true, _, <top> (<k> maxInt($X, $Y))) => <top> (<k> $X)
-  - rule (_, true, <top> (<k> maxInt($X, $Y))) => <top> (<k> $Y)
-
-  - rule <top> (<k> (add (S $n) (S $m))) ↪ ... (no change)
-
- To simplify:
-  - private constant symbol gen3_HASH : bool -> bool -> SortK -> TYPE
-  - rule <top> (<k> maxInt($X, $Y)) =>
-             gen3_HASH (X >= Y) (X < Y) (<top> (<k> maxInt($X, $Y)))
-  - rule gen3_HASH true _ (<top> (<k> maxInt($X, $Y))) => <top> (<k> $X)
-  - rule gen3_HASH _ true (<top> (<k> maxInt($X, $Y))) => <top> (<k> $Y)
-
-  - rule <top> (<k> (add (S $n) (S $m))) ↪ ... (no change)
-
- Que faire avec la règle <top> (<k> (maxInt $X (S $Y))) ↪ ... ?
-*)
-
 (** A supposed safe prefix, i.e. there is no name beginning with it. *)
 let safe_prefix = "♭"
 
-(** Type of a conditional rule, which has the form
-    ((LHS, RHS), condition, priority) *)
-type cond_rule = p_rule * p_term * int
+(** The term ♭ *)
+let p_FLAT = create_ident safe_prefix
 
-(** Type of a unconditional rule, which has the form
-    ((LHS, RHS), priority) *)
-type uncond_rule = p_rule * int
+(** [p_INJD_appl_ident s] creates the term δ s. *)
+let p_INJD_appl_ident : string -> p_term = fun s ->
+  create_appl p_INJD (create_ident s)
+
+(** The name ♭Bool *)
+let _flatBool = safe_prefix ^ "Bool" (* TODO fix BOOL ?? *)
+
+(** The term δ ♭Bool *)
+let p_flatBool = p_INJD_appl_ident _flatBool
+
+(** The name ♭inj *)
+let _flatINJ = safe_prefix ^ _INJ
+
+(** The term ♭inj *)
+let p_flatINJ = create_ident _flatINJ
+
+(** [p_flatINJ_appl s] creates the term ♭inj s. *)
+let p_flatINJ_appl : p_term -> p_term = fun t -> create_appl p_flatINJ t
+
+(** ------------------------------ *)
+(** To create each C_σ from a CTRS *)
+(** ------------------------------ *)
 
 (** Type of equivalence class related to the head symbol named σ,
     i.e. a map where each entry has the form
@@ -164,206 +152,23 @@ type uncond_rule = p_rule * int
     For a head symbol σ given, C_σ is the corresponding equivalence class. *)
 type equiv_class = (ctrs_rule list) StrMap.t
 
-(** ***************** To iterate on a configuration ********************* *)
-
 (** [is_cell s] returns if a string [s] is a cell's name. *)
 let is_cell : string -> bool = fun s ->
-  Format.fprintf (Format.formatter_of_out_channel stdout) "boug" ;
   let len = String.length s in
   try
     if !Interface.Output.readable
     then s.[0] = '<' && s.[len-1] = '>'
     else
-      s.[0] = 'L' && s.[1] = 'b' && s.[2] = 'l' && s.[3] = '\''
-      && s.[4] = '-' && s.[5] = 'L' && s.[6] = 'T' && s.[7] = '-'
-      && s.[8] = '\'' && s.[len-6] = '\'' && s.[len-5] = '-' && s.[len-4] = 'G'
-      && s.[len-3] = 'T' && s.[len-2] = '-' && s.[len-1] = '\''
-  with _ -> Format.fprintf (Format.formatter_of_out_channel stdout) "boug" ; false
-
-(** [is_k_cell s] returns if a string [s] is the cell's name
-    of the cell k. *)
-let is_k_cell : string -> bool = fun s ->
-  if !Interface.Output.readable
-  then s = "<k>"
-  else s = "Lbl'-LT-'k'-GT-'"
+      String.sub s 0 9 = "Lbl'-LT-'"
+      && String.sub s ((String.length s)-6) 6 = "'-GT-'"
+  with _ -> false
 
 let is_to_keep : string -> bool = fun s ->
   s = _KSEQ || s = _DOTK || s = _INJ
 
-(** [get_name i] gives the short name of a p_qident [i]. *)
-let get_name : p_qident -> string = fun i ->
-  let (_, name) = i.elt in name
-
-exception KCellNotFound
-exception KCellNotFoundHere
-
-let rec has_infered_configuration : p_term -> bool = fun t ->
-  match t.elt with
-  | P_Appl(t,_) -> has_infered_configuration t
-  | P_Iden(name,_) -> is_cell (snd name.elt)
-  | _ -> false
-
-let create_most_general_LHS t =
-  let nb = ref 0 in
-  let new_var nb =
-    incr nb ; create_pattern_var ("x" ^ string_of_int !nb)
-  in
-  let rec aux : p_term -> bool -> bool -> bool * bool * bool * p_term = fun t is_in_k_cell is_head ->
-    match t.elt with
-    | P_Appl(t1, t2) ->
-       (let l_is_in_k_cell, l_merged, l_is_head, x1 = aux t1 is_in_k_cell is_head in
-        if l_merged then is_in_k_cell, l_merged, l_is_head, new_var nb
-        else
-          let r_is_in_k_cell, r_merged, r_is_head, x2 = aux t2 l_is_in_k_cell l_is_head in
-          let res =
-            if r_merged then no_pos (P_Appl(x1, new_var nb))
-            else no_pos (P_Appl(x1, x2))
-          in
-          is_in_k_cell, l_merged && r_merged, l_is_head || r_is_head, res)
-    | P_Patt _ as t -> is_in_k_cell, true, is_head, no_pos t
-    | P_Expl _ as t -> is_in_k_cell, not(is_in_k_cell), is_head, no_pos t
-    | P_Iden (name, _) as t ->
-       let n = snd name.elt in
-       if is_to_keep n then
-         is_in_k_cell, not(is_in_k_cell), is_head, no_pos t
-       else
-         (if is_cell n then
-            (is_k_cell n), false, is_head, no_pos t
-          else
-            if is_head
-            then is_in_k_cell, true,  is_head, no_pos t
-            else is_in_k_cell, false, true, no_pos t)
-    | _ -> failwith "ERROR"
-  in
-  let _,_,_,res = aux t (not(has_infered_configuration t)) false in res
-
-
-let update_config : string -> p_term -> (p_term -> p_term) -> p_term = fun head config f ->
-  let rec aux : bool -> p_term -> bool * p_term = fun is_head t ->
-    match t.elt with
-    | P_Appl(t1, t2) ->
-       (let l_is_head, x1 = aux is_head t1 in
-        let r_is_head, x2 = aux is_head t2 in
-        if r_is_head then
-          (* (if l_is_head TODO Correcte ?
-           then failwith "Several head symbols..."
-           else *) false, no_pos (P_Appl(x1, f x2))
-        else l_is_head, no_pos (P_Appl(x1, x2)))
-    | P_Patt _ | P_Expl _ -> false, t
-    | P_Iden(({elt=(x1,n);pos=y}), x2) ->
-       if n = head
-       then true,  no_pos (P_Iden(({elt=(x1, safe_prefix ^ n);pos=y}), x2))
-       else false, t
-    | _ -> failwith "ERROR"
-  in
-  let res = snd(aux false config) in
-  if has_infered_configuration config then res else f res
-
-                        (*
-(** [configuration_iter] is a function with the following arguments:
-      - [config] is the configuration with which the iterator works.
-      - [join_res t1 t2] joins 2 results at a @-@-@-node.
-      - [aia_cell_root t1 t2] does something at a @-id-@-node,
-           when the current root is a cell.
-      - [aia_not_cell_root nb] does something at a @-id-@-node,
-           when the current root isn't a cell.
-      - [aii_cell_root t1 t2 nb] does something at a @-id-id-node,
-           when the current root is a cell.
-      - [aii_not_cell_root t1 t2] does something at a @-id-id-node,
-           when the current root isn't a cell.
-      - [aai_node nb] does something at a @-@-id-node.
-      - []
-    Note: @-id-@-node means P_Appl(P_Iden _, P_Appl _). *)
-let configuration_iter (nb : int ref) (config : p_term)
-      (* (join_res : 'a -> 'a -> 'a)
-      (aia_cell_root : p_term -> 'a -> 'a)
-      (aia_not_cell_root : int ref -> 'a)   *)
-      (* (aii_cell_root : 'a -> p_term -> int ref -> 'a) *)
-      (* (aii_not_cell_root : p_term -> p_term -> 'a)
-      (aai_node : int ref -> 'a) *)
-      (aop_node : p_term -> int ref -> 'a)
-      (* (no_config : p_term -> int -> int ref -> 'a) *) : 'a =
-  let aux : p_term -> 'a = fun t -> match t.elt with
-    | P_Appl(({elt=P_Appl _ ; _} as t1), ({elt=P_Appl _ ; _} as t2)) ->
-       join_res (aux t1) (aux t2)
-    | P_Appl(({elt=P_Iden(name, _); _} as i), ({elt=P_Appl _; _} as t))  ->
-       if is_cell (snd name.elt) || is_k_computation_constructor (snd name.elt)
-       then aia_cell_root i (aux t)
-       else aia_not_cell_root nb
-    | P_Appl(({elt=P_Iden(name1,_); _} as i1), ({elt=P_Iden(name2,_); _} as i2)) ->
-       let ff = (Format.formatter_of_out_channel stdout) in
-       Format.fprintf ff "Rds : %s" (snd name1.elt) ;
-       if is_cell (snd name1.elt) || is_k_computation_constructor (snd name1.elt)
-       then
-         if is_cell (snd name2.elt) || is_k_computation_constructor (snd name2.elt)
-         then failwith "Badly nested"
-         else aii_cell_root i1 i2 nb
-       else aii_not_cell_root i1 i2
-    | P_Appl({elt=P_Appl _ ; _},  {elt=P_Iden _; _}) -> aai_node nb
-    | P_Appl (({elt=P_Appl _ ; _} as t), ({elt=P_Patt _; _}) ) ->  aii_cell_root (aux t) t nb
-    | P_Appl (({elt=P_Iden _ ; _} as t), ({elt=P_Patt _; _} as p) ) -> aii_cell_root t p nb
-    | P_Appl (({elt=P_Patt _ ; _}), ({elt=P_Patt _; _}) ) -> failwith "Strange?"
-    | P_Appl( t,                  {elt=P_Patt _; _}) -> aop_node t nb
-    (*| P_Type   -> failwith "ERROR TYPE"
-    | P_Iden _ -> failwith "ERROR Iden"
-    | P_Wild   -> failwith "ERROR _"
-    | P_Meta _ -> failwith "ERROR Meta-var"
-    | P_Patt _ -> failwith "ERROR Pattern"
-    | P_Appl({elt=P_Patt _;_},_) -> failwith "ERROR Appl."
-    | P_Appl(_,{elt=P_Type;_}) -> failwith "ERROR Appl right."
-    | P_Appl(_,_) -> failwith "ERROR Appl other."
-    | P_Arro _ -> failwith "ERROR Arrow"
-    | P_Abst _ -> failwith "ERROR Abst"
-    | P_Prod _ -> failwith "ERROR Prod"
-    | P_LLet _ -> failwith "ERROR Let-in"
-    | P_NLit _ -> failwith "ERROR Nat"
-    | P_Wrap _ -> failwith "ERROR Wrap"
-    | P_Expl _ -> failwith "ERROR Expl" *)
-    | _ -> failwith "ERROR"
-  in
-  (*let rec truc : int -> p_term -> 'a = fun nb_arg t ->
-    match t.elt with
-    | P_Appl(({elt=P_Iden(name, _); _} as i), _)  ->
-       if is_cell (snd name.elt) || is_k_computation_constructor (snd name.elt)
-       then aux config
-       else no_config i nb_arg nb
-    | P_Appl(({elt=P_Appl _; _} as t), _)  ->
-       truc (nb_arg+1) t
-    | _ -> failwith "Hum?"
-  in
-  truc 0 config
-   *)
-  aux config
-
-(** ***** To create each C_σ from a CTRS ***** *)
-let get_head_symbol nb config = (* 'a = term option *)
-  (*let join t1 t2 = match (t1, t2) with
-    | None, None -> None
-    | Some x, None -> Some x
-    | None, Some x -> Some x
-    | Some _, Some _ -> failwith "More than one k cell."
-  in
-  let f2 (t:p_term) res =
-    match t.elt with
-    | P_Iden(i,_) -> if is_k_cell (snd i.elt) then res else None
-    | _ -> failwith "Internal bug"
-  in
-  let f3 (t1 : p_term) (t2 : p_term) _ =
-    match t1.elt with
-    | P_Iden(i,_) -> if is_k_cell (snd i.elt) then Some t2 else None
-    | _ -> failwith "Internal bug"
-  in
-  let f4 (t : p_term) _ _ =
-    match t.elt with
-    | P_Iden(i,_) -> if is_k_cell (snd i.elt) then Some t else None
-    | _ -> failwith "Internal bug"
-  in
-  let none1 : int ref -> p_term option = fun _ -> None in
-  let none2 : p_term -> p_term -> p_term option = fun _ _ -> None in *)
-  let none2i : p_term -> int ref -> p_term option = fun _ _ -> None in
-  configuration_iter nb config (* join f2 none1 f3  none2 none1 *) none2i (* f4 *)
-                         *)
-(** [get_head_symbol _ config] -> None si pas de configuration / Some _ sinon. *)
+(** [get_head_symbol _ config] is the function head_<k>, i.e. returns:
+        - None si pas de configuration
+        - Some _ sinon. *)
 let get_head_symbol _ config =
   let rec aux : p_term -> p_term option = fun t ->
     match t.elt with
@@ -384,12 +189,13 @@ let get_head_symbol _ config =
   in
   aux config
 
-(** [find_equiv_class ec t] adds the p_term [t] into the equivalence class [ec].  *)
+(** [find_equiv_class ec t] adds the p_term [t] into the equivalence
+    class [ec].  *)
 let find_equiv_class : equiv_class -> ctrs_rule -> equiv_class =
   fun ec (({elt=(lhs,_);_},_,_) as r) ->
   let key = match get_head_symbol (ref 0) lhs with
     | None -> "hum"   (* raise  KCellNotFound *)
-    | Some {elt=(P_Iden({elt=(_,x);_},_));_} ->  (* Format.fprintf ff "Bon %s\n" x ; *) x
+    | Some {elt=(P_Iden({elt=(_,x);_},_));_} -> x
     | _ -> failwith "Internal error"
   in
   (*
@@ -412,119 +218,105 @@ let find_equiv_class : equiv_class -> ctrs_rule -> equiv_class =
 let to_equiv_class : ctrs_rule list -> equiv_class = fun rule_l ->
   List.fold_left find_equiv_class StrMap.empty rule_l
 
-  (*
-(** ***** To create the most general LHS from σ ***** *)
-let create_most_general_LHS config =
+(** ----------------------------- *)
+(** To iterate on a configuration *)
+(** ----------------------------- *)
+
+(* TODO used it?
+exception KCellNotFound
+exception KCellNotFoundHere *)
+
+(** [has_infered_configuration t] returns true is the term [t]
+    is composed of cells, i.e. the configuration has been infered
+    durinng the translation from K to Kore. *) (* TODO correct ? *)
+let rec has_infered_configuration : p_term -> bool = fun t ->
+  match t.elt with
+  | P_Appl(t,_)    -> has_infered_configuration t
+  | P_Iden(name,_) -> is_cell (snd name.elt)
+  | _ -> false
+
+let update_config : string -> p_term -> (p_term -> p_term) -> p_term =
+  fun head config f ->
+  let rec aux : bool -> p_term -> bool * p_term = fun is_head t ->
+    match t.elt with
+    | P_Appl(t1, t2) ->
+       (let l_is_head, x1 = aux is_head t1 in
+        let r_is_head, x2 = aux is_head t2 in
+        if r_is_head then
+          (* (if l_is_head TODO Correcte ?
+           then failwith "Several head symbols..."
+           else *) false, no_pos (P_Appl(x1, f x2))
+        else l_is_head, no_pos (P_Appl(x1, x2)))
+    | P_Patt _ | P_Expl _ -> false, t
+    | P_Iden(({elt=(x1,n);pos=y}), x2) ->
+       if n = head
+       then true,  no_pos (P_Iden(({elt=(x1, safe_prefix ^ n);pos=y}), x2))
+       else false, t
+    | _ -> failwith "ERROR"
+  in
+  let res = snd(aux false config) in
+  if has_infered_configuration config then res else f res
+
+(** ----------------------------------------------- *)
+(** To generate the most general LHS for a symbol σ *)
+(** ----------------------------------------------- *)
+
+(** [is_k_cell s] returns if a string [s] is the cell's name
+    of the cell k. *)
+let is_k_cell : string -> bool = fun s ->
+  if !Interface.Output.readable
+  then s = "<k>"
+  else s = "Lbl'-LT-'k'-GT-'"
+
+(* TODO improve *)
+(** [create_most_general_LHS t] transforms the initial configuration [t]
+    as follow:
+       <c> y_i    if <c> ≠ <k>,
+	     <k> (kseq (inj σ z_1 ... z_(arity(σ)) L) otherwise,
+    where y_i and z_i are fresh variables and, L is a K computation.
+    The result is noted mglhs_σ. *)
+let create_most_general_LHS t =
   let nb = ref 0 in
-  (* let join_app t1 t2 = no_pos (P_Appl(t1, t2)) in *)
   let new_var nb =
     incr nb ; create_pattern_var ("x" ^ string_of_int !nb)
   in
-  let special_join_app t _ nb = no_pos (P_Appl(t, new_var nb)) in
-  (* let iter_special_join_app i t nb =
-    let rec aux i (acc : p_term) =
-      if i = 0 then acc
-      else (incr nb ; aux (i-1) (no_pos (P_Appl(acc, new_var nb))))
-    in
-    aux i t (* FIX nb-1 ? *)
-  in *)
-  configuration_iter nb config (* join_app join_app new_var special_join_app join_app new_var *)
-  (fun t nb -> special_join_app t nb nb)
-  (* (fun t nb_arg nb -> iter_special_join_app nb_arg t nb) *)
-  *)
-
-
-(* VERSION 1
-
-
-
-(** [add_rule map ((lhs, rhs), c, p)] *)
-let add_rule : equiv_class -> ctrs_rule -> equiv_class = fun map ((lhs, rhs), c, p) as r ->
-  (* STEP 0: Find the head symbol of the current rule *)
-  let rec get_head_symbol : p_term -> string = fun lhs_fragment ->
-    match lhs_fragment with
-    | P_Appl(P_Appl(_,_) as t,_) -> get_head_symbol t
-    | P_Appl(P_Iden(i, false),_) ->
-       let name = get_name i in
-       if is_cell name then get_k_head_symbol lhs else name
+  let rec aux : p_term -> bool -> bool -> bool * bool * bool * p_term =
+    fun t is_in_k_cell is_head ->
+    match t.elt with
+    | P_Appl(t1, t2) ->
+       (let l_is_in_k_cell, l_merged, l_is_head, x1 =
+          aux t1 is_in_k_cell is_head
+        in
+        if l_merged then is_in_k_cell, l_merged, l_is_head, new_var nb
+        else
+          let r_is_in_k_cell, r_merged, r_is_head, x2 =
+            aux t2 l_is_in_k_cell l_is_head
+          in
+          let res =
+            if r_merged then no_pos (P_Appl(x1, new_var nb))
+            else no_pos (P_Appl(x1, x2))
+          in
+          is_in_k_cell, l_merged && r_merged, l_is_head || r_is_head, res)
+    | P_Patt _ as t -> is_in_k_cell, true, is_head, no_pos t
+    | P_Expl _ as t -> is_in_k_cell, not(is_in_k_cell), is_head, no_pos t
+    | P_Iden (name, _) as t ->
+       let n = snd name.elt in
+       if is_to_keep n then
+         is_in_k_cell, not(is_in_k_cell), is_head, no_pos t
+       else
+         (if is_cell n then
+            (is_k_cell n), false, is_head, no_pos t
+          else
+            if is_head
+            then is_in_k_cell, true,  is_head, no_pos t
+            else is_in_k_cell, false, true, no_pos t)
+    | _ -> failwith "ERROR"
   in
-  let rec get_next_head_symbol : p_term -> string = fun lhs_fragment ->
-    match lhs_fragment with
-    | P_Appl(P_Appl(_,_) as t,_) -> get_head_symbol t
-    | P_Appl(P_Iden(i, false),_) -> get_name i
-    | _ -> failwith "Strange head symbol"
-  in
-  (* STEP 1:  *)
-  let rec get_k_head_symbol : p_term -> string = fun lhs_fragment ->
-    match lhs_fragment.elt with
-    | P_Appl(P_Appl(_,_) as t1, P_Appl(_,_) as t2) ->
-       try get_k_head_symbol t1
-       with _ ->
-             try get_k_head_symbol t2
-             with _ -> failwith "No K cell."
-    | P_Appl(P_Appl(_,_) as t, P_Iden(i, false)) ->
-    (* Cas pas possible je pense *)
-       get_k_head_symbol t
-    | P_Appl(P_Iden(i, false), P_Appl(t1,_) as t) ->
-       let name = get_name i in
-       if is_cell name then
-         if is_k_cell name then get_next_head_symbol t1
-         else get_k_head_symbol t
-       else failwith "No K cell"
-    | P_Appl(P_Iden(i1, false), P_Iden(i2, false)) ->
-       let name1 = get_name i1 in
-       let name2 = get_name i2 in
-       if is_k_cell name1 then get_name i2
-       else failwith "K cell isn't here."
-                     (*
-    | P_Appl(P_Iden(i1, false), P_Appl(P_Iden(i2, false), t)) ->
-       let name1 = get_name i1 in
-       let name2 = get_name i2 in
-       if is_cell name1 then
-         if is_k_cell name1 then get_name i2
-         else
-           if is_cell name2 then get_k_head_symbol t
-           else failwith "K cell isn't here."
-       else name1
-                      *)
-    | P_Wrap t -> get_k_head_symbol t
-    | P_Iden(_,_) | P_Meta _ | P_Arro _
-      | P_Abst _ | P_Prod _ | P_LLet _ | P_Expl _
-      | P_Type | P_Wild | P_NLit _ | P_Patt(_,_) ->
-       failwith "Configuration not well-formed."
-  in
-  let find_equiv_class : equiv_class -> p_term -> equiv_class = fun ec t ->
-    let key = get_head_symbol t in
-(*
-  update : key -> ('a option -> 'a option) -> 'a t -> 'a t
-  update key f m returns a map containing the same bindings as m, except for the binding of key.
-  Depending on the value of y where y is f (find_opt key m), the binding of key is added, removed or updated.
-  If y is None, the binding is removed if it exists;     otherwise,
-  if y is Some z then key is associated to z in the resulting map.
-  If key was already bound in m to a value that is physically equal to z,
-  m is returned unchanged (the result of the function is then physically equal to m).
- *)
-    let f a = match a with
-      | None   -> Some [r]  (* Si l'entrée n'existait pas encore *)
-      | Some l -> Some r::l (* Si l'entrée existait déjà *)
-    in
-    SMap.update t f ec
-  in
-  find_equiv_class ec lhs
+  let _,_,_,res = aux t (not(has_infered_configuration t)) false in res
 
-(** [to_equiv_class rule_l] generates each equivalence class from
-    a CTRS [rule_l], i.e. each C_σ. *)
-let to_equiv_class : ctrs_rule list -> equiv_class = fun rule_l ->
-  List.fold_left add_rule SMap.empty rule_l
-
- *)
-
-(** ******************************************************************** *)
-
-
-(** *********** To create rewriting rules or symbol types ************** *)
-
-(** Basic functions ************* *)
+(** --------------------------------------------------- *)
+(** To generate the ♭-symbol of the current head symbol *)
+(** --------------------------------------------------- *)
 
 (** [create_list n default_sym i special_sym] creates a list with
     [n] symbols [default_sym], except the [i]e which is [special_sym].
@@ -552,93 +344,9 @@ let create_list_iter nb default_sym =
   (* nb < nb+1, so the list has only [default_sym] element *)
   create_list nb default_sym (nb+1) default_sym
 
-(** [with_one_diff_value heading nb i special_sym] creates left- or right-hand-side
-    of the form: [heading] _ ... _ [special_sym] _ ... _
-    where [heading] has [nb] argument(s),
-    and [special_sym] are only at the position [i]. *)
-let with_one_diff_value heading nb i special_sym =
-  List.fold_left create_appl heading
-    (create_list nb (no_pos P_Wild) i special_sym)
-
-(** [with_all_same_value heading nb default_sym] creates left- or right-hand-side
-    of the form: [heading] [default_sym] ... [default_sym]
-    where [heading] has [nb] argument(s). *)
-let with_all_same_value heading nb default_sym =
-  List.fold_left create_appl heading (create_list_iter nb default_sym)
-
-(** Specific functions ************* *)
-
 (** [create_carrier_symbol_type nb] generates the type:
     [K] -> [♭Bool] -> ... -> [♭Bool] -> [K], which has [nb+1] arguments.
-    Note: ♭Bool = {♭, "true", "false"}. *)
-let create_carrier_symbol_type nb =
-  let flatBool_type = create_appl p_INJ (create_ident (safe_prefix ^ "Bool")) in
-  let cell_type = create_appl p_INJ (create_ident "SortGeneratedTopCell") in
-  List.fold_right create_arrow (cell_type::(create_list_iter nb flatBool_type)) cell_type
-
-(** [create_encapsulation_rule mglhs carrier_sym nb]
-    creates an encapsulation rule, i.e. a rule of the form:
-    rule [mglhs] --> [carrier_sym] [mglhs] ♭ ... ♭
-    where [nb] occurrence(s) of ♭. *)
-let create_encapsulation_rule mglhs carrier_sym nb =
-  let heading = no_pos (P_Appl (create_ident carrier_sym, mglhs)) in
-  (mglhs, with_all_same_value heading nb (create_ident safe_prefix))
-
-let create_list_number n i special_sym =
-  if n <= 0 then []
-  else
-    let rec aux current =
-      let adding_sym =
-        if current = i then special_sym
-        else create_pattern_var ("y" ^ (string_of_int i)) in
-      if current = (n-1) then [adding_sym] else adding_sym::(aux (current+1))
-    in
-    aux 0
-
-(** [create_initialisation_rule carrier_sym lhs nb i special_sym_l special_sym_r]
-    creates an initialisation rule, i.e. a rule of the form:
-    rule [carrier_sym] [lhs] _ ... _ [special_sym_l] _ ... _ -->
-         [carrier_sym] [lhs] _ ... _ [special_sym_r] _ ... _
-    where [carrier_sym] [lhs] has [nb] argument(s),
-    and [special_sym_l] and [special_sym_r] only occur at the position [i]. *)
-let create_initialisation_rule carrier_sym lhs nb i special_sym_l special_sym_r =
-  let heading = no_pos (P_Appl (create_ident carrier_sym, lhs)) in
-  let f special_sym = List.fold_left create_appl heading (create_list_number nb i special_sym) in
-  (f special_sym_l, f special_sym_r)
-
-(** [create_reduction_rule carrier_sym lhs nb i special_sym rhs]
-    creates a reduction rule, i.e. a rule of the form:
-    rule [carrier_sym] [lhs] _ ... _ [special_sym] _ ... _ --> [rhs]
-    where [carrier_sym] [lhs] has [nb] argument(s),
-    and [special_sym] only occurs at the position [i]. *)
-let create_reduction_rule carrier_sym lhs nb i special_sym rhs =
-  let heading = no_pos (P_Appl (create_ident carrier_sym, lhs)) in
-  (with_one_diff_value heading nb i special_sym, rhs)
-
-(** [create_otherwise_rule carrier_sym lhs nb rhs]
-    creates an otherwise rule, i.e. a rule of the form:
-    rule [carrier_sym] [lhs] "false" ... "false" --> [rhs]
-    where [nb] occurrence(s) of "false". *)
-let create_otherwise_rule carrier_sym lhs nb rhs =
-  let heading = no_pos (P_Appl (create_ident carrier_sym, lhs)) in
-  (with_all_same_value heading nb (create_appl (create_ident (safe_prefix ^ _INJ)) p_FALSE), rhs)
-
-
-(** *********** To create rewriting rules or symbol types ************** *)
-(*
-let with_one_diff_value heading nb i special_sym =
-  List.fold_left create_appl heading
-    (create_list nb (no_pos P_Wild) i special_sym)
-
-let with_all_same_value heading nb default_sym =
-  List.fold_left create_appl heading (create_list_iter nb default_sym)
-  *)
-
-(** Specific functions ************* *)
-
-(** [create_carrier_symbol_type nb] generates the type:
-    [K] -> [♭Bool] -> ... -> [♭Bool] -> [K], which has [nb+1] arguments.
-    Note: ♭Bool = {♭, "true", "false"}. *)
+    Note: ♭Bool = {♭, "true", "false"}. *) (* TODO update *)
 let extend_type typ nb =
   let split_type : p_term -> p_term list * p_term = fun typ ->
     let rec aux (t : p_term) acc = match t.elt with
@@ -653,13 +361,35 @@ let extend_type typ nb =
     in
     aux typ []
   in
-  let flatBool_type = create_appl p_INJD (create_ident (safe_prefix ^ "Bool")) in
   let arg_type, output_type = split_type typ in
-  List.fold_right create_arrow (arg_type@(create_list_iter nb flatBool_type)) output_type
+  List.fold_right create_arrow (arg_type@(create_list_iter nb p_flatBool)) output_type
 
-let create_encapsulation_rule_bis tracker config nb =
-  let f h = with_all_same_value h nb (create_ident safe_prefix) in
-  (config, tracker config f)
+(** --------------------------- *)
+(** To generate rewriting rules *)
+(** --------------------------- *)
+
+(** [with_one_diff_value heading nb i special_sym] creates left- or
+    right-hand-side of the form:
+    [heading] _ ... _ [special_sym] _ ... _
+    where [heading] has [nb] argument(s),
+    and [special_sym] are only at the position [i]. *)
+let with_one_diff_value heading nb i special_sym =
+  List.fold_left create_appl heading
+    (create_list nb p_WILD i special_sym)
+
+(** [with_all_same_value heading nb default_sym] creates left- or right-hand-side
+    of the form: [heading] [default_sym] ... [default_sym]
+    where [heading] has [nb] argument(s). *)
+let with_all_same_value heading nb default_sym =
+  List.fold_left create_appl heading (create_list_iter nb default_sym)
+
+(** [create_encapsulation_rule mglhs carrier_sym nb]
+    creates an encapsulation rule, i.e. a rule of the form:
+    rule [mglhs] ↪ [carrier_sym] [mglhs] ♭ ... ♭
+    where [nb] occurrence(s) of ♭. *) (* TODO update *)
+let create_encapsulation_rule tracker config nb : p_rule =
+  let f h = with_all_same_value h nb p_FLAT in
+  no_pos (config, tracker config f)
 
 let create_list_number n i special_sym =
   if n <= 0 then []
@@ -672,98 +402,57 @@ let create_list_number n i special_sym =
     in
     aux 0
 
-let create_initialisation_rule_bis tracker nb i special_sym_l special_sym_r =
-  let f special_sym h = List.fold_left create_appl h (create_list_number nb i special_sym) in
-  (tracker (f special_sym_l), tracker (f special_sym_r))
+    (** [create_initialisation_rule carrier_sym lhs nb i special_sym_l special_sym_r]
+    creates an initialisation rule, i.e. a rule of the form:
+    rule [carrier_sym] [lhs] _ ... _ [special_sym_l] _ ... _ ↪
+         [carrier_sym] [lhs] _ ... _ [special_sym_r] _ ... _
+    where [carrier_sym] [lhs] has [nb] argument(s),
+    and [special_sym_l] and [special_sym_r] only occur at the position [i]. *) (* TODO update *)
+let create_initialisation_rule tracker nb i special_sym_l special_sym_r : p_rule =
+  let f special_sym h =
+    List.fold_left create_appl h (create_list_number nb i special_sym)
+  in
+  no_pos (tracker (f special_sym_l), tracker (f special_sym_r))
 
-let create_reduction_rule_bis tracker nb i special_sym rhs =
+(** [create_reduction_rule carrier_sym lhs nb i special_sym rhs]
+    creates a reduction rule, i.e. a rule of the form:
+    rule [carrier_sym] [lhs] _ ... _ [special_sym] _ ... _ ↪ [rhs]
+    where [carrier_sym] [lhs] has [nb] argument(s),
+    and [special_sym] only occurs at the position [i]. *)  (* TODO update *)
+let create_reduction_rule tracker nb i special_sym rhs : p_rule =
   let f h = with_one_diff_value h nb i special_sym in
-  (tracker f, rhs)
+  no_pos (tracker f, rhs)
 
-let create_otherwise_rule_bis tracker nb rhs =
- let f h = with_all_same_value h nb (create_appl (create_ident (safe_prefix ^ _INJ)) p_FALSE) in
- (tracker f, rhs)
-
-(** ------------------------------------------------------------------------------------------------- *)
-
-
-
-(** ------------------------------------------------------------------------------------------------- *)
-(*
-let generate_rule : p_term -> krule list -> p_rule list -> p_rule list = fun key krule_l acc ->
-  (* STEP 0: Count the number of conditions *)
-  let rec count_condition : krule_l -> int -> int = fun l acc ->
-    match l with
-    | [] -> acc
-    | (_, None,   _)::q -> count_condition q acc
-    | (_, Some _, _)::q -> count_condition q (acc+1)
+  (** [create_otherwise_rule carrier_sym lhs nb rhs]
+    creates an otherwise rule, i.e. a rule of the form:
+    rule [carrier_sym] [lhs] "false" ... "false" ↪ [rhs]
+    where [nb] occurrence(s) of "false". *) (* TODO update *)
+let create_otherwise_rule tracker nb rhs : p_rule =
+  let f h =
+    with_all_same_value h nb (p_flatINJ_appl p_FALSE)
   in
-  let nb_cond = count_condition krule_l 0 in
-  (* STEP 1: Generate the gluing symbol *)
-  let create_gluing_symbol : p_symbol -> int -> p_symbol = fun sym nb_cond ->
-    let mod_l = [] in
-    let fresh_name = "♭" ^ sym.sym_name in
-    let typ = extend_type (sym.sym_typ) nb_cond in
-    LP_p_term.create_p_symbol mod_l fresh_name [] typ None
-  in
-  let gluing_sym = create_gluing_symbol key nb_cond in (* p_term doit devenir p_symbol !! *)
-  (* STEP 2: Create the initializer rule *)
-  let gluing = change_lhs gluing_sym lhs in
+ no_pos (tracker f, rhs)
 
-  let generate : krule -> p_rule list = fun kr ->
-    let rec aux l acc_rhs acc =
-      match l with
-      | ((lhs,rhs), None,   _)::q -> aux q _ ((lhs, rhs)::acc)
-      | ((lhs,rhs), Some c, _)::q -> aux q (P_Appl(acc_rhs,c))
-    in
-    aux lhs []
-
-  let generate_all_rule : equiv_class -> p_rule list = fun ec ->
-    TMap.fold generate_rule ec []
-  in
-
-  (* STEP 3: Create each terminal rules *)
-  let rec terminal_rule : int -> p_rule list -> p_rule list = fun indice acc ->
-    let rec aux indice l acc =
-      match l with
-      | ((lhs,rhs), None,   _)::q -> aux indice q ((lhs, rhs)::acc)
-      | ((lhs,rhs), Some c, _)::q ->
-         let new_rule = create_terminal_true_rule gluing indice nb_cond, rhs in
-         aux (indice+1) q (new_rule::acc)
-    in
-    aux 0 l []
-  in
-
-    if indice = nb_cond then acc
-    else
-      let new_rule = create_terminal_true_rule gluing indice nb_cond, ??? in
-      terminal_rule (indice+1) (new_rule::acc)
-  in
-  terminal_rule 0 []
-
-    type krule = p_rule * p_term option * int    (** ((LHS, RHS), Some condition, priority)          *)
-                 *)
-(** ------------------------------------------------------------------------------------------------- *)
-
-
-(*  type equiv_class = (ctrs_rule list) SMap.t *)
+(** ------------------ *)
+(** The main algorithm *)
+(** ------------------ *)
 
 let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
-  let flat_bool_name = safe_prefix ^ "Bool" in
-  let flat_bool_sym = Interface.LP_p_term.create_p_symbol [] flat_bool_name [] (Some p_SORTK) None in
-     (* [b.] Create the symbol ♭. *)
-  let p_flat_bool = create_ident flat_bool_name in
-  let flat_type = create_appl p_INJD p_flat_bool in (* _INJD ♭Bool *)
-  let flat_sym = Interface.LP_p_term.create_p_symbol [] safe_prefix [] (Some flat_type) None in
-     (* [c.] Create the symbol ♭inj. *)
-  let flat_inj_type = (* _INJD SortBool → _INJD ♭Bool *)
-    create_arrow
-      (create_appl p_INJD (create_ident "SortBool"))
-      (create_appl p_INJD p_flat_bool)
+  let flat_bool_sym =
+    Interface.LP_p_term.create_p_symbol [] _flatBool [] (Some p_SORTK) None
   in
-  let flat_inj_sym = Interface.LP_p_term.create_p_symbol [] (safe_prefix ^ _INJ) [] (Some flat_inj_type) None in
+     (* [b.] Create the symbol ♭. *)
+  let flat_sym =
+    Interface.LP_p_term.create_p_symbol [] safe_prefix [] (Some p_flatBool) None
+  in
+     (* [c.] Create the symbol ♭inj. *)
+  let flat_inj_type = create_arrow (p_INJD_appl_ident "SortBool") p_flatBool in
+  (* δ SortBool → δ ♭Bool *)
+  let flat_inj_sym =
+    Interface.LP_p_term.create_p_symbol [] _flatINJ [] (Some flat_inj_type) None
+  in
      (* [d]. Create each C_σ from a CTRS. *)
   let equiv_class = to_equiv_class l in
   (* For each C_σ *)
@@ -781,41 +470,46 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
       let mglhs = create_most_general_LHS (fst pr.elt) in
       (* [3.] Generate the ♭-symbol of the current head symbol. *)
       let flat_head_name = safe_prefix ^ head_name in
-      let flat_head_type = extend_type (StrMap.find head_name !Translate.symb_signature) nb_cond in
-      (* let flat_head_type = p_TYPE in *)
-      let flat_head_sym = Interface.LP_p_term.create_p_symbol [] flat_head_name [] (Some flat_head_type) None in
+      let flat_head_type =
+        extend_type (StrMap.find head_name !Translate.symb_signature) nb_cond
+      in
+      let flat_head_sym =
+        Interface.LP_p_term.create_p_symbol [] flat_head_name []
+          (Some flat_head_type) None
+      in
       (* [4.] Generate the encapsulation rule. *)
-      let encap_r = no_pos (create_encapsulation_rule_bis tracker mglhs nb_cond) in
+      let encap_r = create_encapsulation_rule tracker mglhs nb_cond in
       (* [5.] For each rule in C_σ *)
-      let rec aux_rule : int -> p_rule list -> ctrs_rule list -> p_rule list = (* ~ fold_lefti *)
+      let rec aux_rule : int -> p_rule list -> ctrs_rule list -> p_rule list = (*   fold_lefti *)
         fun i acc ctrs_l ->
         match ctrs_l with
         | [] -> acc
         (* [a.] If the rule is conditional. *)
         | ({elt=(lhs,rhs);_}, Cond c, _)::q ->
            let curr_tracker = tracker lhs in
-           let flat_cte = create_ident safe_prefix in
-           let inj_c = create_appl (create_ident (safe_prefix ^ _INJ)) c in
            let init_r =
-             no_pos (create_initialisation_rule_bis curr_tracker nb_cond i flat_cte inj_c)
+             create_initialisation_rule curr_tracker nb_cond i p_FLAT (p_flatINJ_appl c)
            in
-           let true_cte = create_appl (create_ident (safe_prefix ^ _INJ)) p_TRUE in
            let reduc_r =
-             no_pos (create_reduction_rule_bis curr_tracker nb_cond i true_cte rhs)
+             create_reduction_rule curr_tracker nb_cond i
+                       (p_flatINJ_appl p_TRUE) rhs
            in
            aux_rule (i+1) (init_r::reduc_r::acc) q
         (* [b.] If the rule is unconditional. *)
         | ({elt=(lhs,rhs);_}, Uncond, _)::q ->
            let reduc_r =
-             no_pos (create_reduction_rule_bis (tracker lhs) nb_cond i (no_pos P_Wild) rhs)
+             create_reduction_rule (tracker lhs) nb_cond i p_WILD rhs
            in
            aux_rule i (reduc_r::acc) q
         (* [c.] If the rule has the attribut "owise". *)
         | ({elt=(lhs,rhs);_}, OwiseRule, _)::q ->
-           let owise_r = no_pos (create_otherwise_rule_bis (tracker lhs) nb_cond rhs) in
+           let owise_r = create_otherwise_rule (tracker lhs) nb_cond rhs in
            aux_rule i (owise_r::acc) q
       in
-      let new_acc_sym = if List.mem flat_head_sym acc_sym then acc_sym else flat_head_sym::acc_sym in
+      let new_acc_sym =
+        if List.mem flat_head_sym acc_sym then acc_sym
+        else flat_head_sym::acc_sym
+      in
       new_acc_sym, aux_rule 0 [encap_r] l@acc_rule
   in
   StrMap.fold aux_sigma equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], [])
