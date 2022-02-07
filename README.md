@@ -31,7 +31,7 @@ The hierarchy of files is:
    │   ├── main.ml  
    │   ├── Makefile  
    │   ├── presilo/: *Printers for Dedukti and Lambdapi*  
-   │   ├── README.md: *This file*  
+   │   ├── README.md  
    │   ├── test/  
    │   └── type/: *Main types*  
    ├── interface/  
