@@ -1,7 +1,5 @@
-KaMeLo  
-========  
-
-The hierarchy of files is:  
+The files' hierarchy of KaMeLo  
+==============================  
 
 .  
 ├── gen_tests.sh: *Run this script to launch all the tests*  
