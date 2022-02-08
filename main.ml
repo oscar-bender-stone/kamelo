@@ -95,12 +95,12 @@ let () =
            | M_Kore    ->
               (match !Terminal.Cmd_line.output with
                | O_LP | O_Dedukti ->
-                  Printing.Eval_strategy.encoding ff cd printing kommand_l
+                  Printing.Main_encoding.encoding ff cd printing kommand_l
                (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
                | O_Kore ->
                   Terminal.Kore_printer.pp_kore_kommand ff cd kommand_l)
            | M_K       ->
-              Printing.Eval_strategy.encoding ff cd printing kommand_l
+              Printing.Main_encoding.encoding ff cd printing kommand_l
            (* Printing.Printer.pp_kommand_bis ff cd printing kommand_l *)
            | M_Dedukti -> ()
          (*  let g =

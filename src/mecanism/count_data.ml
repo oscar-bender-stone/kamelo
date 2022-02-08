@@ -41,19 +41,27 @@ let reset_cd_implies_ax : int -> cd_implies_ax = fun i ->
     predicate_false = ref i ; predicate_true = ref i ;
     owise = ref i ; with_one_attr = ref i }
 
+type cd_rewriting_ax =
+  { total : int ref ;
+    heating : int ref ; cooling : int ref ; semantic : int ref }
+
+let reset_cd_rewriting_ax : int -> cd_rewriting_ax = fun i ->
+  { total = ref i ;
+    heating = ref i ; cooling = ref i ; semantic = ref i }
+
 type count_data_k =
   { import : int ref ;
     sort   : int ref ; hooked_sort : int ref ;
     symbol : int ref ; hooked_symbol : int ref ;
     alias  : int ref ;
     axiom  : int ref ;
-      exists_ax    : cd_exists_ax  ;
-      equals_ax    : cd_equals_ax  ;
-      or_ax        : cd_or_ax      ;
-      bottom_ax    : cd_bottom_ax  ;
-      not_ax       : cd_not_ax     ;
-      implies_ax   : cd_implies_ax ;
-      rewriting_ax : int ref       ;
+      exists_ax    : cd_exists_ax    ;
+      equals_ax    : cd_equals_ax    ;
+      or_ax        : cd_or_ax        ;
+      bottom_ax    : cd_bottom_ax    ;
+      not_ax       : cd_not_ax       ;
+      implies_ax   : cd_implies_ax   ;
+      rewriting_ax : cd_rewriting_ax ;
    ax_without_attr : int ref ;
    ax_several_attr : int ref }
 
@@ -66,7 +74,7 @@ let reset_count_data_k : int -> count_data_k = fun i ->
     exists_ax = reset_cd_exists_ax i ; equals_ax = reset_cd_equals_ax i ;
     or_ax = reset_cd_or_ax i ; bottom_ax = reset_cd_bottom_ax i ;
     not_ax = reset_cd_not_ax i ; implies_ax = reset_cd_implies_ax i ;
-    rewriting_ax = ref i ; ax_without_attr = ref i ;
+    rewriting_ax = reset_cd_rewriting_ax i ; ax_without_attr = ref i ;
     ax_several_attr = ref i }
 
 type count_data_dk =
@@ -198,8 +206,17 @@ let incr_k_ax_with_one_attr cd = incr cd.k.implies_ax.with_one_attr
 
 (* Rewriting one *)
 
-let get_k_rewriting_ax   cd = !(cd.k.rewriting_ax)
-let incr_k_rewriting_ax cd = incr cd.k.rewriting_ax
+let get_k_rewriting_ax  cd = !(cd.k.rewriting_ax.total)
+let incr_k_rewriting_ax cd = incr cd.k.rewriting_ax.total
+
+let get_k_ax_heating  cd = !(cd.k.rewriting_ax.heating)
+let incr_k_ax_heating cd = incr cd.k.rewriting_ax.heating
+
+let get_k_ax_cooling  cd = !(cd.k.rewriting_ax.cooling)
+let incr_k_ax_cooling cd = incr cd.k.rewriting_ax.cooling
+
+let get_k_ax_semantic  cd = !(cd.k.rewriting_ax.semantic)
+let incr_k_ax_semantic cd = incr cd.k.rewriting_ax.semantic
 
 (** Data about the Dedukti commands *)
 
@@ -309,6 +326,10 @@ let extract_info_before cd =
   ; (2, get_k_ax_with_one_attr cd,    "with one attribute",         "with one attribute")
 
   ; (1, get_k_rewriting_ax cd,        "rewriting one", "rewriting one")
+  ; (2, get_k_ax_heating   cd,        "heating rule",  "heating rules")
+  ; (2, get_k_ax_cooling   cd,        "cooling rule",  "cooling rules")
+  ; (2, get_k_ax_semantic  cd,        "semantic rule", "semantic rules")
+
 
   ; (1, get_k_ax_several_attr  cd,    "with several attributes", "with several attributes") ]
 

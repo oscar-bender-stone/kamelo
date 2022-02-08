@@ -187,10 +187,15 @@ let pp_kore_kommand ppc cd : kommand list -> unit = fun kommand_l ->
     pp_endline ppc ; space ppc ; pp_kore_axiom ppc 2 ax ;
     pp_endline ppc ; pp_kore_attribute_list ppc attr_l ; pp_endline ppc
   in
+  let f_axiom_bis :
+        attribute list -> unit -> alias -> quant_var list * axiom -> unit =
+    fun attr_l x _ (qv_l, ax) -> f_axiom attr_l x (qv_l, ax)
+  in
   kommand_iter_with_alias cd kommand_l ()
   f_sort f_sort (f_symbol "symbol") (f_symbol "hooked-symbol")
   (fun attr_l _ al -> pp_kore_alias ppc al attr_l)
-  f_axiom f_axiom (f_axiom, f_axiom)
+  (f_axiom_bis, f_axiom_bis, f_axiom_bis)
+  f_axiom (f_axiom, f_axiom)
   (f_axiom, f_axiom, f_axiom, f_axiom) f_axiom f_axiom
-  (f_axiom, f_axiom, f_axiom, f_axiom,
-   f_axiom, f_axiom, f_axiom) (fun () -> pp_endline ppc)
+  (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom)
+  (fun () -> pp_endline ppc)

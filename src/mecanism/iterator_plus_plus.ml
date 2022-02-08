@@ -44,7 +44,6 @@ let axiom_cases
        (f_implies_ax_predicate_false : attribute list -> 'a -> quant_var list * axiom -> 'a), (* [owise] *)
        (f_implies_ax_owise           : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_implies_ax_default         : attribute list -> 'a -> quant_var list * axiom -> 'a)) : 'a =
-      (* ((f_rewrites_ax ? *)
   match ax with
   | Exists _ -> incr_k_exists_ax cd ;
      (match curr_attr with
@@ -100,9 +99,31 @@ let axiom_cases
          then (incr_k_ax_predicate_true cd ; f_implies_ax_predicate_true attr_l acc (qv_l, ax))
          else (incr_k_ax_with_one_attr cd ; f_implies_ax_default attr_l acc (qv_l, ax)))
         (* raise (InternalError "Need to update [axiom_cases], case Implies.")) *)
-  | Rewrites _ -> acc (* TODO Fix raise (InternalError "Rewriting") *)
+  | Rewrites _ -> acc (* raise (InternalError "Rewriting translation not possible.") *)
+    (* Ici, on pourrait s'attendre à renvoyer une erreur.
+       C'est ce qu'il faudrait faire si [kommand_iter_with_alias] passait par là.
+       Mais dans le cas de [kommand_iter_without_alias], cet axiome a déjà été traduit via [rewriting_cases].
+       Nous préférons donc ne rien faire dans ce cas de figure. *)
   | _ -> raise (InternalError "Need to update [axiom_cases], case root.")
 
+(** [rewriting_cases cd attr_l curr_attr acc qv_l ax f_heating f_cooling f_semantic]
+    acc ~ extra_data *)
+let rewriting_cases
+      (cd : count_data) (attr_l : attribute list) (acc : 'a)
+      (al : alias option) (qv_l : quant_var list) (ax : axiom)
+      ((f_heating  : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a),
+       (f_cooling  : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a),
+       (f_semantic : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a)) : 'a =
+  incr_k_rewriting_ax cd ;
+  let al = match al with
+    | None -> raise (InternalError "Need to update [rewriting_cases].")
+    | Some al -> al
+  in
+  match attr_l with
+  | [Heat _] -> incr_k_ax_heating  cd ; f_heating  attr_l acc al (qv_l, ax)
+  | [Cool _] -> incr_k_ax_cooling  cd ; f_cooling  attr_l acc al (qv_l, ax)
+  | []       -> incr_k_ax_semantic cd ; f_semantic attr_l acc al (qv_l, ax)
+  | _ -> raise (InternalError "Need to update [rewriting_cases].")
 
 let meta_kommand_iter
       (meta_f_alias : kommand list -> attribute list -> 'a -> alias -> 'a)
@@ -113,7 +134,6 @@ let meta_kommand_iter
       (f_symbol         : attribute list -> 'a -> symbol  -> 'a)
       (f_hooked_symbol  : attribute list -> 'a -> symbol  -> 'a)
       (f_alias          : attribute list -> 'a -> alias   -> 'a)
-      (f_rewrite        : attribute list -> 'a -> 'b -> 'a)
       (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
       ((f_exists_ax_subsort    : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_exists_ax_functional : attribute list -> 'a -> quant_var list * axiom -> 'a)       as f_exists)
@@ -141,7 +161,7 @@ let meta_kommand_iter
     | _ ->
        (incr_k_ax_several_attr cd ;
         (* wrn_msg "There is an axiom with more than one attribute." ;
-         * @TODO print the list *)
+           @TODO print the list *)
         f_ax_default attr_l acc (qv_l, ax))
   in
   let rec aux l acc = match l with
@@ -165,7 +185,9 @@ let kommand_iter_without_alias
       (f_symbol         : attribute list -> 'a -> symbol  -> 'a)
       (f_hooked_symbol  : attribute list -> 'a -> symbol  -> 'a)
       (f_alias          : attribute list -> 'a -> alias   -> 'a)
-      (f_rewrite        : attribute list -> 'a -> 'b -> 'a)
+      ((f_rewrites_ax_heating  : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a),
+       (f_rewrites_ax_cooling  : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a),
+       (f_rewrites_ax_semantic : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a) as f_rewrites)
       (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
       ((f_exists_ax_subsort    : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_exists_ax_functional : attribute list -> 'a -> quant_var list * axiom -> 'a)       as f_exists)
@@ -182,9 +204,7 @@ let kommand_iter_without_alias
        (f_implies_ax_predicate_false : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_implies_ax_owise           : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_implies_ax_default         : attribute list -> 'a -> quant_var list * axiom -> 'a) as f_implies)
-      (f_each_end_iter : unit -> unit)
-    : 'a
-  =
+      (f_each_end_iter : unit -> unit) : 'a =
   let meta_f_alias q attr_l acc al = match q with
     | [] -> (incr_k_alias cd ; f_alias attr_l acc al)
     | h::_ ->
@@ -192,21 +212,13 @@ let kommand_iter_without_alias
        | Axiom(qv_l, ax), attr_l_ax ->
           let xattr_l = attr_l@attr_l_ax in
           if is_rule ax
-          then
-            ((* wrn_1 "%b" (is_cooling_rule attr_l_ax) ; *)
-             if is_cooling_rule attr_l_ax
-             then
-               (Translation.Axiom.do_specific_thing := true ;
-                incr_k_rewriting_ax cd ;
-                let res = f_rewrite xattr_l acc { lhs = al ; rhs = (qv_l, ax) } in
-                Translation.Axiom.do_specific_thing := false ; res)
-             else (incr_k_rewriting_ax cd ; f_rewrite xattr_l acc { lhs = al ; rhs = (qv_l, ax) }))
-          else (incr_k_alias   cd ; f_alias xattr_l acc al)
-       | _  -> (incr_k_alias cd ; f_alias attr_l acc al)
+          then rewriting_cases cd xattr_l acc (Some al) qv_l ax f_rewrites
+          else (incr_k_alias cd ; f_alias xattr_l acc al)
+       | _  -> (incr_k_alias cd ; f_alias attr_l  acc al)
   in
   let meta_f_axiom g_attr attr_l acc qv_l ax = g_attr attr_l acc qv_l ax in
   meta_kommand_iter meta_f_alias meta_f_axiom cd l neutral_el f_sort f_hooked_sort
-    f_symbol f_hooked_symbol f_alias f_rewrite f_ax_default
+    f_symbol f_hooked_symbol f_alias f_ax_default
     f_exists f_equals f_or_bottom f_not f_implies f_each_end_iter
 
 let kommand_iter_with_alias
@@ -216,7 +228,9 @@ let kommand_iter_with_alias
       (f_symbol         : attribute list -> 'a -> symbol  -> 'a)
       (f_hooked_symbol  : attribute list -> 'a -> symbol  -> 'a)
       (f_alias          : attribute list -> 'a -> alias   -> 'a)
-      (f_rewrite        : attribute list -> 'a -> 'b -> 'a)
+      ((f_rewrites_ax_heating  : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a),
+       (f_rewrites_ax_cooling  : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a),
+       (f_rewrites_ax_semantic : attribute list -> 'a -> alias -> quant_var list * axiom -> 'a) as f_rewrites)
       (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
       ((f_exists_ax_subsort    : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_exists_ax_functional : attribute list -> 'a -> quant_var list * axiom -> 'a)       as f_exists)
@@ -233,15 +247,13 @@ let kommand_iter_with_alias
        (f_implies_ax_predicate_false : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_implies_ax_owise           : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_implies_ax_default         : attribute list -> 'a -> quant_var list * axiom -> 'a) as f_implies)
-      (f_each_end_iter : unit -> unit)
-    : 'a
-  =
+      (f_each_end_iter : unit -> unit) : 'a =
   let meta_f_alias _ attr_l acc al = incr_k_alias cd ; f_alias attr_l acc al in
   let meta_f_axiom g_attr attr_l acc qv_l ax =
     if is_rule ax
-    then (incr_k_rewriting_ax cd ; f_rewrite attr_l acc (qv_l, ax))
+    then rewriting_cases cd attr_l acc None qv_l ax f_rewrites
     else g_attr attr_l acc qv_l ax
   in
   meta_kommand_iter meta_f_alias meta_f_axiom cd l neutral_el f_sort f_hooked_sort
-    f_symbol f_hooked_symbol f_alias f_rewrite f_ax_default
+    f_symbol f_hooked_symbol f_alias f_ax_default
     f_exists f_equals f_or_bottom f_not f_implies f_each_end_iter

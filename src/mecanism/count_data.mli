@@ -57,6 +57,9 @@ val incr_k_ax_with_one_attr    : count_data -> unit
 
 (* Rewriting one *)
 val incr_k_rewriting_ax : count_data -> unit
+val incr_k_ax_heating   : count_data -> unit
+val incr_k_ax_cooling   : count_data -> unit
+val incr_k_ax_semantic  : count_data -> unit
 
 (** Data about the Dedukti commands *)
 
