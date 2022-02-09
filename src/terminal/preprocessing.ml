@@ -2,7 +2,7 @@ open Common.Type
 open Common.Getter
 open Common.Error
 
-open Translation.Axiom
+open Translating.Axiom
 
 open Mecanism.Count_data
 open LP.LP_printer

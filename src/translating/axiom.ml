@@ -53,6 +53,19 @@ let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
   in (* TODO a factorisé avec [find_equiv_class] dans viry.ml *)
   subsort_data := StrMap.update s1 f !subsort_data
 
+(** [collect_subsort_data ax] updates the database of subsorts
+    For instance, if this function matches an axiom with the following shape:
+      \exists{R} (Val:SortKItem{},
+                  \equals{SortKItem{}, R}
+                      (Val:SortKItem{},
+                       inj{SortCell{}, SortKItem{}} (From:SortCell{})))
+    then it adds the subsort relation SortCell <: SortKItem.
+    Otherwise, it raises an error. *)
+  let collect_subsort_data : axiom -> unit = function
+    | Exists (_, _, Equals(_, _, Predicate(Sym(s, [S s1; S s2], _)))) when s = _INJ ->
+       from_subsort_axiom s1 s2
+    | _ -> failwith "Error in [Axiom.collect_subsort_data]"
+
 let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
 let data_matching : p_term StrMap.t ref = ref StrMap.empty (* TODO remove *)

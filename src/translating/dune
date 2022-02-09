@@ -1,5 +1,5 @@
 (library
-  (name translation)
+  (name translating)
   (flags (:standard -w -27))
   (modules :standard)
   (libraries common interface))

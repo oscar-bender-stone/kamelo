@@ -23,7 +23,7 @@ let () =
        (LP.LP_printer.pp_command) (["sem_root"])
        (!Terminal.Cmd_line.semantics_file, []);
      (* STEP 3: Translate the executable *)
-     let p_exec = Translation.Axiom.curry_ident exec in
+     let p_exec = Translating.Axiom.curry_ident exec in
      (* STEP 4: Add free variables *)
      let f_pp : string -> string list -> unit = fun key var_l ->
        let var_type =
@@ -37,7 +37,7 @@ let () =
        in
        List.iter (fun name -> comm name) var_l
      in
-     Translation.Axiom.StrMap.iter f_pp !Translation.Axiom.free_var ;
+     Translating.Axiom.StrMap.iter f_pp !Translating.Axiom.free_var ;
      (* STEP 5: Printing *)
      LP.LP_printer.pp_command ff
        (Interface.LP_p_term.create_compute_command p_exec);
@@ -95,12 +95,12 @@ let () =
            | M_Kore    ->
               (match !Terminal.Cmd_line.output with
                | O_LP | O_Dedukti ->
-                  Printing.Main_encoding.encoding ff cd printing kommand_l
+                  Printing.Translation.encoding_with_Viry ff cd printing kommand_l
                (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
                | O_Kore ->
                   Terminal.Kore_printer.pp_kore_kommand ff cd kommand_l)
            | M_K       ->
-              Printing.Main_encoding.encoding ff cd printing kommand_l
+              Printing.Translation.encoding_with_Viry ff cd printing kommand_l
            (* Printing.Printer.pp_kommand_bis ff cd printing kommand_l *)
            | M_Dedukti -> ()
          (*  let g =
@@ -126,9 +126,9 @@ let () =
      Printing.Prelude.create_prelude ff printing "prelude" ;
      (* Transformer en module pour ne plus avoir qu'à itérer ? *)
      List.iter module_to_file (List.tl file);
-     if Translation.Axiom.StrMap.mem Interface.K_prelude._SORT_KRESULT !Translation.Axiom.sort_signature then
+     if Translating.Axiom.StrMap.mem Interface.K_prelude._SORT_KRESULT !Translating.Axiom.sort_signature then
        (print_comment ff "Extension of isKResult's definition";
-        List.iter (fun x -> printing ff (Interface.LP_p_term.no_pos (LP.Syntax.P_rules [x]))) (Translation.Axiom.create_isKResult_rule ())) ;
+        List.iter (fun x -> printing ff (Interface.LP_p_term.no_pos (LP.Syntax.P_rules [x]))) (Translating.Axiom.create_isKResult_rule ())) ;
      print_footer_kamelo ();
      close_out f;
      flush stdout;;

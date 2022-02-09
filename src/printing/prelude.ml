@@ -350,16 +350,16 @@ let pp_symbol_prelude ppc cd prt : p_symbol -> unit = fun sym ->
   incr_real_symbol cd ;
   (match sym.p_sym_typ with
    | Some v ->
-      Translation.Translate.symb_signature :=
-        Translation.Axiom.StrMap.add sym.p_sym_nam.elt v !Translation.Translate.symb_signature
+      Translating.Main_translation.symb_signature :=
+        Translating.Axiom.StrMap.add sym.p_sym_nam.elt v !Translating.Main_translation.symb_signature
    | None -> ()) ; prt ppc (no_pos (P_symbol sym))
 
 let pp_sort_prelude ppc cd prt : p_symbol -> unit = fun sym ->
   incr_real_symbol cd ;
   (match sym.p_sym_typ with
    | Some v ->
-      Translation.Axiom.sort_signature :=
-        Translation.Axiom.StrMap.add sym.p_sym_nam.elt v !Translation.Axiom.sort_signature
+      Translating.Axiom.sort_signature :=
+        Translating.Axiom.StrMap.add sym.p_sym_nam.elt v !Translating.Axiom.sort_signature
    | None -> ()) ; prt ppc (no_pos (P_symbol sym))
 
 

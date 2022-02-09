@@ -26,7 +26,7 @@ val change_sort_inj : p_term -> p_term
 
 (* val subsort_data : (string list) StrMap.t ref *)
 val from_subsort_axiom : string -> string -> unit
-
+val collect_subsort_data : axiom -> unit
 
 
 
