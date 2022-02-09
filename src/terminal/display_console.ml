@@ -32,7 +32,7 @@ let print_header_file filename =
   blue_msg_1 _STDOUT "--- Translation of %s" filename
 
 let print_nb_total_commands nb =
-  red_msg_1 _STDOUT "There are %i commands" nb
+  red_msg_1 _STDOUT "There are %i commands." nb
 
 let separator =
   "------------------------------------------------------------"

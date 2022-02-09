@@ -1,6 +1,7 @@
 open Arg
 
 open Common.Color
+open Printing.Kore_printer
 open Interface.Output (* TODO remove thanks to DiaLeKTo *)
 
 (** Some specific type for references *)
@@ -12,7 +13,6 @@ type output_management = O_LP | O_Kore | O_Dedukti
 let mimic          = ref M_Kore
 let output         = ref O_LP
 let check_induc    = ref false
-let verbose        = ref false
 let filename_exec  = ref ""
 let semantics_file = ref ""
 let input          = ref stdin

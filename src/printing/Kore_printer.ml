@@ -3,9 +3,10 @@ open Common.Type
 open Common.Error
 open Mecanism.Iterator_plus_plus
 open Interface.Output
-open Cmd_line
 
 type output = Format.formatter
+
+let verbose = ref false
 
 let pp_endline ppc = print ppc "\n"
 let pp_paren   ppc = print ppc ")"

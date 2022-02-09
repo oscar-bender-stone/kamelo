@@ -295,7 +295,7 @@ rule token = parse
 
   | '"'             { quote (Buffer.create 200) lexbuf }
   | ident           { let yytext = Lexing.lexeme lexbuf in
-		              IDENT yytext }   (* WARNING The first case is considered *)
+		              IDENT yytext }  (* WARNING: The first case is considered *)
   | _ as c          { unexpected_char lexbuf c  }
 
 and comment = parse

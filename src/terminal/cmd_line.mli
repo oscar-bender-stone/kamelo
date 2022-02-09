@@ -8,7 +8,6 @@ type output_management = O_LP | O_Kore | O_Dedukti
 val mimic          : mimic_management ref
 val output         : output_management ref
 val check_induc    : bool ref
-val verbose        : bool ref
 val filename_exec  : string ref
 val semantics_file : string ref
 val input          : in_channel ref

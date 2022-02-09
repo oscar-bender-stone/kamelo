@@ -99,7 +99,7 @@ let () =
                     (Translating.Main_translation.encoding_with_Viry cd kommand_l)
                (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
                | O_Kore ->
-                  Terminal.Kore_printer.pp_kore_kommand ff cd kommand_l)
+                  Printing.Kore_printer.pp_kore_kommand ff cd kommand_l)
            | M_K       ->
               Printing.Translation.prt_Viry ff cd printing
               (Translating.Main_translation.encoding_with_Viry cd kommand_l)
