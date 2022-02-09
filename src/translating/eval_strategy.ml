@@ -6,15 +6,6 @@ open Common.Error
 open Interface.LP_p_term
 open Interface.K_prelude
 
-module Sort = struct
-  type t = sort
-  let compare = String.compare
-end
-module Induc = Map.Make(Sort)
-
-let data_induc : (symbol list) Induc.t ref = ref Induc.empty
-
-
 let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
   let rec aux : t -> p_term = fun ax ->
     let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
@@ -22,7 +13,7 @@ let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
     | Predicate p ->
        begin
          match p with
-         | Sym("inj", qv_l, a_l) ->
+         | Sym(s, qv_l, a_l) when s = _INJ ->
             let g p = match p with S x | Q x -> create_implicit_arg x in
             let tmp = List.map g qv_l in
             let res = List.fold_left create_appl p_INJ tmp in
@@ -36,8 +27,8 @@ let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
                              else res))
                          else f_var n)
        end
-    | Equals(_, x, Dom_val(_, "true"))  -> aux x
-    | Equals(_, x, Dom_val(_, "false")) -> create_appl (create_ident _NOT_BOOL) (aux x)
+    | Equals(_, x, Dom_val(_, d)) when d = _TRUE  -> aux x
+    | Equals(_, x, Dom_val(_, d)) when d = _FALSE -> create_appl (create_ident _NOT_BOOL) (aux x)
     | Equals _ -> failwith "EQUALS"
     | Dom_val(_, name) -> create_ident name
     (*| In _ -> failwith "OK, guys" *)
