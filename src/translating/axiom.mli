@@ -2,6 +2,11 @@
 open Common.Type
 open LP.Syntax
 
+(* module Sort : *)
+module Induc : Map.S with type key = sort
+
+val data_induc : (symbol list) Induc.t ref
+
 type t = axiom
 
 exception KComputation of string

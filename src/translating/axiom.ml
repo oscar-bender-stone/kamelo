@@ -7,6 +7,14 @@ open Common.Type
 open Common.Getter
 open Common.Error
 
+module Sort = struct
+  type t = sort
+  let compare = String.compare
+end
+module Induc = Map.Make(Sort)
+
+let data_induc : (symbol list) Induc.t ref = ref Induc.empty
+
 type t = axiom
 
 (* GENRALISATION
@@ -81,12 +89,12 @@ let change_sort_inj : p_term -> p_term = fun t ->
   let rec aux t = match t with
     | P_Appl(
         {elt=P_Appl(
-            {elt=P_Appl({elt=P_Iden({elt=(x1,"inj");pos=x2}, x3);pos=x4},
+            {elt=P_Appl({elt=P_Iden({elt=(x1, s);pos=x2}, x3);pos=x4},
                         {elt=P_Expl({elt=P_Iden ({elt=(x5,s1) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
             ; pos=x10},
             {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
         ; pos=x16},
-        {elt=P_Patt(Some {elt=("HOLE" as n) ;pos=x17}, x18) ; pos=x19} ) ->
+        {elt=P_Patt(Some {elt=("HOLE" as n) ;pos=x17}, x18) ; pos=x19} ) when s = _INJ ->
        let f : string -> string list -> string -> string = fun key v acc ->
          if List.mem _SORT_KRESULT v && List.mem s1 v
          then key ^ acc
@@ -97,7 +105,7 @@ let change_sort_inj : p_term -> p_term = fun t ->
        let res s2 =
          P_Appl(
              {elt=P_Appl(
-                      {elt=P_Appl({elt=P_Iden({elt=(x1,"inj");pos=x2}, x3);pos=x4},
+                      {elt=P_Appl({elt=P_Iden({elt=(x1, _INJ);pos=x2}, x3);pos=x4},
                                   {elt=P_Expl({elt=P_Iden ({elt=(x5,new_s) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
                       ; pos=x10},
                       {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )

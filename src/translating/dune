@@ -2,4 +2,4 @@
   (name translating)
   (flags (:standard -w -27))
   (modules :standard)
-  (libraries common interface))
+  (libraries common interface mecanism))

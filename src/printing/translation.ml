@@ -12,6 +12,12 @@ open Mecanism.Count_data
 
 open Translating.Eval_strategy
 
+let rec printing_iter : (('a -> unit) * 'a list) list -> unit = function
+  | []   -> ()
+  | (prt, h)::q -> List.iter prt h ; printing_iter q
+
+(* p_command list * p_symbol list * p_rule list *)
+
 let encoding_with_Viry ppc cd prt : kommand list -> unit = fun kommand_l ->
   (* STEP 1: From K commands to CTRS rules (and partial printing). *)
   let f_sort _ acc s = pp_sort ppc cd prt s ; acc in

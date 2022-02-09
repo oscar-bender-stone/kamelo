@@ -437,6 +437,9 @@ let create_otherwise_rule tracker nb rhs : p_rule =
 (** The main algorithm *)
 (** ------------------ *)
 
+(** To store the type of each symbol *)
+let symb_signature : p_term StrMap.t ref = ref StrMap.empty
+
 let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
@@ -471,7 +474,7 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
       (* [3.] Generate the ♭-symbol of the current head symbol. *)
       let flat_head_name = safe_prefix ^ head_name in
       let flat_head_type =
-        extend_type (StrMap.find head_name !Main_translation.symb_signature) nb_cond
+        extend_type (StrMap.find head_name !symb_signature) nb_cond
       in
       let flat_head_sym =
         Interface.LP_p_term.create_p_symbol [] flat_head_name []
