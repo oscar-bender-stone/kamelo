@@ -4,10 +4,12 @@ open LP.Syntax
 
 open Mecanism.Count_data
 
+(* TODO generalize the process *)
 let rec printing_iter : (('a -> unit) * 'a list) list -> unit = function
   | []   -> ()
   | (prt, h)::q -> List.iter prt h ; printing_iter q
 
+(* TODO delete *)
 let prt_Viry ppc cd prt :
     p_command list * p_command list * p_symbol list * p_rule list -> unit =
   fun (sort_l, sym_l, sym_add_l, r_l) ->

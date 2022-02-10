@@ -14,6 +14,13 @@ The files' hierarchy of KaMeLo
    │   ├── error.ml: *Some error messages and execeptions*  
    │   ├── getter.ml: *Some functions on abstract Kore file*  
    │   └── type.ml: *Type to abstract Kore file*  
+   ├── controller/  
+   │   ├── import.ml: *About file management*  
+   │   ├── meta_printer.ml: "Meta-printers" **This file need to move in printing/**  
+   │   ├── old.ml: *The first translation (use the option --old)*  
+   │   ├── prelude.ml: *To print the prelude*  
+   │   ├── printer.ml: *Encapsulation of the LP printer* **This file need to be deleted.**  
+   │   └── with_Viry_encoding.ml: *A translation with Viry encoding*  
    ├── DiaLeKTo/: *See https://gitlab.com/semantiko/dialekto for more information*  
    │   ├── common/  
    │   ├── constructor/: *Some constructors*  
@@ -42,20 +49,17 @@ The files' hierarchy of KaMeLo
    │   ├── klexer.mll  
    │   └── kparser.mly  
    ├── printing/  
-   │   ├── eval_strategy.ml: *The translation of evaluation strategies* **This file need to move in translation/**  
-   │   ├── import.ml: *About file management*  
-   │   ├── prelude.ml: *To print the prelude*  
-   │   └── printer.ml: *To print Lambdapi, Dedukti or Kore syntax*  
+   │   └── Kore_printer.ml: *To print into a simplified Kore syntax*  
    ├── terminal/: *Management of the terminal*  
    │   ├── cmd_line.ml: *To parse the command line*  
-   │   ├── display_console.ml: *To print the recap of the translation in the terminal*  
-   │   ├── Kore_printer.ml: *To print into a simplified Kore syntax*  
-   │   └── preprocessing.ml: **This file is OBSOLETE**  
-   └── translation/: *The translation of...*  
+   │   └── display_console.ml: *To print the recap of the translation in the terminal*  
+   └── translating/: *The translation of...*  
         ├── alias.ml: *... the alias*  
         ├── axiom.ml: *... the axioms*  
+        ├── eval_strategy.ml: *... the evaluation strategies*  
+        ├── prelude_data.ml: *Data for translating the prelude*  
         ├── symbol.ml: *... the symbols*  
-        ├── translate.ml: *... a file*  
+        ├── translation.ml: *... a file*  
         └── viry.ml: *... the conditional rewriting rules*  
  
 

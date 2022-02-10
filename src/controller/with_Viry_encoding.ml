@@ -11,7 +11,7 @@ open Translating.Axiom
 open Translating.Eval_strategy
 open Translating.Translation
 
-let encoding_with_Viry cd : (* TODO fix heterogenous signature *)
+let main cd : (* TODO fix heterogenous signature *)
       kommand list -> p_command list * p_command list * p_symbol list * p_rule list =
   fun kommand_l ->
   (* STEP 1: From K commands to CTRS rules (and partial printing). *)
