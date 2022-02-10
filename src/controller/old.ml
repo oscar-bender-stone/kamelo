@@ -67,6 +67,7 @@ let of_axiom : quant_var list * t * attribute list -> attribute ->
   | Owise       _ -> if is_predicate ax then ax_l else (qv_l,ax,a_l)::ax_l
   | _ -> (qv_l,ax,a_l)::ax_l
 
+
 let preprocessing :
       kmodule -> count_data ->
       name * sort list * (symbol list) Induc.t * (symbol * attribute list) list *
@@ -125,7 +126,8 @@ let preprocessing :
   let sort_l, induc_m, sym_l, alias_l, ax_l = aux c_l ([], Induc.empty, [], [], []) in
   (name, List.rev sort_l, induc_m, List.rev sym_l, List.rev alias_l, List.rev ax_l)
 
-let old ppc cd : kmodule -> unit = fun m ->
+
+let first_translation ppc cd : kmodule -> unit = fun m ->
   let _, sort_l, induc_m, sym_l, alias_l, ax_l = preprocessing m cd in
 
   (* let import_l = if Induc.is_empty induc_m then import_l else ("prelude", [])::import_l in *)

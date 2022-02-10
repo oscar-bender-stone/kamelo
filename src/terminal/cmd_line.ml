@@ -4,7 +4,7 @@ open Common.Color
 open Printing.Kore_printer
 open Interface.Output (* TODO remove thanks to DiaLeKTo *)
 
-open Controller.Preprocessing
+open Controller.Old
 
 (** Some specific type for references *)
 type mimic_management  = M_K  | M_Kore | M_Dedukti

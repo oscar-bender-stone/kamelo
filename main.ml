@@ -89,7 +89,7 @@ let () =
        let cd = Mecanism.Count_data.reset_count_data 0 in
 
        (* STEP 3: Main translation *)
-       if !Terminal.Cmd_line.old then Controller.Preprocessing.old ff cd m
+       if !Terminal.Cmd_line.old then Controller.Old.first_translation ff cd m
        else
          begin
            match !Terminal.Cmd_line.mimic with
