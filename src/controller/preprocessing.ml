@@ -6,9 +6,9 @@ open Translating.Axiom
 
 open Mecanism.Count_data
 open LP.LP_printer
-open Printing.Printer
+open Printer
 
-open Cmd_line
+let check_induc = ref false
 
 module Sort = struct
   type t = sort

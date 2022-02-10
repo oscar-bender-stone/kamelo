@@ -4,6 +4,8 @@ open Common.Color
 open Printing.Kore_printer
 open Interface.Output (* TODO remove thanks to DiaLeKTo *)
 
+open Controller.Preprocessing
+
 (** Some specific type for references *)
 type mimic_management  = M_K  | M_Kore | M_Dedukti
 type output_management = O_LP | O_Kore | O_Dedukti
@@ -12,12 +14,10 @@ type output_management = O_LP | O_Kore | O_Dedukti
 (** References for managing the options *)
 let mimic          = ref M_Kore
 let output         = ref O_LP
-let check_induc    = ref false
 let filename_exec  = ref ""
 let semantics_file = ref ""
 let input          = ref stdin
 let old            = ref false
-
 
 (** Utilities *)
 

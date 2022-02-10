@@ -1,7 +1,8 @@
 open Common.Type
 open Terminal.Display_console
 
-open Printing.Prelude (* TODO delete *)
+open Controller.Prelude (* TODO delete *)
+
 
 let () =
   (* STEP A: Parse the command-line *)
@@ -19,7 +20,7 @@ let () =
      let ff = Format.formatter_of_out_channel f in
      (* STEP 2: Add the import of the semantic *)
      let cd = Mecanism.Count_data.reset_count_data 0 in
-     Printing.Printer.pp_import ff cd
+     Controller.Printer.pp_import ff cd
        (LP.LP_printer.pp_command) (["sem_root"])
        (!Terminal.Cmd_line.semantics_file, []);
      (* STEP 3: Translate the executable *)
@@ -31,7 +32,7 @@ let () =
            Interface.K_prelude.p_INJD
            (Interface.LP_p_term.create_ident key) in
        let comm name =
-         Printing.Prelude.pp_symbol_prelude ff cd
+         Controller.Prelude.pp_symbol_prelude ff cd
            (LP.LP_printer.pp_command)
            (Interface.LP_p_term.create_symbol name var_type)
        in
@@ -88,7 +89,7 @@ let () =
        let cd = Mecanism.Count_data.reset_count_data 0 in
 
        (* STEP 3: Main translation *)
-       if !Terminal.Cmd_line.old then Terminal.Preprocessing.old ff cd m
+       if !Terminal.Cmd_line.old then Controller.Preprocessing.old ff cd m
        else
          begin
            match !Terminal.Cmd_line.mimic with
@@ -125,7 +126,7 @@ let () =
      print_header_kamelo ();
      module_to_file (List.hd file) ;
      print_comment ff "PRELUDE";
-     Printing.Prelude.create_prelude ff printing "prelude" ;
+     Controller.Prelude.create_prelude ff printing "prelude" ;
      (* Transformer en module pour ne plus avoir qu'à itérer ? *)
      List.iter module_to_file (List.tl file);
      if Translating.Axiom.StrMap.mem Interface.K_prelude._SORT_KRESULT !Translating.Axiom.sort_signature then

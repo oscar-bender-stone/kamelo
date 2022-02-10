@@ -1,4 +1,4 @@
 (library
   (name terminal)
   (modules :standard)
-  (libraries common translating printing))
+  (libraries common printing controller))
