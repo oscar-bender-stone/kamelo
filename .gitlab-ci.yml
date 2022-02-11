@@ -34,9 +34,11 @@ preprocessing:
         - sudo apt install wget
 
 
-        - git clone https://github.com/runtimeverification/k.git
-        - cd k/
-        - sudo sh install-k
+        #- git clone https://github.com/runtimeverification/k.git
+        #- cd k/
+        #- sudo sh install-k
+        - wget https://github.com/runtimeverification/k/releases/download/v5.2.82/kframework_5.2.82_amd64_bionic.deb
+        - sudo apt-get install -y ./kframework_5.2.82_amd64_bionic.deb
 
         - sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
         - sudo chmod 755 /usr/bin/opam
