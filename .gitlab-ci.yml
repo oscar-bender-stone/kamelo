@@ -4,7 +4,8 @@ stages:
   - build
   - test
 
-image: ubuntu # ocaml/opam:debian-testing-opam
+image: ubuntu:18.04 # ocaml/opam:debian-testing-opam
+
 
 
 ### Configuration section
