@@ -1,53 +1,88 @@
-on:
-  pull_request:
-    types: [opened, synchronize, edited, reopened]
-  workflow_dispatch:
-jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        ocaml-version: [4.13.1] # [4.07.1, 4.08.1, 4.09.1, 4.10.2, 4.11.1]
-    runs-on: ubuntu-latest
-    steps:
-      - name: --- Installation of OPAM
-        uses: actions/checkout@v2
-      - name: recovering cached opam files...
-        uses: actions/cache@v2
-        with:
-          path: ~/.opam
-          key: ${{ runner.os }}-ocaml-${{ matrix.ocaml-version }}
-      - name: setting up opam...
-        uses: avsm/setup-ocaml@v1
-        with:
-          ocaml-version: ${{ matrix.ocaml-version }}
+
+### Configuration stage
+stages:
+  - build
+  - test
+
+image: ocaml/opam:debian-testing-opam
 
 
-      - name: --- Installation of Dedukti
-        run: |
-          opam update
-          opam upgrade
-          opam pin add -n -k path dedukti .
-          opam install --deps-only -d -t dedukti
-          opam install ocamlformat
-          opam install tezt --no-checksums --keep-build-dir
-          opam install ~/.opam/4.13.1/.opam-switch/sources/tezt.1.0.0/tezt/lib
-          opam install z3
+### Configuration section
+
+.build-matrix:
+    only: [pushes]
+    parallel:
+        matrix:
+            #- OCAML_VERSION: "4.07.1"
+            #- OCAML_VERSION: "4.08.1"
+            #- OCAML_VERSION: "4.09.1"
+            #- OCAML_VERSION: "4.10.2"
+            #- OCAML_VERSION: "4.11.1"
+            - OCAML_VERSION: "4.13.1"
+
+preprocessing:
+    extends: .build-matrix
+    stage: build
+    only: [pushes]
+
+    variables:
+        FF_USE_FASTZIP: "true"
+
+    script:
+        # Obtain and install opam locally.
+        - sudo apt install wget
+        - sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
+        - sudo chmod 755 /usr/bin/opam
+        # Initialize the switch.
+        - echo "--- Installation of dependencies"
+        - opam init -a --disable-sandboxing --compiler="$OCAML_VERSION"
+        - opam update
+        - opam upgrade
+        - opam switch create "$OCAML_VERSION"
+        - eval $(opam env)
 
 
-      - name: --- Installation of Lambdapi
-        run: |
-          opam pin add -n -k path lambdapi .
-          opam install --deps-only -d -t lambdapi
+        - echo "--- Installation of Dedukti"
+        - opam pin add -n -k path dedukti .
+        - opam install --deps-only -d -t dedukti
+        - opam install ocamlformat
+        - opam install tezt --no-checksums --keep-build-dir
+        - opam install ~/.opam/4.13.1/.opam-switch/sources/tezt.1.0.0/tezt/lib
 
 
-      - name: --- Installation of K
-        run: |
-          sudo apt install ./kframework_5.2.81_amd64_focal.deb
+        - echo "--- Installation of Z3"
+        - opam install z3
 
 
-      - name: --- Installation of KaMeLo
-        run: |
-          git clone https://gitlab.com/semantiko/kamelo.git
-          cd kamelo
-          make
+        - echo "--- Installation of Alt-ergo"
+        - sudo apt-get install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
+        - opam install --yes alt-ergo.2.3.0
+        - eval $(opam env)
+
+
+        - echo "--- Installation of Lambdapi"
+        - opam pin add -n -k path lambdapi .
+        - sudo apt-get install libsigsegv2
+        - opam install --yes --deps-only -d -t lambdapi
+        - eval $(opam env)
+        - why3 config detect
+
+
+        - echo "--- Installation of K"
+        - sudo apt install ./kframework_5.2.81_amd64_focal.deb
+
+
+        - echo "--- Installation of KaMeLo"
+        - git clone https://gitlab.com/semantiko/kamelo.git
+        - cd kamelo
+        - make
+
+
+#test:
+#    stage: test
+#    only: [pushes] #, merge_requests]
+#    script:
+#      - make install
+#      - echo "running tests..."
+#      - make tests
+#      - make sanity_check
