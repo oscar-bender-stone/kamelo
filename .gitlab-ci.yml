@@ -44,9 +44,9 @@ preprocessing:
         - echo "--- Installation of Dedukti"
         - opam pin add -n -k path dedukti .
         - opam install --yes --deps-only -d -t dedukti
-        - opam install ocamlformat
-        - opam install tezt --no-checksums --keep-build-dir
-        - opam install ~/.opam/4.13.1/.opam-switch/sources/tezt.1.0.0/tezt/lib
+        - opam install --yes ocamlformat
+        - opam install --yes tezt --no-checksums --keep-build-dir
+        - opam install --yes ~/.opam/4.13.1/.opam-switch/sources/tezt.1.0.0/tezt/lib
 
 
         - echo "--- Installation of Z3"
