@@ -41,6 +41,10 @@ preprocessing:
         - eval $(opam env)
 
 
+        - echo "--- Installation of K"
+        - wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
+        - sudo apt install ./kframework_5.2.81_amd64_bullseye.deb
+
         #- echo "--- Installation of Dedukti"
         #- opam pin add -n -k path dedukti .
         #- opam install --yes --deps-only -d -t dedukti
@@ -69,12 +73,13 @@ preprocessing:
         - why3 config detect
 
 
-        - echo "--- Installation of K"
-        - sudo apt install ./kframework_5.2.81_amd64_focal.deb
+        #- echo "--- Installation of K"
+        #- wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
+        #- sudo apt install ./kframework_5.2.81_amd64_bullseye.deb
 
 
         - echo "--- Installation of KaMeLo"
-        - git clone https://gitlab.com/semantiko/kamelo.git
+        #- git clone https://gitlab.com/semantiko/kamelo.git
         - cd kamelo
         - make
 
