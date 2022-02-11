@@ -43,7 +43,7 @@ preprocessing:
 
         - echo "--- Installation of K"
         - wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
-        - sudo apt-get install --yes ./kframework_5.2.81_amd64_bullseye.deb
+        - sudo apt install --yes ./kframework_5.2.81_amd64_bullseye.deb
 
         #- echo "--- Installation of Dedukti"
         #- opam pin add -n -k path dedukti .
