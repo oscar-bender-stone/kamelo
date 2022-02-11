@@ -50,19 +50,19 @@ preprocessing:
 
 
         - echo "--- Installation of Z3"
-        - sudo apt install python3
+        - sudo apt install --yes python3
         - opam install --yes z3
 
 
         - echo "--- Installation of Alt-ergo"
-        - sudo apt-get install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
+        - sudo apt install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
         - opam install --yes alt-ergo.2.3.0
         - eval $(opam env)
 
 
         - echo "--- Installation of Lambdapi"
         - opam pin add -n -k path lambdapi .
-        - sudo apt-get install libsigsegv2
+        - sudo apt --yes install libsigsegv2
         - opam install --yes --deps-only -d -t lambdapi
         - eval $(opam env)
         - why3 config detect
