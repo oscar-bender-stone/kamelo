@@ -50,6 +50,7 @@ preprocessing:
 
 
         - echo "--- Installation of Z3"
+        - sudo apt install --yes libgmp-dev
         - sudo apt install --yes python3
         - opam install --yes z3
 
