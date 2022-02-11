@@ -4,7 +4,9 @@ stages:
   - build
   - test
 
-image: debian:stable # ocaml/opam:debian-testing-opam
+FROM runtimeverificationinc/kframework-k:ubuntu-focal-b5d23ac
+
+#image: debian:stable # ocaml/opam:debian-testing-opam
 
 ### Configuration section
 
