@@ -30,7 +30,7 @@ preprocessing:
 
     script:
         # Obtain and install opam locally.
-        - apt-get install wget
+        - sudo apt install wget
 
 
         - git clone https://github.com/runtimeverification/k.git
