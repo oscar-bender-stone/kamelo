@@ -4,8 +4,9 @@ stages:
   - build
   - test
 
-image: ocaml/opam:debian-11-ocaml-4.12
+#image: ocaml/opam:debian-11-ocaml-4.12
 #image: debian:stable # ocaml/opam:debian-testing-opam
+image: ocaml/opam:ubuntu-18.04-ocaml-4.12
 
 ### Configuration section
 
