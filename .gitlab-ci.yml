@@ -4,10 +4,7 @@ stages:
   - build
   - test
 
-image: ubuntu:18.04 # ocaml/opam:debian-testing-opam
-
-apt update
-apt upgrade
+image: ubuntu:bionic # ocaml/opam:debian-testing-opam
 
 ### Configuration section
 
