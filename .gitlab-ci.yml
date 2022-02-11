@@ -37,7 +37,6 @@ preprocessing:
         - echo "--- Installation of dependencies"
         - opam init -a --disable-sandboxing --compiler="$OCAML_VERSION"
         - opam update
-        - opam upgrade
         - opam switch create "$OCAML_VERSION"
         - eval $(opam env)
 
