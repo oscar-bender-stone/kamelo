@@ -43,14 +43,14 @@ preprocessing:
 
         - echo "--- Installation of Dedukti"
         - opam pin add -n -k path dedukti .
-        - opam install --deps-only -d -t dedukti
+        - opam install --yes --deps-only -d -t dedukti
         - opam install ocamlformat
         - opam install tezt --no-checksums --keep-build-dir
         - opam install ~/.opam/4.13.1/.opam-switch/sources/tezt.1.0.0/tezt/lib
 
 
         - echo "--- Installation of Z3"
-        - opam install z3
+        - opam install --yes z3
 
 
         - echo "--- Installation of Alt-ergo"
