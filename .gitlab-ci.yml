@@ -50,6 +50,7 @@ preprocessing:
 
 
         - echo "--- Installation of Z3"
+        - sudo apt install python3
         - opam install --yes z3
 
 
