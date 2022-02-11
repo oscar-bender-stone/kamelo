@@ -6,7 +6,8 @@ stages:
 
 image: ubuntu:18.04 # ocaml/opam:debian-testing-opam
 
-
+apt update
+apt upgrade
 
 ### Configuration section
 
