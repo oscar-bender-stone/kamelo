@@ -29,10 +29,13 @@ preprocessing:
 
     variables:
         FF_USE_FASTZIP: "true"
+        K_VERSION: "5.2.82"
 
     script:
         # Obtain and install opam locally.
         - sudo apt install wget
+
+        - ls /usr/bin/opam
 
         - sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
         - sudo chmod 755 /usr/bin/opam
@@ -55,20 +58,20 @@ preprocessing:
         #- git clone https://github.com/runtimeverification/k.git
         #- cd k/
         #- sudo sh install-k
-        - wget https://github.com/runtimeverification/k/releases/download/v5.2.82/kframework_5.2.82_amd64_bionic.deb
-        - sudo apt install -y ./kframework_5.2.82_amd64_bionic.deb
+        - wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_"$K_VERSION"_amd64_bionic.deb
+        - sudo apt install -y ./kframework_"$K_VERSION"_amd64_bionic.deb
 
 
         #- echo "--- Installation of K"
         #- wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
         #- sudo apt-get install -y ./kframework_5.2.81_amd64_bullseye.deb
 
-        #- echo "--- Installation of Dedukti"
-        #- opam pin add -n -k path dedukti .
-        #- opam install --yes --deps-only -d -t dedukti
-        #- opam install --yes ocamlformat
-        #- opam install --yes tezt --no-checksums --keep-build-dir
-        #- opam install --yes ~/.opam/4.13.1/.opam-switch/sources/tezt.1.0.0/tezt/lib
+        - echo "--- Installation of Dedukti"
+        - opam pin add -n -k path dedukti .
+        - opam install --yes --deps-only -d -t dedukti
+        - opam install --yes ocamlformat
+        - opam install --yes tezt --no-checksums --keep-build-dir
+        - opam install --yes ~/.opam/4.13.1/.opam-switch/sources/tezt.1.0.0/tezt/lib
 
 
         #- echo "--- Installation of Z3"
@@ -89,7 +92,7 @@ preprocessing:
 #    script:
         - echo "--- Installation of Lambdapi"
         - opam pin add -n -k path lambdapi .
-        - sudo apt --yes install libsigsegv2 libgmp-dev pkg-config
+        - sudo apt --yes install libsigsegv2
         - opam install --yes --deps-only -d -t lambdapi
         - eval $(opam env)
         - why3 config detect
