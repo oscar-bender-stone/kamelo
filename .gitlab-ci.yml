@@ -34,13 +34,6 @@ preprocessing:
         # Obtain and install opam locally.
         - sudo apt install wget
 
-
-        #- git clone https://github.com/runtimeverification/k.git
-        #- cd k/
-        #- sudo sh install-k
-        - wget https://github.com/runtimeverification/k/releases/download/v5.2.82/kframework_5.2.82_amd64_bionic.deb
-        - sudo apt install -y ./kframework_5.2.82_amd64_bionic.deb
-
         - sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
         - sudo chmod 755 /usr/bin/opam
         # Initialize the switch.
@@ -49,6 +42,15 @@ preprocessing:
         - opam update
         - opam switch create "$OCAML_VERSION"
         - eval $(opam env)
+
+job:k:
+    stage: installation
+    script:
+        #- git clone https://github.com/runtimeverification/k.git
+        #- cd k/
+        #- sudo sh install-k
+        - wget https://github.com/runtimeverification/k/releases/download/v5.2.82/kframework_5.2.82_amd64_bionic.deb
+        - sudo apt install -y ./kframework_5.2.82_amd64_bionic.deb
 
 
         #- echo "--- Installation of K"
@@ -81,7 +83,7 @@ job:lambdapi:
     script:
         - echo "--- Installation of Lambdapi"
         - opam pin add -n -k path lambdapi .
-        - sudo apt --yes install libsigsegv2
+        - sudo apt --yes install libsigsegv2 libgmp-dev pkg-config
         - opam install --yes --deps-only -d -t lambdapi
         - eval $(opam env)
         - why3 config detect
@@ -98,7 +100,8 @@ job:kamelo:
         #- git clone https://gitlab.com/semantiko/kamelo.git
         #- cd kamelo
         - ls
-        - cd tests/050-imp
+        - ls tests/
+        - cd tests/050-imp/
         - kompile imp.k
         - cd ../..
         - make
