@@ -69,7 +69,7 @@ preprocessing:
         #- opam install --yes z3
 
 job:altergo:
-    stage:installation
+    stage: installation
     script:
         - echo "--- Installation of Alt-ergo"
         - sudo apt install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
@@ -77,7 +77,7 @@ job:altergo:
         - eval $(opam env)
 
 job:lambdapi:
-    stage:installation
+    stage: installation
     script:
         - echo "--- Installation of Lambdapi"
         - opam pin add -n -k path lambdapi .
@@ -92,7 +92,7 @@ job:lambdapi:
         #- sudo apt-get install --yes ./kframework_5.2.81_amd64_bullseye.deb
 
 job:kamelo:
-    stage:installation
+    stage: installation
     script:
         - echo "--- Installation of KaMeLo"
         #- git clone https://gitlab.com/semantiko/kamelo.git
