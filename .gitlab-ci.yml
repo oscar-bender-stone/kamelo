@@ -42,12 +42,12 @@ preprocessing:
         - opam update
         - opam switch create "$OCAML_VERSION"
         - eval $(opam env)
-    cache:
-        paths:
-            - build
-            - /usr/bin/opam
-            - .opam
-            - /usr/bin/wget
+    #cache:
+    #    paths:
+    #        - build
+    #        - /usr/bin/opam
+    #        - .opam
+    #        - /usr/bin/wget
 
 #job:k:
 #    stage: installation
