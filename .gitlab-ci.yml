@@ -2,6 +2,7 @@
 ### Configuration stage
 stages:
   - build
+  - installation
   - test
 
 #image: ocaml/opam:debian-11-ocaml-4.12
@@ -67,13 +68,17 @@ preprocessing:
         #- sudo apt install --yes python3
         #- opam install --yes z3
 
-
+job:altergo:
+    stage:installation
+    script:
         - echo "--- Installation of Alt-ergo"
         - sudo apt install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
         - opam install --yes alt-ergo.2.3.0
         - eval $(opam env)
 
-
+job:lambdapi:
+    stage:installation
+    script:
         - echo "--- Installation of Lambdapi"
         - opam pin add -n -k path lambdapi .
         - sudo apt --yes install libsigsegv2
@@ -86,11 +91,18 @@ preprocessing:
         #- wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
         #- sudo apt-get install --yes ./kframework_5.2.81_amd64_bullseye.deb
 
-
+job:kamelo:
+    stage:installation
+    script:
         - echo "--- Installation of KaMeLo"
         #- git clone https://gitlab.com/semantiko/kamelo.git
-        - cd kamelo
+        #- cd kamelo
+        - ls
+        - cd tests/050-imp
+        - kompile imp.k
+        - cd ../..
         - make
+        - ./KaMeLo tests/050_imp/imp-kompiled/definition.kore
 
 
 #test:
