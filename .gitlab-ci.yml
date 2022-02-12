@@ -42,6 +42,12 @@ preprocessing:
         - opam update
         - opam switch create "$OCAML_VERSION"
         - eval $(opam env)
+    cache:
+        paths:
+            - build
+            - /usr/bin/opam
+            - .opam
+            - /usr/bin/wget
 
 job:k:
     stage: installation
@@ -101,7 +107,7 @@ job:kamelo:
         #- cd kamelo
         - ls
         - ls tests/
-        - cd tests/050-imp/
+        - cd tests/050_imp/
         - kompile imp.k
         - cd ../..
         - make
