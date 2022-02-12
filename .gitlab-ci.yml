@@ -45,12 +45,6 @@ preprocessing:
         - opam update
         - opam switch create "$OCAML_VERSION"
         - eval $(opam env)
-    #cache:
-    #    paths:
-    #        - build
-    #        - /usr/bin/opam
-    #        - .opam
-    #        - /usr/bin/wget
 
 #job:k:
 #    stage: installation
@@ -116,6 +110,13 @@ preprocessing:
         - make
         - ./KaMeLo tests/050_imp/imp-kompiled/definition.kore
 
+
+    cache:
+         paths:
+    #        - build
+    #        - /usr/bin/opam
+            - ~/.opam
+    #        - /usr/bin/wget
 
 #test:
 #    stage: test
