@@ -2,6 +2,7 @@
 
 tests_folder=tests
 kamelo_script=KaMeLo
+python_script=src/printing/rewrite.py # To rewrite beautifully a program
 sem_root=sem_root # Racine par défaut utilisée pour tous les sous-dossiers
                   # afin de savoir où se trouve la racine des fichiers de
                   # sémantique. Nom à changer également dans les fonctions
@@ -102,7 +103,7 @@ for d in $for_test; do
 
    # Création du fichier de management de fichiers pour LP, si besoin
    LPpkg=lambdapi.pkg
-   if [ $extension = "lp" ]; then echo -e "package_name = $sem_root\nroot_path    = $sem_root" > $LPpkg ;fi
+   if [ $extension = "lp" ]; then echo -n "package_name = $sem_root\nroot_path    = $sem_root" > $LPpkg ;fi
    mv $LPpkg $curr_gen_folder/
 
    # Traduction des programmes se trouvant dans "curr_exec_folder"
@@ -117,7 +118,7 @@ for d in $for_test; do
       # Traduction vers Dedukti
       cd ../..
       ./$kamelo_script -r --semantics $semName $curr_gen_folder/$curr_exec_folder/$new_name.kore
-      python3 rewrite.py $curr_gen_folder/$curr_exec_folder/$new_name.$extension
+      python3 $python_script $curr_gen_folder/$curr_exec_folder/$new_name.$extension
       rm $curr_gen_folder/$curr_exec_folder/$new_name.kore
 
       cd $tests_folder/$d/$curr_exec_folder

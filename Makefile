@@ -3,8 +3,17 @@ all:
 	dune build main.exe
 	cp _build/default/main.exe KaMeLo
 
-test:
-	dune runtest
+#test:
+#	dune runtest
+
+test-lp:
+	sh tests/gen_tests.sh lp
+
+#test-dk:
+#	sh tests/gen_tests.sh dk
+
+rewrite:
+	python3 src/printing/rewrite.py $1
 
 doc:
 	dune build @doc
