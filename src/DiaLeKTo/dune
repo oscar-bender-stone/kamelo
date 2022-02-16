@@ -1,4 +1,0 @@
-(library
-  (name DiaLeKTo)
-  (modules :standard)
-  (libraries constructor getter presilo))

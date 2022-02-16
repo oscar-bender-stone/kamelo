@@ -5,7 +5,7 @@ open Common.Getter
 
 open Interface.Output
 
-open Mecanism.Iterator_plus_plus
+open Mecanism.Iterator
 
 open Translating.Axiom
 open Translating.Eval_strategy
