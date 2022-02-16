@@ -12,6 +12,9 @@ test-lp:
 #test-dk:
 #	sh tests/gen_tests.sh dk
 
+test-clean:
+	rm -rf tests/*/*-kompiled
+
 rewrite:
 	python3 src/printing/rewrite.py $1
 
