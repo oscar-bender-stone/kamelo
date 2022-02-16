@@ -51,12 +51,12 @@ nb_nomencla=5 # Nombre permettant de couper avec "cut" pour supprimer les chiffr
 
 # Création du dossier où seront les fichiers générés, 
 # sans message d'erreur si le dossier existe déjà
-gen_folder=$(if [ $extension = "dk" ]; then echo "dk-generated" ; else echo "lp-generated" ;fi)
+gen_folder=$(if [ "$extension" = "dk" ]; then echo "dk-generated" ; else echo "lp-generated" ;fi)
 mkdir -p $gen_folder
 
 cd $tests_folder
 
-for_test=$(if [ $# = 2 ];
+for_test=$(if [ "$#" = 2 ];
     then echo $(find . -mindepth 1 -maxdepth 1 -type d -iname "$2" | sort -d | cut -c3-) ;
     else echo $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-) ;
     fi)

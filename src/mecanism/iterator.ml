@@ -122,7 +122,8 @@ let rewriting_cases
   match attr_l with
   | [Heat _] -> incr_k_ax_heating  cd ; f_heating  attr_l acc al (qv_l, ax)
   | [Cool _] -> incr_k_ax_cooling  cd ; f_cooling  attr_l acc al (qv_l, ax)
-  | []       -> incr_k_ax_semantic cd ; f_semantic attr_l acc al (qv_l, ax)
+  | [Owise _] -> incr_k_ax_semantic cd ; f_semantic attr_l acc al (qv_l, ax)
+  | [] -> incr_k_ax_semantic cd ; f_semantic attr_l acc al (qv_l, ax)
   | _ -> raise (InternalError "Need to update [rewriting_cases].")
 
 let meta_kommand_iter
