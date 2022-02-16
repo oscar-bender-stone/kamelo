@@ -27,3 +27,4 @@ clean:
 	rm -f *kparser.ml *kparser.mli
 	rm -f *.lp *.pkg *.dk *.mykore
 	rm -f *~ KaMeLo
+	rm -rf lp-generated/ dk-generated/
