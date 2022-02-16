@@ -5,8 +5,8 @@ open Common.Error
 open Translating.Axiom
 
 open Mecanism.Count_data
+open Interface.Output
 open LP.LP_printer
-open Printer
 
 let check_induc = ref false
 
@@ -18,7 +18,7 @@ module Induc = Map.Make(Sort)
 
 ;; (* ( sort |-> symbol list) *)
 
-
+(** Main (old) algorithm *)
 
 (* 1 : remonter les symboles des types inductifs + descendre les sorts des types inductifs
  * 2 : Enlever les axiomes qui ne nous intéressent pas
@@ -126,6 +126,46 @@ let preprocessing :
   let sort_l, induc_m, sym_l, alias_l, ax_l = aux c_l ([], Induc.empty, [], [], []) in
   (name, List.rev sort_l, induc_m, List.rev sym_l, List.rev alias_l, List.rev ax_l)
 
+
+(** Some printers *)
+
+let pp_sort ppc cd prt : sort -> unit = fun s ->
+  (* incr_real_sort cd ; *)
+  incr_real_symbol cd ;
+  prt ppc (Translating.Translation.sort_to_p_symbol (pp s))
+
+let pp_induc ppc cd prt : sort * symbol list -> unit = fun i ->
+  incr_real_induc cd ;
+  prt ppc (Translating.Translation.create_inductive_type i)
+
+let pp_symbol ppc cd prt : symbol * attribute list -> unit =
+  fun ((name, qv_l, p_l, p), attr_l) ->
+  let s = (pp name, qv_l, p_l, p) in
+  incr_real_symbol cd ;
+  prt ppc (Translating.Translation.symbol_to_p_symbol s attr_l)
+
+let pp_alias ppc cd prt :
+      alias * (quant_var list * axiom * attribute list) option -> unit =
+  fun v ->
+  match v with
+  | _, None -> () (* @TODO *)
+  | al, Some(_,ax,_) ->
+     try
+       prt ppc (Translating.Translation.unconditional_rule_to_p_rule al ax) ;
+       incr_real_rule cd
+     with ConditionalRule _ -> ()
+
+let pp_axiom ppc cd prt : quant_var list * axiom * attribute list -> unit =
+  fun (_, ax, attr_l) ->
+  match attr_l with
+  | [Unit _] | [Assoc _] | [Idem _] ->
+     (* if is_only_assoc ax then @TODO *)
+     incr_real_rule cd ;
+     prt ppc (Translating.Translation.equality_axiom_to_p_rule ax)
+  | _ -> () (* @TODO *)
+
+
+(** To print the resulting translation *)
 
 let first_translation ppc cd : kmodule -> unit = fun m ->
   let _, sort_l, induc_m, sym_l, alias_l, ax_l = preprocessing m cd in

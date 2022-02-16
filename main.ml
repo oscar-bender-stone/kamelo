@@ -20,9 +20,13 @@ let () =
      let ff = Format.formatter_of_out_channel f in
      (* STEP 2: Add the import of the semantic *)
      let cd = Mecanism.Count_data.reset_count_data 0 in
-     Controller.Printer.pp_import ff cd
-       (LP.LP_printer.pp_command) (["sem_root"])
-       (!Terminal.Cmd_line.semantics_file, []);
+     let path = ["sem_root"] in
+     let i = (!Terminal.Cmd_line.semantics_file, []) in
+     let import_trans =
+       Translating.Translation.import_to_require_open path i
+     in
+     Mecanism.Count_data.incr_real_import cd ;
+     LP.LP_printer.pp_command ff import_trans ;
      (* STEP 3: Translate the executable *)
      let p_exec = Translating.Axiom.curry_ident exec in
      (* STEP 4: Add free variables *)

@@ -30,7 +30,7 @@ The KaMeLo source file hierarchy
    │   └── kparser.mly  
    ├── printing/  
    │   ├── Kore_printer.ml: *To print into a simplified Kore syntax*  
-   │   ├── meta_printer.ml: "Meta-printers"  
+   │   ├── meta_printer.ml: *Meta-printers to print the resulting translation*  
    │   └── rewrite.py: *Run this script to rewrite a executable program*  
    ├── terminal/: *Management of the terminal*  
    │   ├── cmd_line.ml: *To parse the command line*  
