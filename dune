@@ -28,7 +28,7 @@
 (executable
   (name main)
   (modules :standard)
-  (libraries parsing common LP interface translating controller terminal str ocamlgraph))
+  (libraries parsing common LP interface translating controller terminal str))
 
 ;; (library
 ;;  (name dependency_graph)
