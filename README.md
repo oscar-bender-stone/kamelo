@@ -21,7 +21,7 @@ The files' hierarchy of KaMeLo
 ├── README.md: *This file*  
 ├── src: *Source of KaMeLo. (See src/README.md)*  
 └── tests  
-      ├── 001_max/: "Some tests"   
+      ├── 001_max/: *Some tests*   
       ...  
       ├── 100_two-counters/: *Some tests*  
       └── gen_tests.sh: *Run this script to launch all the tests*  

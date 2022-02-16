@@ -9,7 +9,6 @@ The KaMeLo source file hierarchy
    │   └── type.ml: *Type to abstract Kore file*  
    ├── controller/  
    │   ├── import.ml: *About file management*  
-   │   ├── meta_printer.ml: "Meta-printers" **This file need to move in printing/**  
    │   ├── old.ml: *The first translation (use the option --old)*  
    │   ├── prelude.ml: *To print the prelude*  
    │   ├── printer.ml: *Encapsulation of the LP printer* **This file need to be deleted.**  
@@ -31,6 +30,7 @@ The KaMeLo source file hierarchy
    │   └── kparser.mly  
    ├── printing/  
    │   ├── Kore_printer.ml: *To print into a simplified Kore syntax*  
+   │   ├── meta_printer.ml: "Meta-printers"  
    │   └── rewrite.py: *Run this script to rewrite a executable program*  
    ├── terminal/: *Management of the terminal*  
    │   ├── cmd_line.ml: *To parse the command line*  
