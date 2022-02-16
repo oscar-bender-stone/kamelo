@@ -29,7 +29,7 @@ preprocessing:
 
     variables:
         FF_USE_FASTZIP: "true"
-        K_VERSION: "5.2.82"
+        K_VERSION: "5.0.1" # "5.2.82"
 
     script:
         # Obtain and install opam locally.
@@ -115,7 +115,7 @@ preprocessing:
          paths:
     #        - build
     #        - /usr/bin/opam
-            - ~/.opam
+             - ~/.opam
     #        - /usr/bin/wget
 
 #test:
