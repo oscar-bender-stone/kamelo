@@ -8,10 +8,8 @@ The KaMeLo source file hierarchy
    │   ├── getter.ml: *Some functions on abstract Kore file*  
    │   └── type.ml: *Type to abstract Kore file*  
    ├── controller/  
-   │   ├── import.ml: *About file management*  
    │   ├── old.ml: *The first translation (use the option --old)*  
    │   ├── prelude.ml: *To print the prelude*  
-   │   ├── printer.ml: *Encapsulation of the LP printer* **This file need to be deleted.**  
    │   └── with_Viry_encoding.ml: *A translation with Viry encoding*  
    ├── interface/  
    │   ├── getter_term.ml: *Some getters on K and Dedukti*  
@@ -36,7 +34,6 @@ The KaMeLo source file hierarchy
    │   ├── cmd_line.ml: *To parse the command line*  
    │   └── display_console.ml: *To print the recap of the translation in the terminal*  
    └── translating/: *The translation of...*  
-        ├── alias.ml: *... the alias*  
         ├── axiom.ml: *... the axioms*  
         ├── eval_strategy.ml: *... the evaluation strategies*  
         ├── prelude_data.ml: *Data for translating the prelude*  
