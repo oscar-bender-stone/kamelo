@@ -96,13 +96,13 @@ let () =
            | M_Kore    ->
               (match !Terminal.Cmd_line.output with
                | O_LP | O_Dedukti ->
-                  Controller.Meta_printer.prt_Viry ff cd printing
+                  Printing.Meta_printer.prt_Viry ff cd printing
                     (Controller.With_Viry_encoding.main cd kommand_l)
                (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
                | O_Kore ->
                   Printing.Kore_printer.pp_kore_kommand ff cd kommand_l)
            | M_K       ->
-              Controller.Meta_printer.prt_Viry ff cd printing
+              Printing.Meta_printer.prt_Viry ff cd printing
               (Controller.With_Viry_encoding.main cd kommand_l)
            (* Printing.Printer.pp_kommand_bis ff cd printing kommand_l *)
            | M_Dedukti -> ()
