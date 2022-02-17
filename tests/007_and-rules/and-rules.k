@@ -1,7 +1,9 @@
 
 module AND-RULES-SYNTAX
   import BOOL
-  syntax BExp ::= Bool | BExp "and" BExp  [left]
+  syntax BExp ::= Bool
+                | "(" BExp ")"
+                | BExp "and" BExp  [left]
 endmodule
 
 module AND-RULES

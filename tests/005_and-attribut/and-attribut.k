@@ -1,7 +1,9 @@
 
 module AND-ATTRIBUT-SYNTAX
   import BOOL
-  syntax BExp ::= Bool | BExp "and" BExp  [left, strict(1)]
+  syntax BExp ::= Bool
+                  | "(" BExp ")" [bracket]
+                  | BExp "and" BExp  [left, strict(1)]
 endmodule
 
 module AND-ATTRIBUT
