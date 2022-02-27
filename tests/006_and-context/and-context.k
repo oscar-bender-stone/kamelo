@@ -1,7 +1,9 @@
 
 module AND-CONTEXT-SYNTAX
   import BOOL
-  syntax BExp ::= Bool | BExp "and" BExp  [left]
+  syntax BExp ::= Bool
+                | "(" BExp ")" [bracket]
+                | BExp "and" BExp  [left]
 endmodule
 
 module AND-CONTEXT
