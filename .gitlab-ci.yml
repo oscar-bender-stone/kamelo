@@ -110,6 +110,7 @@ preprocessing:
         - make
         - ./KaMeLo tests/050_imp/imp-kompiled/definition.kore
 
+        - make test-lp
 
     cache:
          paths:
