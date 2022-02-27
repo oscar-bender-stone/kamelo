@@ -4,6 +4,7 @@ open LP_p_term
 let _SORTK = "SortK"
 let _SORT_KITEM = "SortKItem"
 let _SORT_KRESULT = "SortKResult"
+let _SORT_ID = "SortId"
 let _INJD  = "δ"
 let _INJ   = "inj"
 let _KSEQ  = "kseq"
