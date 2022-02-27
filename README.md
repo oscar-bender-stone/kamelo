@@ -16,7 +16,7 @@ The files' hierarchy of KaMeLo
 ==============================  
 
 .  
-├── main.ml: *The main algorithm to translate a semantic or an exacutable*  
+├── main.ml: *The main algorithm to translate a semantic or an executable*  
 ├── Makefile  
 ├── README.md: *This file*  
 ├── src: *Source of KaMeLo. (See src/README.md)*  

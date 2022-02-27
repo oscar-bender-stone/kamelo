@@ -84,6 +84,12 @@ let () =
      let module_to_file : kmodule -> unit = fun m ->
        (* let name, import_l, command_l, attribut_l = m in *)
        let name, _, kommand_l, _ = m in
+       (* STEP 0: Cleaning the semantic files *)
+       let kommand_l =
+         if not(name = "BASIC-K" || name = "KSEQ" || name = "INJ" || name = "K") then
+           Translating.Cleaning.cleaning kommand_l
+         else kommand_l
+       in
        Common.Error.print ff "\n// Translation of the module ";
        Format.pp_print_string ff name;
        Common.Error.print ff "\n";
@@ -133,9 +139,10 @@ let () =
      Controller.Prelude.create_prelude ff printing "prelude" ;
      (* Transformer en module pour ne plus avoir qu'à itérer ? *)
      List.iter module_to_file (List.tl file);
-     if Translating.Axiom.StrMap.mem Interface.K_prelude._SORT_KRESULT !Translating.Axiom.sort_signature then
+
+     (* if Translating.Axiom.StrMap.mem Interface.K_prelude._SORT_KRESULT !Translating.Axiom.sort_signature then
        (print_comment ff "Extension of isKResult's definition";
-        List.iter (fun x -> printing ff (Interface.LP_p_term.no_pos (LP.Syntax.P_rules [x]))) (Translating.Axiom.create_isKResult_rule ())) ;
+        List.iter (fun x -> printing ff (Interface.LP_p_term.no_pos (LP.Syntax.P_rules [x]))) (Translating.Axiom.create_isKResult_rule ())) ; *)
      print_footer_kamelo ();
      close_out f;
      flush stdout;;

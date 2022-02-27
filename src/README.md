@@ -35,6 +35,7 @@ The KaMeLo source file hierarchy
    │   └── display_console.ml: *To print the recap of the translation in the terminal*  
    └── translating/: *The translation of...*  
         ├── axiom.ml: *... the axioms*  
+        ├── cleaning: *To clean before translating*  
         ├── eval_strategy.ml: *... the evaluation strategies*  
         ├── prelude_data.ml: *Data for translating the prelude*  
         ├── symbol.ml: *... the symbols*  

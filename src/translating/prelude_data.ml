@@ -17,9 +17,9 @@ let hooked_sort =
   ]
 
 let hooked_symbol =
-  [ ("Lbl'Hash'if'UndsHash'then'UndsHash'else'UndsHash'fi'Unds'K-EQUAL-SYNTAX'Unds'Sort'Unds'Bool'Unds'Sort'Unds'Sort",
+  [ (* ("Lbl'Hash'if'UndsHash'then'UndsHash'else'UndsHash'fi'Unds'K-EQUAL-SYNTAX'Unds'Sort'Unds'Bool'Unds'Sort'Unds'Sort",
      ["SortSort" (* parametre {  } *); "SortBool"; "SortSort"; "SortSort"; "SortSort"]) (* klabel ? hook{}("KEQUAL.ite") *)
-  ; ("Lbl'Stop'List",
+  ; *) ("Lbl'Stop'List",
      ["SortList"]) (* klabel ? hook{}("LIST.unit") *)
   ; ("Lbl'Stop'Map",
      ["SortMap"])  (* klabel ? hook{}("MAP.unit")  *)
@@ -27,10 +27,10 @@ let hooked_symbol =
      ["SortSet"])  (* klabel ? hook{}("SET.unit")  *)
   ; ("LblBase2String'LParUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'Int'Unds'Int",
      ["SortInt"; "SortInt"; "SortString"]) (* klabel ?  hook{}("STRING.base2string") *)
-  ; ("LblFloat2String'LParUndsRParUnds'STRING-COMMON'Unds'String'Unds'Float",
+ (* ; ("LblFloat2String'LParUndsRParUnds'STRING-COMMON'Unds'String'Unds'Float",
      ["SortFloat"; "SortString"]) (* klabel{}("Float2String"), hook{}("STRING.float2string") *)
   ; ("LblFloat2String'LParUndsCommUndsRParUnds'STRING-COMMON'Unds'String'Unds'Float'Unds'String",
-     ["SortFloat"; "SortString"; "SortString"]) (* klabel{}("FloatFormat"), hook{}("STRING.floatFormat") *)
+     ["SortFloat"; "SortString"; "SortString"]) (* klabel{}("FloatFormat"), hook{}("STRING.floatFormat") *) *)
   ; ("LblId2String'LParUndsRParUnds'ID-COMMON'Unds'String'Unds'Id",
      ["SortId"; "SortString"]) (* klabel{}("Id2String"), hook{}("STRING.token2string") *)
   ; ("LblInt2String'LParUndsRParUnds'STRING-COMMON'Unds'String'Unds'Int",
