@@ -127,15 +127,17 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
     | Predicate p ->
        begin
         match p with
-        | Sym("inj", qv_l, a_l) ->
-           let g p = match p with S x | Q x -> create_implicit_arg x in
-           let tmp = List.map g qv_l in
-           let res = List.fold_left create_appl p_INJ tmp in
-           let res = List.fold_left f_sym res a_l in
-           if !do_specific_thing
-           then change_sort_inj res
-           else res
-        | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
+        | Sym(n, qv_l, a_l) ->
+           if n = _INJ then
+             let g p = match p with S x | Q x -> create_implicit_arg x in
+             let tmp = List.map g qv_l in
+             let res = List.fold_left create_appl p_INJ tmp in
+             let res = List.fold_left f_sym res a_l in
+             if !do_specific_thing
+             then change_sort_inj res
+             else res
+           else
+             List.fold_left f_sym (create_ident n) a_l
         | Var(n, _) -> (if StrMap.mem n !data_matching
                         then StrMap.find n !data_matching
                         else
@@ -148,13 +150,15 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
                               else change_sort_inj (f_var n))
                            else f_var n))
        end
-    | Dom_val("SortId", name) ->
-       let f a = match a with
-         | None   -> Some [name]   (* Si l'entrée n'existait pas encore *)
-         | Some l -> if List.mem name l then Some l else Some(name::l) (* Si l'entrée existait déjà *)
-       in (* TODO a factorisé avec [find_equiv_class] dans viry.ml et [from_subsort_axiom] plus bas *)
-       free_var := StrMap.update "SortId" f !free_var ; create_ident name
-    | Dom_val(_, name) -> create_ident name
+    | Dom_val(s, name) ->
+       if s = _SORT_ID then
+         let f a = match a with
+           | None   -> Some [name]   (* Si l'entrée n'existait pas encore *)
+           | Some l -> if List.mem name l then Some l else Some(name::l) (* Si l'entrée existait déjà *)
+         in (* TODO a factorisé avec [find_equiv_class] dans viry.ml et [from_subsort_axiom] plus bas *)
+         free_var := StrMap.update _SORT_ID f !free_var ; create_ident name
+       else
+         create_ident name
     (*| In _ -> failwith "OK, guys"
       | Equals _ -> failwith "EQUALS"
       | Exists _ -> failwith "EXISTS"
@@ -240,12 +244,14 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
       | Predicate p ->
          begin
           match p with
-          | Sym("inj", qv_l, a_l) ->
-             let g p = match p with S x | Q x -> create_implicit_arg x in
-             let tmp = List.map g qv_l in
-             let res = List.fold_left create_appl p_INJ tmp in
-             List.fold_left f_sym res a_l
-          | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
+          | Sym(n, qv_l, a_l) ->
+             if n = _INJ then
+               let g p = match p with S x | Q x -> create_implicit_arg x in
+               let tmp = List.map g qv_l in
+               let res = List.fold_left create_appl p_INJ tmp in
+               List.fold_left f_sym res a_l
+             else
+               List.fold_left f_sym (create_ident n) a_l
           | Var(n, _) -> (if StrMap.mem n local_data
                           then StrMap.find n local_data
                           else f_var n)
