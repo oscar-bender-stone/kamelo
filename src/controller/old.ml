@@ -6,7 +6,12 @@ open Translating.Axiom
 
 open Mecanism.Count_data
 open Interface.Output
+open Interface.LP_p_term
+open LP.Syntax
 open LP.LP_printer
+
+exception KComputation of string
+exception ConditionalRule of string
 
 let check_induc = ref false
 
@@ -17,6 +22,71 @@ end
 module Induc = Map.Make(Sort)
 
 ;; (* ( sort |-> symbol list) *)
+
+(** Inductive type *)
+let induc_to_p_inductive : sort * symbol list -> p_inductive =
+  fun (sort, s_l) ->
+  (* p_inductive_aux = p_ident * p_term * (p_ident * p_term) list *)
+  let f s = (create_p_ident (get_name s), Translating.Symbol.sym_curry s) in
+  no_pos (create_p_ident sort, p_TYPE, List.map f s_l)
+
+(** [create_inductive_type i] creates non-mutual inductive type
+    without parameter and position. *)
+let create_inductive_type : sort * symbol list -> p_command = fun i ->
+  no_pos (P_inductive ([], [], [induc_to_p_inductive i]))
+
+
+(** [create_LHS al] creates a LHS of a rewriting rule thanks to an alias. *)
+let create_LHS : alias -> p_term = fun al ->
+  let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
+  let def = get_def al in
+  match def with
+  | A a ->
+     begin
+      match a with
+      | And(_,a1,a2) ->
+         if is_conditional_rule a1 then
+            raise (ConditionalRule "Conditional rewriting rule not supported yet.")
+         else
+           (try curry_pattern a2
+            with KComputation _ ->
+              wrn_msg _STDOUT "WARNING: K computation found." ; p_TYPE)
+      (* _ -> failwith "LHS"*)
+      |  _ -> failwith "In LHS: Not yet implemented"
+     end
+  | D _ -> failwith "Not possible in rewriting axiom"
+
+(** [create_RHS ax] creates a RHS of a rewriting rule thanks to an axiom. *)
+let create_RHS : t -> p_term = fun ax ->
+  match ax with
+  | Rewrites(_,_,And(_,a1,a2)) ->
+     if is_conditional_rule a1 then
+       raise (ConditionalRule "Conditional rewriting rule not supported yet.")
+     else
+       curry_pattern a2
+  |  _ -> failwith "In RHS: Not yet implemented"
+
+(** [create_rewriting_rule al ax] creates a rewriting rule thanks to
+    an alias (for LHS) and an axiom (for RHS). *)
+let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
+  data_matching := StrMap.empty ;
+  let rule =
+    try
+      (* Be careful: the order of the computation is important
+         because of references *)
+      let lhs = create_LHS al in
+      let rhs = create_RHS ax in
+      (lhs, rhs)
+    with ConditionalRule _ ->
+      wrn_msg _STDOUT "WARNING: Conditional rewriting rule." ;
+      (p_TYPE, p_TYPE)
+  in
+  no_pos rule
+
+
+(** Alias *)
+let unconditional_rule_to_p_rule : alias -> axiom -> p_command =
+  fun al ax -> no_pos (P_rules [create_rewriting_rule al ax])
 
 (** Main (old) algorithm *)
 
@@ -136,7 +206,7 @@ let pp_sort ppc cd prt : sort -> unit = fun s ->
 
 let pp_induc ppc cd prt : sort * symbol list -> unit = fun i ->
   incr_real_induc cd ;
-  prt ppc (Translating.Translation.create_inductive_type i)
+  prt ppc (create_inductive_type i)
 
 let pp_symbol ppc cd prt : symbol * attribute list -> unit =
   fun ((name, qv_l, p_l, p), attr_l) ->
@@ -151,7 +221,7 @@ let pp_alias ppc cd prt :
   | _, None -> () (* @TODO *)
   | al, Some(_,ax,_) ->
      try
-       prt ppc (Translating.Translation.unconditional_rule_to_p_rule al ax) ;
+       prt ppc (unconditional_rule_to_p_rule al ax) ;
        incr_real_rule cd
      with ConditionalRule _ -> ()
 

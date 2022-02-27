@@ -22,11 +22,11 @@ let pp_symbol_prelude ppc cd prt : p_symbol -> unit = fun sym ->
 
 let pp_sort_prelude ppc cd prt : p_symbol -> unit = fun sym ->
   incr_real_symbol cd ;
-  (match sym.p_sym_typ with
+  (* (match sym.p_sym_typ with
    | Some v ->
       Translating.Axiom.sort_signature :=
         Translating.Axiom.StrMap.add sym.p_sym_nam.elt v !Translating.Axiom.sort_signature
-   | None -> ()) ; prt ppc (no_pos (P_symbol sym))
+   | None -> ()) ; *) prt ppc (no_pos (P_symbol sym))
 
 
 let pp_builtin_prelude ppc _ prt : p_command -> unit = fun b -> prt ppc b

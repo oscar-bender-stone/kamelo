@@ -139,10 +139,6 @@ let () =
      Controller.Prelude.create_prelude ff printing "prelude" ;
      (* Transformer en module pour ne plus avoir qu'à itérer ? *)
      List.iter module_to_file (List.tl file);
-
-     (* if Translating.Axiom.StrMap.mem Interface.K_prelude._SORT_KRESULT !Translating.Axiom.sort_signature then
-       (print_comment ff "Extension of isKResult's definition";
-        List.iter (fun x -> printing ff (Interface.LP_p_term.no_pos (LP.Syntax.P_rules [x]))) (Translating.Axiom.create_isKResult_rule ())) ; *)
      print_footer_kamelo ();
      close_out f;
      flush stdout;;

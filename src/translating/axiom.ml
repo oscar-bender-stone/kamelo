@@ -4,16 +4,6 @@ open Interface.K_prelude
 open LP.Syntax
 
 open Common.Type
-open Common.Getter
-open Common.Error
-
-module Sort = struct
-  type t = sort
-  let compare = String.compare
-end
-module Induc = Map.Make(Sort)
-
-let data_induc : (symbol list) Induc.t ref = ref Induc.empty
 
 type t = axiom
 
@@ -310,81 +300,3 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
        with _ -> failwith "Implies axiom")
   | _ -> failwith "The current axiom isn't an implies one.\n
                    Please, raise an issue."
-
-(** ********************************** *)
-(** To translate rewriting axioms      *)
-(** ********************************** *)
-
-exception KComputation of string
-exception ConditionalRule of string
-
-(** [create_LHS al] creates a LHS of a rewriting rule thanks to an alias. *)
-let create_LHS : alias -> p_term = fun al ->
-  let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
-  let def = get_def al in
-  match def with
-  | A a ->
-     begin
-      match a with
-      | And(_,a1,a2) ->
-         if is_conditional_rule a1 then
-            raise (ConditionalRule "Conditional rewriting rule not supported yet.")
-         else
-           (try curry_pattern a2
-            with KComputation _ ->
-              wrn_msg _STDOUT "WARNING: K computation found." ; p_TYPE)
-      (* _ -> failwith "LHS"*)
-      |  _ -> failwith "In LHS: Not yet implemented"
-     end
-  | D _ -> failwith "Not possible in rewriting axiom"
-
-(** [create_RHS ax] creates a RHS of a rewriting rule thanks to an axiom. *)
-let create_RHS : t -> p_term = fun ax ->
-  match ax with
-  | Rewrites(_,_,And(_,a1,a2)) ->
-     if is_conditional_rule a1 then
-       raise (ConditionalRule "Conditional rewriting rule not supported yet.")
-     else
-       curry_pattern a2
-  |  _ -> failwith "In RHS: Not yet implemented"
-
-(** [create_rewriting_rule al ax] creates a rewriting rule thanks to
-    an alias (for LHS) and an axiom (for RHS). *)
-let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
-  data_matching := StrMap.empty ;
-  let rule =
-    try
-      (* Be careful: the order of the computation is important
-         because of references *)
-      let lhs = create_LHS al in
-      let rhs = create_RHS ax in
-      (lhs, rhs)
-    with ConditionalRule _ ->
-      wrn_msg _STDOUT "WARNING: Conditional rewriting rule." ;
-      (p_TYPE, p_TYPE)
-  in
-  no_pos rule
-
-(** To store the type of each sort   *)
-let sort_signature : p_term StrMap.t ref = ref StrMap.empty
-
-(** [create_isKResult_rule] generates a rewriting rule
-    p_IS_KRESULT (p_KSEQ (p_INJ { s } _) p_DOTK) --> b
-    b = true,  if s is a subsort of KResult
-    b = false, otherwise *)
-let create_isKResult_rule : unit -> p_rule list = fun () ->
-  let create_one_LHS : string -> p_term = fun sort_x ->
-    let inj = create_appl (create_appl p_INJ (create_implicit_arg sort_x)) p_WILD in
-    let k_comput = create_appl (create_appl p_KSEQ inj) p_DOTK in
-    create_appl p_IS_KRESULT k_comput
-  in
-  let create_one_rule : string -> p_term -> p_rule list -> p_rule list =
-    fun key _ acc ->
-    if key = _SORTK || key = _SORT_KITEM || key = _SORT_KRESULT then acc
-    else
-      let lhs = create_one_LHS key in
-      let subsort_rel = try StrMap.find key !subsort_data with Not_found -> [] in
-      let rhs = create_ident (string_of_bool (List.mem _SORT_KRESULT subsort_rel)) in
-      (no_pos (lhs, rhs))::acc
-  in
-  StrMap.fold create_one_rule !sort_signature []

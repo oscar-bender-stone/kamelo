@@ -2,15 +2,7 @@
 open Common.Type
 open LP.Syntax
 
-(* module Sort : *)
-module Induc : Map.S with type key = sort
-
-val data_induc : (symbol list) Induc.t ref
-
 type t = axiom
-
-exception KComputation of string
-exception ConditionalRule of string
 
 (** ****************************************************** *)
 (** To translate exists-axioms (functional or subsort one) *)
@@ -64,15 +56,3 @@ type ctrs_rule = p_rule * extra_data_rule * int
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
     to a rewriting rule. *)
 val of_implies_axiom : t -> ctrs_rule
-
-
-(** ********************************** *)
-(** To translate rewriting axioms      *)
-(** ********************************** *)
-
-(** [create_rewriting_rule al ax] creates a rewriting rule thanks to
-    an alias (for LHS) and an axiom (for RHS). *)
-val create_rewriting_rule : alias -> t -> p_rule
-
-val sort_signature : p_term StrMap.t ref
-val create_isKResult_rule : unit -> p_rule list

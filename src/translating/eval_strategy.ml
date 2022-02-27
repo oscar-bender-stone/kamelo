@@ -6,6 +6,14 @@ open Common.Error
 open Interface.LP_p_term
 open Interface.K_prelude
 
+module Sort = struct
+  type t = sort
+  let compare = String.compare
+end
+module Induc = Map.Make(Sort)
+
+let data_induc : (symbol list) Induc.t ref = ref Induc.empty
+
 let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
   let rec aux : t -> p_term = fun ax ->
     let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
