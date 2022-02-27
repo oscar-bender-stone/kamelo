@@ -66,19 +66,19 @@ let create_LHS : alias -> p_term * p_term option = fun al ->
        | And(_,a1,a2) ->
           (match a1 with
            | Top _ -> curry_pattern a2, None
-           | _     -> let res = curry_pattern a2 in res, Some (curry_condition a1)) (* (no_pos P_Type)) *)
-       |  _ -> failwith "In LHS: Not yet implemented"
+           | _     -> let res = curry_pattern a2 in res, Some (curry_condition a1))
+       |  _ -> raise (InternalError "The heating/cooling rule has no condition")
      end
-  | D _ -> failwith "Not possible in rewriting axiom"
+  | D _ -> raise (NotYetImplemented "Alias (LHS) with a unique symbol as body.")
 
 let create_RHS : t -> p_term = fun ax ->
   match ax with
   | Rewrites(_,_,And(_,a1,a2)) ->
-     if is_conditional_rule a1 then (print _STDOUT "One KProver claim." ; p_TYPE)
-                                      (* raise (ConditionalRule "KProver claim not supported yet.") *)
+     if is_conditional_rule a1 then
+       raise (NotYetImplemented "KProver claim.")
      else
        Axiom.curry_pattern a2
-  |  _ -> failwith "In RHS: Not yet implemented"
+  |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
 
 
 (** To translate cooling rules *)

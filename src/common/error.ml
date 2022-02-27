@@ -44,3 +44,4 @@ let wrn_2 ppc = fun msg arg1 arg2 ->
 (** Exception *)
 
 exception InternalError of string
+exception NotYetImplemented of string
