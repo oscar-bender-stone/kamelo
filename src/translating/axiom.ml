@@ -291,15 +291,15 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
   in
   let data = StrMap.empty in
   match ax with
-  | Implies(_, And(_,Top _, a1), And(_, Equals(_,l,r), Top _)) ->
+  | Implies(_, And(_,Top _, a1), Equals(_, l, And(_, r, Top _))) ->
      (let data = collect a1 data in
       try no_pos (local_curry l data, local_curry r data), Uncond, 42
       with _ -> failwith "Implies axiom")
-  | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), And(_, Equals(_,l,r), Top _)) ->
+  | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), Equals(_, l, And(_, r, Top _))) ->
      (let data = collect a1 data in
       try no_pos (local_curry l data, local_curry r data), Cond (local_curry c data), 42
       with _ -> failwith "Implies axiom")
-  | Implies(_, Equals(_, c, Dom_val(_,"true")), And(_, Equals(_,l,r), Top _)) ->
+  | Implies(_, Equals(_, c, Dom_val(_,"true")), Equals(_, l, And(_, r, Top _))) ->
       (try no_pos (local_curry l data, local_curry r data), Cond (local_curry c data), 42
        with _ -> failwith "Implies axiom")
   | _ -> failwith "The current axiom isn't an implies one.\n
