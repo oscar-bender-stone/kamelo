@@ -31,10 +31,11 @@ let axiom_cases
       (acc : 'a) (qv_l : quant_var list) (ax : axiom)
       ((f_exists_ax_subsort    : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_exists_ax_functional : attribute list -> 'a -> quant_var list * axiom -> 'a))
-      ((f_equals_ax_assoc : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_comm  : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_idem  : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_unit  : attribute list -> 'a -> quant_var list * axiom -> 'a))
+      ((f_equals_ax_assoc   : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_comm    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_idem    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_unit    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_default : attribute list -> 'a -> quant_var list * axiom -> 'a))
       ((f_or_bottom_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a))
       ((f_not_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a))
       ((f_implies_ax_constructor     : attribute list -> 'a -> quant_var list * axiom -> 'a),
@@ -62,6 +63,8 @@ let axiom_cases
          incr_k_ax_idem  cd ; f_equals_ax_idem attr_l acc (qv_l, ax)
       | Some (Unit  _) ->
          incr_k_ax_unit  cd ; f_equals_ax_unit attr_l acc (qv_l, ax)
+      | None -> (* Some (Simplification  _) - Axiome du prélude  *)
+         incr_k_ax_without_attr cd ; f_equals_ax_default attr_l acc (qv_l, ax)
       | _ -> raise (InternalError "Need to update [axiom_cases], case Equals."))
   | Or _ -> incr_k_or_ax cd ;
      (match curr_attr with
@@ -138,10 +141,11 @@ let meta_kommand_iter
       (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
       ((f_exists_ax_subsort    : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_exists_ax_functional : attribute list -> 'a -> quant_var list * axiom -> 'a)       as f_exists)
-      ((f_equals_ax_assoc : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_comm  : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_idem  : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_unit  : attribute list -> 'a -> quant_var list * axiom -> 'a)            as f_equals)
+      ((f_equals_ax_assoc   : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_comm    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_idem    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_unit    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_default : attribute list -> 'a -> quant_var list * axiom -> 'a)            as f_equals)
       ((f_or_bottom_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)   as f_or_bottom)
       ((f_not_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)         as f_not)
       ((f_implies_ax_constructor     : attribute list -> 'a -> quant_var list * axiom -> 'a),
@@ -192,10 +196,11 @@ let kommand_iter_without_alias
       (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
       ((f_exists_ax_subsort    : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_exists_ax_functional : attribute list -> 'a -> quant_var list * axiom -> 'a)       as f_exists)
-      ((f_equals_ax_assoc : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_comm  : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_idem  : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_unit  : attribute list -> 'a -> quant_var list * axiom -> 'a)            as f_equals)
+      ((f_equals_ax_assoc   : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_comm    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_idem    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_unit    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_default : attribute list -> 'a -> quant_var list * axiom -> 'a)            as f_equals)
       ((f_or_bottom_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)   as f_or_bottom)
       ((f_not_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)         as f_not)
       ((f_implies_ax_constructor     : attribute list -> 'a -> quant_var list * axiom -> 'a),
@@ -235,10 +240,11 @@ let kommand_iter_with_alias
       (f_ax_default     : attribute list -> 'a -> quant_var list * axiom -> 'a)
       ((f_exists_ax_subsort    : attribute list -> 'a -> quant_var list * axiom -> 'a),
        (f_exists_ax_functional : attribute list -> 'a -> quant_var list * axiom -> 'a)       as f_exists)
-      ((f_equals_ax_assoc : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_comm  : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_idem  : attribute list -> 'a -> quant_var list * axiom -> 'a),
-       (f_equals_ax_unit  : attribute list -> 'a -> quant_var list * axiom -> 'a)            as f_equals)
+      ((f_equals_ax_assoc   : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_comm    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_idem    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_unit    : attribute list -> 'a -> quant_var list * axiom -> 'a),
+       (f_equals_ax_default : attribute list -> 'a -> quant_var list * axiom -> 'a)           as f_equals)
       ((f_or_bottom_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)   as f_or_bottom)
       ((f_not_ax_constructor : attribute list -> 'a -> quant_var list * axiom -> 'a)         as f_not)
       ((f_implies_ax_constructor     : attribute list -> 'a -> quant_var list * axiom -> 'a),

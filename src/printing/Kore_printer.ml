@@ -197,6 +197,6 @@ let pp_kore_kommand ppc cd : kommand list -> unit = fun kommand_l ->
   (fun attr_l _ al -> pp_kore_alias ppc al attr_l)
   (f_axiom_bis, f_axiom_bis, f_axiom_bis)
   f_axiom (f_axiom, f_axiom)
-  (f_axiom, f_axiom, f_axiom, f_axiom) f_axiom f_axiom
+  (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom) f_axiom f_axiom
   (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom)
   (fun () -> pp_endline ppc)
