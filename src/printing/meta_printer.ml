@@ -1,7 +1,6 @@
 open Interface.LP_p_term
 
 open LP.Syntax
-
 open Mecanism.Count_data
 
 (* TODO generalize the process *)

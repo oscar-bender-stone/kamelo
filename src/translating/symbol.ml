@@ -83,3 +83,13 @@ let sym_curry : symbol -> p_term = fun s ->
   let f = fun a b ->
     match a with | S x | Q x -> create_arrow (create_type_atomic x) b in
   List.fold_right f p_l (g p)
+
+let symbol_to_p_symbol : symbol -> attribute list -> p_command =
+  fun s attr_l ->
+  let name, qvar_l, _, _ = s in
+  let param_l = create_p_params qvar_l in
+  let res =
+    create_p_symbol (get_modifier attr_l) name param_l
+      (Some (sym_curry s)) None
+  in
+  create_LP_symbol res

@@ -5,6 +5,7 @@ open LP.Syntax
 
 open Common.Type
 open Common.Error
+open Common.Xlib_OCaml
 
 type t = axiom
 
@@ -39,8 +40,6 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
 
 (** Currently, functional axioms aren't used and
     subsort axioms are just used to change some injections. *)
-
-module StrMap = Map.Make(String)
 
 (** où key est une sous-sorte des sortes dans la liste *)
 let subsort_data : (string list) StrMap.t ref = ref StrMap.empty

@@ -1,6 +1,7 @@
 open Common.Type
 open Common.Getter
 open Common.Error
+open Common.Xlib_OCaml
 
 open Translating.Axiom
 
@@ -210,7 +211,7 @@ let pp_symbol ppc cd prt : symbol * attribute list -> unit =
   fun ((name, qv_l, p_l, p), attr_l) ->
   let s = (pp name, qv_l, p_l, p) in
   incr_real_symbol cd ;
-  prt ppc (Translating.Translation.symbol_to_p_symbol s attr_l)
+  prt ppc (Translating.Symbol.symbol_to_p_symbol s attr_l)
 
 let pp_alias ppc cd prt :
       alias * (quant_var list * axiom * attribute list) option -> unit =

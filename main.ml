@@ -1,4 +1,7 @@
 open Common.Type
+   open LP.Syntax
+open Common.Xlib_OCaml
+
 open Terminal.Display_console
 
 open Controller.Prelude (* TODO delete *)
@@ -36,13 +39,13 @@ let () =
            Interface.K_prelude.p_INJD
            (Interface.LP_p_term.create_ident key) in
        let comm name =
-         Controller.Prelude.pp_symbol_prelude ff cd
-           (LP.LP_printer.pp_command)
-           (Interface.LP_p_term.create_symbol name var_type)
+         let _ = Controller.Prelude.pp_symbol_prelude ff cd
+           (LP.LP_printer.pp_command) StrMap.empty
+           (Interface.LP_p_term.create_symbol name var_type) in ()
        in
        List.iter (fun name -> comm name) var_l
      in
-     Translating.Axiom.StrMap.iter f_pp !Translating.Axiom.free_var ;
+     StrMap.iter f_pp !Translating.Axiom.free_var ;
      (* STEP 5: Printing *)
      LP.LP_printer.pp_command ff
        (Interface.LP_p_term.create_compute_command p_exec);
@@ -81,7 +84,8 @@ let () =
      (* STEP : Translation of the semantics module. *)
 
      (* STEP C: Generate a file for each Kore module *)
-     let module_to_file : kmodule -> unit = fun m ->
+     let module_to_file : p_term StrMap.t -> kmodule -> p_term StrMap.t =
+       fun sign m ->
        (* let name, import_l, command_l, attribut_l = m in *)
        let name, _, kommand_l, _ = m in
        (* STEP 0: Cleaning the semantic files *)
@@ -99,23 +103,26 @@ let () =
        let cd = Mecanism.Count_data.reset_count_data 0 in
 
        (* STEP 3: Main translation *)
-       if !Terminal.Cmd_line.old then Controller.Old.first_translation ff cd m
-       else
-         begin
-           match !Terminal.Cmd_line.mimic with
-           | M_Kore    ->
-              (match !Terminal.Cmd_line.output with
-               | O_LP | O_Dedukti ->
-                  Printing.Meta_printer.prt_Viry ff cd printing
-                    (Controller.With_Viry_encoding.main cd kommand_l)
+       let sign_bis =
+         if !Terminal.Cmd_line.old then
+           (Controller.Old.first_translation ff cd m ; sign)
+         else
+           begin
+             let res, new_sign =
+               Controller.With_Viry_encoding.main cd kommand_l sign
+             in
+             (match !Terminal.Cmd_line.mimic with
+              | M_Kore    ->
+                (match !Terminal.Cmd_line.output with
+                 | O_LP | O_Dedukti ->
+                    Printing.Meta_printer.prt_Viry ff cd printing res
                (*Printing.Printer.pp_kommand_ter ff cd printing kommand_l*)
-               | O_Kore ->
-                  Printing.Kore_printer.pp_kore_kommand ff cd kommand_l)
-           | M_K       ->
-              Printing.Meta_printer.prt_Viry ff cd printing
-              (Controller.With_Viry_encoding.main cd kommand_l)
+                 | O_Kore ->
+                    Printing.Kore_printer.pp_kore_kommand ff cd kommand_l)
+             | M_K       ->
+                Printing.Meta_printer.prt_Viry ff cd printing res
            (* Printing.Printer.pp_kommand_bis ff cd printing kommand_l *)
-           | M_Dedukti -> ()
+             | M_Dedukti -> ()) ; new_sign
          (*  let g =
              Mecanism.Dependency_graph.create_dependence_graph cd kommand_l
            in
@@ -127,18 +134,27 @@ let () =
            in
            let f node = match tmp node with | Some x -> Printing.Printer.pp_kommand ff cd printing x | None -> () in
            Mecanism.Dependency_graph.T.iter f g *)
-         end;
+           end
+       in
        (* STEP 4: Printing count data *)
        print_module_message name (List.length kommand_l) cd;
-       Format.pp_print_flush ff ();
+       Format.pp_print_flush ff () ; sign_bis
      in
      (* STEP D: Iteration on .kore file *)
      print_header_kamelo ();
-     module_to_file (List.hd file) ;
+     let sign_g = module_to_file StrMap.empty (List.hd file) in
      print_comment ff "PRELUDE";
-     Controller.Prelude.create_prelude ff printing "prelude" ;
+     let sign_res =
+       Controller.Prelude.create_prelude ff printing sign_g "prelude"
+     in
      (* Transformer en module pour ne plus avoir qu'à itérer ? *)
-     List.iter module_to_file (List.tl file);
+     let _ = List.fold_left module_to_file sign_res (List.tl file) in
+     (*
+     let rec update_signature l acc = match l with
+       | []   -> acc
+       | h::q -> update_signature q (module_to_file acc h)
+     in
+     let _ = update_signature (List.tl file) sign_res in *)
      print_footer_kamelo ();
      close_out f;
      flush stdout;;

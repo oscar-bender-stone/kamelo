@@ -112,6 +112,7 @@
     une fonction totale. Sous cette hypothèse, nous pouvons générer la règle
     présentée en 5.(c). *)
 
+open Common.Xlib_OCaml
 open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
@@ -438,24 +439,18 @@ let create_otherwise_rule tracker nb rhs : p_rule =
 (** ------------------ *)
 
 (** To store the type of each symbol *)
-let symb_signature : p_term StrMap.t ref = ref StrMap.empty
+(* let symb_signature : p_term StrMap.t ref = ref StrMap.empty *)
 
-let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
+let viry_encoding : ctrs_rule list -> p_term StrMap.t -> p_symbol list * p_rule list = fun l sign ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
-  let flat_bool_sym =
-    create_p_symbol [] _flatBool [] (Some p_SORTK) None
-  in
+  let flat_bool_sym = create_p_symbol [] _flatBool [] (Some p_SORTK) None in
      (* [b.] Create the symbol ♭. *)
-  let flat_sym =
-    create_p_symbol [] safe_prefix [] (Some p_flatBool) None
-  in
+  let flat_sym = create_p_symbol [] safe_prefix [] (Some p_flatBool) None in
      (* [c.] Create the symbol ♭inj. *)
   let flat_inj_type = create_arrow (p_INJD_appl_ident "SortBool") p_flatBool in
   (* δ SortBool → δ ♭Bool *)
-  let flat_inj_sym =
-    create_p_symbol [] _flatINJ [] (Some flat_inj_type) None
-  in
+  let flat_inj_sym = create_p_symbol [] _flatINJ [] (Some flat_inj_type) None in
      (* [d]. Create each C_σ from a CTRS. *)
   let equiv_class = to_equiv_class l in
   (* For each C_σ *)
@@ -474,7 +469,10 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
       (* [3.] Generate the ♭-symbol of the current head symbol. *)
       let flat_head_name = safe_prefix ^ head_name in
       let flat_head_type =
-        extend_type (StrMap.find head_name !symb_signature) nb_cond
+        try
+          extend_type (StrMap.find head_name sign) nb_cond
+        with Not_found -> if StrMap.is_empty sign then raise (Common.Error.InternalError "The symbol TRUE")
+                          else Common.Error.wrn_1 Common.Error._STDOUT "symbol %s not found" head_name ; failwith "Plop"
       in
       let flat_head_sym =
         create_p_symbol [] flat_head_name [] (Some flat_head_type) None

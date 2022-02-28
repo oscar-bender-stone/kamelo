@@ -1,5 +1,6 @@
 
 open Common.Type
+open Common.Xlib_OCaml
 open LP.Syntax
 
 type t = axiom
@@ -7,8 +8,6 @@ type t = axiom
 (** ****************************************************** *)
 (** To translate exists-axioms (functional or subsort one) *)
 (** ****************************************************** *)
-
-module StrMap : Map.S with type key = string
 
 val free_var : (string list) StrMap.t ref
 

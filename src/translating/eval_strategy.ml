@@ -3,6 +3,7 @@ open LP.Syntax
 open Common.Type
 open Common.Getter
 open Common.Error
+open Common.Xlib_OCaml
 open Interface.LP_p_term
 open Interface.K_prelude
 

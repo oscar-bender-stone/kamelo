@@ -178,25 +178,30 @@ let pp_kore_import ppc : import -> unit = fun (n, attr_l) ->
   print ppc "import %s " (pp n) ; pp_kore_attribute_list ppc attr_l
 
 let pp_kore_kommand ppc cd : kommand list -> unit = fun kommand_l ->
-  let f_sort attr_l _ s = pp_kore_sort ppc s attr_l in
-  let f_symbol keyword attr_l _ sym =
-    pp_kore_symbol ppc keyword sym attr_l
+  let f_sort attr_l _ _ s = pp_kore_sort ppc s attr_l, () in
+  let f_symbol keyword attr_l _ _ sym =
+    pp_kore_symbol ppc keyword sym attr_l, ()
   in
-  let f_axiom : attribute list -> unit -> quant_var list * axiom -> unit =
-    fun attr_l _ (qv_l, ax) ->
+  let f_axiom :
+        attribute list -> unit -> unit -> quant_var list * axiom
+        -> unit * unit =
+    fun attr_l _ _ (qv_l, ax) ->
     print ppc "%s" "axiom" ; pp_kore_quant_var_list ppc qv_l ;
     pp_endline ppc ; space ppc ; pp_kore_axiom ppc 2 ax ;
-    pp_endline ppc ; pp_kore_attribute_list ppc attr_l ; pp_endline ppc
+    pp_endline ppc ; pp_kore_attribute_list ppc attr_l ; pp_endline ppc, ()
   in
   let f_axiom_bis :
-        attribute list -> unit -> alias -> quant_var list * axiom -> unit =
-    fun attr_l x _ (qv_l, ax) -> f_axiom attr_l x (qv_l, ax)
+        attribute list -> unit -> unit -> alias -> quant_var list * axiom
+        -> unit * unit =
+    fun attr_l x _ _ (qv_l, ax) -> f_axiom attr_l x () (qv_l, ax)
   in
-  kommand_iter_with_alias cd kommand_l ()
-  f_sort f_sort (f_symbol "symbol") (f_symbol "hooked-symbol")
-  (fun attr_l _ al -> pp_kore_alias ppc al attr_l)
-  (f_axiom_bis, f_axiom_bis, f_axiom_bis)
-  f_axiom (f_axiom, f_axiom)
-  (f_axiom, f_axiom, f_axiom, f_axiom) f_axiom f_axiom
-  (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom)
-  (fun () -> pp_endline ppc)
+  let res = kommand_iter_with_alias cd kommand_l () ()
+            f_sort f_sort (f_symbol "symbol") (f_symbol "hooked-symbol")
+            (fun attr_l _ _ al -> pp_kore_alias ppc al attr_l, ())
+            (f_axiom_bis, f_axiom_bis, f_axiom_bis)
+            f_axiom (f_axiom, f_axiom)
+            (f_axiom, f_axiom, f_axiom, f_axiom) f_axiom f_axiom
+            (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom)
+            (fun () -> pp_endline ppc)
+  in
+  fst res
