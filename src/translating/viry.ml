@@ -116,6 +116,7 @@ open Common.Xlib_OCaml
 open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
+open Interface.Getter_term
 open Axiom
 
 (** A supposed safe prefix, i.e. there is no name beginning with it. *)
@@ -123,10 +124,6 @@ let safe_prefix = "♭"
 
 (** The term ♭ *)
 let p_FLAT = create_ident safe_prefix
-
-(** [p_INJD_appl_ident s] creates the term δ s. *)
-let p_INJD_appl_ident : string -> p_term = fun s ->
-  create_appl p_INJD (create_ident s)
 
 (** The name ♭Bool *)
 let _flatBool = safe_prefix ^ "Bool" (* TODO fix BOOL ?? *)
@@ -199,20 +196,7 @@ let find_equiv_class : equiv_class -> ctrs_rule -> equiv_class =
     | Some {elt=(P_Iden({elt=(_,x);_},_));_} -> x
     | _ -> failwith "Internal error"
   in
-  (*
-    update : key -> ('a option -> 'a option) -> 'a t -> 'a t
-    update key f m returns a map containing the same bindings as m, except for the binding of key.
-    Depending on the value of y where y is f (find_opt key m), the binding of key is added, removed or updated.
-    If y is None, the binding is removed if it exists;     otherwise,
-    if y is Some z then key is associated to z in the resulting map.
-    If key was already bound in m to a value that is physically equal to z,
-    m is returned unchanged (the result of the function is then physically equal to m).
-   *)
-  let f a = match a with
-    | None   -> Some [r]   (* Si l'entrée n'existait pas encore *)
-    | Some l -> Some(r::l) (* Si l'entrée existait déjà *)
-  in
-  StrMap.update key f ec
+  add_update key r ec
 
 (** [to_equiv_class rule_l] generates each equivalence class from
     a CTRS [rule_l], i.e. each C_σ. *)
@@ -471,8 +455,7 @@ let viry_encoding : ctrs_rule list -> p_term StrMap.t -> p_symbol list * p_rule 
       let flat_head_type =
         try
           extend_type (StrMap.find head_name sign) nb_cond
-        with Not_found -> if StrMap.is_empty sign then raise (Common.Error.InternalError "The symbol TRUE")
-                          else Common.Error.wrn_1 Common.Error._STDOUT "symbol %i not found" (StrMap.cardinal sign) ; failwith "Plop"
+        with Not_found -> raise (Common.Error.InternalError ("The symbol " ^ head_name ^ "wasn't defined."))
       in
       let flat_head_sym =
         create_p_symbol [] flat_head_name [] (Some flat_head_type) None

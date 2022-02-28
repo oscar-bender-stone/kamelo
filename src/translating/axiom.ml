@@ -45,11 +45,7 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
 let subsort_data : (string list) StrMap.t ref = ref StrMap.empty
 
 let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
-  let f a = match a with
-    | None   -> Some [s2]   (* Si l'entrée n'existait pas encore *)
-    | Some l -> Some(s2::l) (* Si l'entrée existait déjà *)
-  in (* TODO a factorisé avec [find_equiv_class] dans viry.ml *)
-  subsort_data := StrMap.update s1 f !subsort_data
+  subsort_data := add_update s1 s2 !subsort_data
 
 (** [collect_subsort_data ax] updates the database of subsorts
     For instance, if this function matches an axiom with the following shape:
@@ -142,13 +138,8 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
        end
     | Dom_val(s, name) ->
        if s = _SORT_ID then
-         let f a = match a with
-           | None   -> Some [name]   (* Si l'entrée n'existait pas encore *)
-           | Some l -> if List.mem name l then Some l else Some(name::l) (* Si l'entrée existait déjà *)
-         in (* TODO a factorisé avec [find_equiv_class] dans viry.ml et [from_subsort_axiom] plus bas *)
-         free_var := StrMap.update _SORT_ID f !free_var ; create_ident name
-       else
-         create_ident name
+         free_var := add_update_without_dup _SORT_ID name !free_var ;
+       create_ident name
     (*| In _ -> failwith "OK, guys"
       | Equals _ -> failwith "EQUALS"
       | Exists _ -> failwith "EXISTS"

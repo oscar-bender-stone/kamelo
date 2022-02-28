@@ -4,8 +4,11 @@ open LP.Syntax
 open Common.Type
 open Common.Error
 
-(** [wrap s] creates the p_term δ [s]. *)
-let wrap : string -> p_term = fun s -> create_appl p_INJD (create_ident s)
+(** [p_INJD_appl_ident s] creates the term δ s. *)
+let p_INJD_appl_ident : string -> p_term = fun s ->
+  create_appl p_INJD (create_ident s)
+
+let wrap = p_INJD_appl_ident
 
 (** [get_sort_type s] creates the type :
       - p_TYPE       if s = _SORTK
