@@ -16,7 +16,7 @@ let print_comment ppc message =
 let pp_symbol_prelude ppc cd prt : p_term StrMap.t -> p_symbol -> p_term StrMap.t = fun sign sym ->
   incr_real_symbol cd ; prt ppc (create_LP_symbol sym) ;
   match sym.p_sym_typ with
-  | Some v -> StrMap.add sym.p_sym_nam.elt v sign
+  | Some v -> StrMap.add (Interface.Output.pp sym.p_sym_nam.elt) v sign
   | None   -> sign
 
 let pp_sort_prelude ppc cd prt : p_symbol -> unit = fun sym ->

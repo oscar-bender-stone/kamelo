@@ -472,7 +472,7 @@ let viry_encoding : ctrs_rule list -> p_term StrMap.t -> p_symbol list * p_rule 
         try
           extend_type (StrMap.find head_name sign) nb_cond
         with Not_found -> if StrMap.is_empty sign then raise (Common.Error.InternalError "The symbol TRUE")
-                          else Common.Error.wrn_1 Common.Error._STDOUT "symbol %s not found" head_name ; failwith "Plop"
+                          else Common.Error.wrn_1 Common.Error._STDOUT "symbol %i not found" (StrMap.cardinal sign) ; failwith "Plop"
       in
       let flat_head_sym =
         create_p_symbol [] flat_head_name [] (Some flat_head_type) None

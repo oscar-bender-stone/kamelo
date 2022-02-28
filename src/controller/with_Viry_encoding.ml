@@ -36,7 +36,7 @@ let main cd : (* TODO fix heterogenous signature *)
     let s = (pp name, qv_l, p_l, p) in
     let new_s = symbol_to_p_symbol s attr_l in
     let sort_l, sym_l, ctrs_l = acc in
-    (sort_l, new_s::sym_l, ctrs_l), StrMap.add name (sym_curry s) sign
+    (sort_l, new_s::sym_l, ctrs_l), StrMap.add (Interface.Output.pp name) (sym_curry s) sign
   in
   let propagation = fun _ acc sign _ -> (acc, sign) in
   let f_subsort (* :
