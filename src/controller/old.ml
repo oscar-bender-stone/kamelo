@@ -200,7 +200,7 @@ let preprocessing :
 let pp_sort ppc cd prt : sort -> unit = fun s ->
   (* incr_real_sort cd ; *)
   incr_real_symbol cd ;
-  prt ppc (Translating.Translation.sort_to_p_symbol (pp s))
+  prt ppc (Translating.Sort.sort_to_p_symbol (pp s))
 
 let pp_induc ppc cd prt : sort * symbol list -> unit = fun i ->
   incr_real_induc cd ;

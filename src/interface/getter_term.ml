@@ -2,6 +2,7 @@ open K_prelude
 open LP_p_term
 open LP.Syntax
 open Common.Type
+open Common.Error
 
 (** [wrap s] creates the p_term δ [s]. *)
 let wrap : string -> p_term = fun s -> create_appl p_INJD (create_ident s)
@@ -29,7 +30,7 @@ let create_type_atomic : string -> p_term = fun s ->
 let create_type_arrow : string * string list -> p_term =
   fun (name, type_l) ->
   let rec split_last_value l acc = match l with
-    | []  -> failwith ("The symbol " ^ name ^ " has no type.")
+    | []  -> raise (InternalError ("The symbol " ^ name ^ " has no type."))
     | [t]  -> List.rev acc, t
     | t::q -> split_last_value q (t::acc)
   in

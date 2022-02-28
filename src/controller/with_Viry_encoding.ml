@@ -9,7 +9,7 @@ open Mecanism.Iterator
 
 open Translating.Axiom
 open Translating.Eval_strategy
-open Translating.Translation
+open Translating.Sort
 
 let main cd : (* TODO fix heterogenous signature *)
       kommand list -> p_command list * p_command list * p_symbol list * p_rule list =
@@ -30,7 +30,7 @@ let main cd : (* TODO fix heterogenous signature *)
      | None -> () ) ;
     let name, qv_l, p_l, p = s in (* TODO delete *)
     let s = (pp name, qv_l, p_l, p) in
-    let new_s = symbol_to_p_symbol s attr_l in
+    let new_s = Translating.Translation.symbol_to_p_symbol s attr_l in
     let sort_l, sym_l, ctrs_l = acc in (sort_l, new_s::sym_l, ctrs_l)
   in
   let propagation = fun _ acc _ -> acc in

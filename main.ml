@@ -23,7 +23,7 @@ let () =
      let path = ["sem_root"] in
      let i = (!Terminal.Cmd_line.semantics_file, []) in
      let import_trans =
-       Translating.Translation.import_to_require_open path i
+       Translating.Import.import_to_require_open path i
      in
      Mecanism.Count_data.incr_real_import cd ;
      LP.LP_printer.pp_command ff import_trans ;
