@@ -59,6 +59,7 @@ let pp_kore_attribute ppc : attribute -> unit = fun attr ->
 
   | Left        _ -> print "LEFT"
   | Right       _ -> print "RIGHT"
+  | Priority    _ -> print "PRIORITY"
   | Priorities  _ -> print "PRIORITIES"
 
   | Constructor _ -> print "CONSTRUCTOR"
