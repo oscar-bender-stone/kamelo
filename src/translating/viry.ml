@@ -245,8 +245,8 @@ let update_config : string -> p_term -> (p_term -> p_term) -> p_term =
         if r_is_head then
           (* (if l_is_head TODO Correcte ?
            then failwith "Several head symbols..."
-           else *) false, no_pos (P_Appl(x1, f x2))
-        else l_is_head, no_pos (P_Appl(x1, x2)))
+           else *) false, create_appl x1 (f x2)
+        else l_is_head, create_appl x1 x2)
     | P_Patt _ | P_Expl _ -> false, t
     | P_Iden(({elt=(x1,n);pos=y}), x2) ->
        if n = head
@@ -293,8 +293,8 @@ let create_most_general_LHS t =
             aux t2 l_is_in_k_cell l_is_head
           in
           let res =
-            if r_merged then no_pos (P_Appl(x1, new_var nb))
-            else no_pos (P_Appl(x1, x2))
+            if r_merged then create_appl x1 (new_var nb)
+            else create_appl x1 x2
           in
           is_in_k_cell, l_merged && r_merged, l_is_head || r_is_head, res)
     | P_Patt _ as t -> is_in_k_cell, true, is_head, no_pos t
@@ -389,7 +389,7 @@ let with_all_same_value heading nb default_sym =
     where [nb] occurrence(s) of ♭. *) (* TODO update *)
 let create_encapsulation_rule tracker config nb : p_rule =
   let f h = with_all_same_value h nb p_FLAT in
-  no_pos (config, tracker config f)
+  create_rule config (tracker config f)
 
 let create_list_number n i special_sym =
   if n <= 0 then []
@@ -412,7 +412,7 @@ let create_initialisation_rule tracker nb i special_sym_l special_sym_r : p_rule
   let f special_sym h =
     List.fold_left create_appl h (create_list_number nb i special_sym)
   in
-  no_pos (tracker (f special_sym_l), tracker (f special_sym_r))
+  create_rule (tracker (f special_sym_l)) (tracker (f special_sym_r))
 
 (** [create_reduction_rule carrier_sym lhs nb i special_sym rhs]
     creates a reduction rule, i.e. a rule of the form:
@@ -421,7 +421,7 @@ let create_initialisation_rule tracker nb i special_sym_l special_sym_r : p_rule
     and [special_sym] only occurs at the position [i]. *)  (* TODO update *)
 let create_reduction_rule tracker nb i special_sym rhs : p_rule =
   let f h = with_one_diff_value h nb i special_sym in
-  no_pos (tracker f, rhs)
+  create_rule (tracker f) rhs
 
   (** [create_otherwise_rule carrier_sym lhs nb rhs]
     creates an otherwise rule, i.e. a rule of the form:
@@ -431,7 +431,7 @@ let create_otherwise_rule tracker nb rhs : p_rule =
   let f h =
     with_all_same_value h nb (p_flatINJ_appl p_FALSE)
   in
- no_pos (tracker f, rhs)
+  create_rule (tracker f) rhs
 
 (** ------------------ *)
 (** The main algorithm *)
@@ -444,17 +444,17 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
   let flat_bool_sym =
-    Interface.LP_p_term.create_p_symbol [] _flatBool [] (Some p_SORTK) None
+    create_p_symbol [] _flatBool [] (Some p_SORTK) None
   in
      (* [b.] Create the symbol ♭. *)
   let flat_sym =
-    Interface.LP_p_term.create_p_symbol [] safe_prefix [] (Some p_flatBool) None
+    create_p_symbol [] safe_prefix [] (Some p_flatBool) None
   in
      (* [c.] Create the symbol ♭inj. *)
   let flat_inj_type = create_arrow (p_INJD_appl_ident "SortBool") p_flatBool in
   (* δ SortBool → δ ♭Bool *)
   let flat_inj_sym =
-    Interface.LP_p_term.create_p_symbol [] _flatINJ [] (Some flat_inj_type) None
+    create_p_symbol [] _flatINJ [] (Some flat_inj_type) None
   in
      (* [d]. Create each C_σ from a CTRS. *)
   let equiv_class = to_equiv_class l in
@@ -477,8 +477,7 @@ let viry_encoding : ctrs_rule list -> p_symbol list * p_rule list = fun l ->
         extend_type (StrMap.find head_name !symb_signature) nb_cond
       in
       let flat_head_sym =
-        Interface.LP_p_term.create_p_symbol [] flat_head_name []
-          (Some flat_head_type) None
+        create_p_symbol [] flat_head_name [] (Some flat_head_type) None
       in
       (* [4.] Generate the encapsulation rule. *)
       let encap_r = create_encapsulation_rule tracker mglhs nb_cond in

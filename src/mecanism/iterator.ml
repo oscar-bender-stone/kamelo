@@ -4,8 +4,9 @@ open Common.Error
 
 open Count_data
 
-type rewrite = { lhs : alias ; rhs : quant_var list * axiom }
-type common_data = Format.formatter * count_data * attribute list
+(* type rewrite = { lhs : alias ; rhs : quant_var list * axiom }
+type common_data = Format.formatter * count_data * attribute list *)
+
 (* Main algorithm : compute the number of ... + create or not the dependency graph *)
 
 (* BAD IDEA

@@ -2,7 +2,6 @@ open LP.Syntax
 open Common.Type
 
 open Interface.LP_p_term
-open Interface.K_prelude
 open Interface.Getter_term
 
 open Symbol
@@ -18,14 +17,11 @@ let import_to_require_open : string list -> import -> p_command = fun path i ->
   no_pos (P_require (true, path))
 
 (** Sort *)
-let get_sort_type : sort -> p_term = fun s ->
-  if s = _SORTK then p_TYPE else p_SORTK
-
 let sort_to_p_symbol : sort -> p_command = fun s ->
   let sort_type = get_sort_type s in
   (* sort_signature := StrMap.add s sort_type !sort_signature ; *)
   let res = create_p_symbol [] s [] (Some sort_type) None in
-  no_pos (P_symbol res)
+  create_LP_symbol res
   (* modifier = Const ? *)
 
 (** Symbol *)
@@ -36,8 +32,4 @@ let symbol_to_p_symbol : symbol -> attribute list -> p_command =
     StrMap.add name (sym_curry s) !Viry.symb_signature ;
   let param_l = create_p_params qvar_l in
   let res = create_p_symbol (get_modifier attr_l) name param_l (Some (sym_curry s)) None in
-  no_pos (P_symbol res)
-
-(** Axiom *)
-let equality_axiom_to_p_rule : axiom -> p_command = fun ax ->
-  no_pos (P_rules [of_equality_axiom ax])
+  create_LP_symbol res

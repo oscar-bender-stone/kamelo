@@ -17,8 +17,8 @@ let prt_Viry ppc cd prt :
   List.iter (fun x -> incr_real_symbol cd ; prt ppc x) (List.rev sym_l)  ;
   if List.length sym_add_l > 3 then
     (List.iter
-       (fun x -> incr_additional_symbol cd ; prt ppc (no_pos (P_symbol x)))
+       (fun x -> incr_additional_symbol cd ; prt ppc (create_LP_symbol x))
        (List.rev sym_add_l) ;
      List.iter
-       (fun x -> incr_real_rule cd ; prt ppc (no_pos (P_rules  [x])))
+       (fun x -> incr_real_rule cd ; prt ppc (create_multi_rule [x]))
        (List.rev r_l))

@@ -1,19 +1,18 @@
+(** Getter for Kore command *)
 
 open Error
 open Type
 
-(** Getter for command *)
-
 (** For symbol *)
-
-let get_name : symbol -> name = fun s ->
-  let (n, _, _, _) = s in n
 
 let has_no_param : symbol -> bool = fun s ->
   let (_, _, p_l, _) = s in
   match p_l with
   | [] -> true
   | _  -> false
+
+let get_name : symbol -> name = fun s ->
+  let (n, _, _, _) = s in n
 
 let get_param : symbol -> param = fun s ->
   let (_, _, _, p) = s in p
@@ -22,7 +21,7 @@ let get_sort : symbol -> sort = fun s -> (* Fix TODO *)
   let p = get_param s in
   match p with
   | S s -> s
-  | Q _ -> failwith "No sort"
+  | Q _ -> raise (InternalError "Getting a sort isn't possible: no sort.")
 
 (** [is_constructor s attr_l] returns:
       - None, if the attribut "constructor" is not in [attr_l]
@@ -47,7 +46,6 @@ let is_constructor : symbol -> attribute list -> sort option =
      wrn_1 _STDOUT "WARNING: The symbol (%s) is declared \
                     'constructor' but not 'injective'!" (get_name s) ;
      None
-
 
 
 (** For axiom *)

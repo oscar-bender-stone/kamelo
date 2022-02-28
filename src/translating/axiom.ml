@@ -4,6 +4,7 @@ open Interface.K_prelude
 open LP.Syntax
 
 open Common.Type
+open Common.Error
 
 type t = axiom
 
@@ -62,7 +63,7 @@ let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
   let collect_subsort_data : axiom -> unit = function
     | Exists (_, _, Equals(_, _, Predicate(Sym(s, [S s1; S s2], _)))) when s = _INJ ->
        from_subsort_axiom s1 s2
-    | _ -> failwith "Error in [Axiom.collect_subsort_data]"
+    | _ -> raise (InternalError "Need to update [Axiom.collect_subsort_data].")
 
 let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
@@ -161,7 +162,7 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
     | And (_, ax1, Predicate(Var(n,_))) ->
        let res = aux ax1 in
        data_matching := StrMap.add n res !data_matching ; res
-    | _ -> failwith "Not yet implemented [Axiom.curry]."
+    | _ -> raise (NotYetImplemented "Need to update [Axiom.curry].")
   in
   aux ax
 
@@ -178,10 +179,10 @@ let of_equality_axiom : t -> p_rule = fun ax ->
   match ax with
   | Equals(_, ax1, ax2) ->
      (try
-        no_pos (curry_pattern ax1, curry_pattern ax2)
-      with _ -> failwith "Unit, Idem, comm, assoc")
-  | _ -> failwith "The current axiom isn't an equality one.\n
-                   Please, raise an issue."
+        create_rule (curry_pattern ax1) (curry_pattern ax2)
+      with _ -> raise (InternalError "Need to update [Axiom.of_equality_axiom]."))
+  | _ -> raise (InternalError "The current axiom isn't an equality one.\n
+                Please, raise an issue.")
 
 (** **************************************************** *)
 (** To translate or-axioms, bottom-axioms, not-axioms
@@ -256,10 +257,11 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
       | Bottom _ -> failwith "BOTTOM"
       | Top    _ -> failwith "TOP"
       | Rewrites _ -> failwith "REWRITES" *)
-    | And (_, ax1, Predicate(Var(n,_))) ->
-       let res = aux ax1 in
-       data_matching := StrMap.add n res !data_matching ; res
-      | _ -> failwith "Not yet implemented [local_curry]."
+      | Not(_, In(_, (v,_), a)) -> raise (NotYetImplemented "TODO")
+      | And (_, ax1, Predicate(Var(n,_))) ->
+         let res = aux ax1 in
+         data_matching := StrMap.add n res !data_matching ; res
+      | _ -> raise (NotYetImplemented "Need to update [Axiom.local_curry].")
     in
     aux ax
   in
@@ -283,20 +285,54 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
                     | Dom_val(_, n) ->
                        StrMap.add v (create_ident n) local_data
                     | _ -> failwith "Fatal Error in [collect].") *)
-    | _ -> failwith "Not yet implemented [collect]."
+    | _ -> raise (NotYetImplemented "Need to update [Axiom.collect].")
   in
   let data = StrMap.empty in
   match ax with
   | Implies(_, And(_,Top _, a1), And(_, Equals(_,l,r), Top _)) ->
      (let data = collect a1 data in
-      try no_pos (local_curry l data, local_curry r data), Uncond, 42
-      with _ -> failwith "Implies axiom")
+      try create_rule (local_curry l data) (local_curry r data), Uncond, 42
+      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 1"))
   | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), And(_, Equals(_,l,r), Top _)) ->
      (let data = collect a1 data in
-      try no_pos (local_curry l data, local_curry r data), Cond (local_curry c data), 42
-      with _ -> failwith "Implies axiom")
+      try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
+      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 2"))
   | Implies(_, Equals(_, c, Dom_val(_,"true")), And(_, Equals(_,l,r), Top _)) ->
-      (try no_pos (local_curry l data, local_curry r data), Cond (local_curry c data), 42
-       with _ -> failwith "Implies axiom")
-  | _ -> failwith "The current axiom isn't an implies one.\n
-                   Please, raise an issue."
+      (try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
+       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 3"))
+  | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), And(_, Equals(_,l,r), Top _)) ->
+     (let c = Not(pNot, In(pIn,(v,t),a)) in
+      let data = collect a1 data in
+      try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
+      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4"))
+(* An example of the previous case:
+  axiom{R} \implies{R} (
+    \and{R} (
+      \not{R} (
+        \or{R} (
+            \and{R} (
+              \top{R}(),
+              \and{R} (
+                \in{SortInt{}, R} (
+                  X0:SortInt{},
+                  \dv{SortInt{}}("0")
+                ),
+                \top{R} ()
+              )
+          ),
+          \bottom{R}()
+        )
+      ),
+      \and{R}(
+        \top{R}(),
+        \and{R} (
+          \in{SortInt{}, R} (
+            X0:SortInt{},
+            Var'Unds'0:SortInt{}
+          ),
+          \top{R} ()
+        )
+  ))
+ [...]
+ *)
+  | _ -> raise (NotYetImplemented "Need to update [Axiom.of_implies_axiom].")

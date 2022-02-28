@@ -1,5 +1,4 @@
 
-open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
 
@@ -238,30 +237,10 @@ let hooked_symbol =
   ; ("Lbl'Tild'Int'Unds'",
      ["SortInt"; "SortInt"]) (* klabel{}("~Int_"), hook{}("INT.not") *)
 ]
-(*
-let special_sym_table =
-  [ ]
-
-let ggg : kmodule -> unit = fun m ->
-  let name, _, kommand_l, _ = m in
-  match name with
-  | "BASIC-K" ->
-  | "KSEQ"    ->
-  | "INJ"     ->
-  | "K"       ->
-  | s -> if s = semantics_module_name then
-
-         else
-           failwith "More than 5 modules"
-           *)
-(* A transfomer en map *)
-
 
 (* let appl_patt sym v1 v2 =
    create_appl (create_appl (create_ident sym) (create_pattern v1))
    (create_appl (create_ident sym) (create_pattern v2)) *)
-
-
 
 let semantic_rule () =
   let _LT_INT_  = Interface.Output.pp "Lbl'Unds-LT-'Int'Unds'" in
@@ -334,6 +313,3 @@ let semantic_rule () =
     (create_ident "succ", [create_appl (create_appl (create_ident _ADD_INT_) (create_pattern_var "m")) (create_pattern_var "n")])
   ; (create_ident _ADD_INT_, [create_ident "0" ; create_pattern_var "n"]), (create_pattern_var "n", [])
   ]
-
-(** [wrap s] creates the p_term δ [s]. *)
-let wrap : string -> p_term = fun s -> create_appl p_INJD (create_ident s)

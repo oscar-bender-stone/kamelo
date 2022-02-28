@@ -196,7 +196,8 @@ let get_k_ax_predicate_false  cd = !(cd.k.implies_ax.predicate_false)
 let incr_k_ax_predicate_false cd = incr cd.k.implies_ax.predicate_false
 
 let get_k_ax_predicate_true  cd = !(cd.k.implies_ax.predicate_true)
-let incr_k_ax_predicate_true cd = incr cd.k.implies_ax.predicate_true (* on ne sait pas qu'on commence par \implies *)
+let incr_k_ax_predicate_true cd = incr cd.k.implies_ax.predicate_true
+(* Nous ne savons pas si ces axiomes commence forcément par \implies *)
 
 let get_k_ax_owise  cd = !(cd.k.implies_ax.owise)
 let incr_k_ax_owise cd = incr cd.k.implies_ax.owise
@@ -234,52 +235,6 @@ let incr_real_induc cd = incr cd.dk.inductive
 
 let get_real_rule  cd = !(cd.dk.rule)
 let incr_real_rule cd = incr cd.dk.rule
-
-(* Others:
-
-let get_real_sort  cd = !(cd.real_sort)
-let incr_real_sort cd = incr cd.real_sort
-
-let get_real_alias  cd = !(cd.real_alias)
-let incr_real_alias cd = incr cd.real_alias
-
-let get_k_rule  cd = !(cd.k_rule)
-let incr_k_rule cd = incr cd.k_rule
-
-let get_real_axiom  cd = !(cd.real_axiom)
-let incr_real_axiom cd = incr cd.real_axiom
-
- *)
-(*
-let extract_info cd =
-  [ (Some (get_real_import cd), Some (get_k_import cd),          "import", "imports")
-
-  ; (Some (get_real_sort cd),   Some (get_k_sort cd),            "sort", "sorts")
-  ; (Some 0,                    Some (get_k_hooked_sort cd),     "hooked sort", "hooked sorts")
-
-  ; (Some (get_real_symbol cd), Some (get_k_symbol cd),          "symbol", "symbols")
-  ; (Some 0,                    Some (get_k_hooked_symbol cd),   "hooked symbol", "hooked symbols")
-  ; (Some (get_real_induc cd),  Some 0,                          "inductive type", "inductive types")
-
-  ; (Some (get_real_alias cd),  Some (get_k_alias cd),           "alias", "alias")
-  ; (Some (get_real_rule cd),   Some (get_k_rule cd),            "rule", "rules")
-  ; (Some (get_real_axiom cd),  Some (get_k_axiom cd),           "axiom", "axioms")
-  ; (None,                      Some (get_k_ax_subsort cd),      "subsort one", "subsort one")
-  ; (None,                      Some (get_k_ax_predicat cd),     "predicat one", "predicat one")
-  ; (None,                      Some (get_k_ax_projection cd),   "projection one", "projection one")
-  ; (None,                      Some (get_k_ax_functional cd),   "functional one", "functional one")
-  ; (None,                      Some (get_k_ax_constructor cd),  "constructor one", "constructor one")
-  ; (None,                      Some (get_k_ax_assoc cd),        "associative one", "associative one")
-  ; (None,                      Some (get_k_ax_comm cd),         "commutative one", "commutative one")
-  ; (None,                      Some (get_k_ax_idem cd),         "idempotence one", "idempotence one")
-  ; (None,                      Some (get_k_ax_unit cd),         "identity one", "identity one")
-  ; (None,                      Some (get_k_ax_initializer cd),  "initializer one", "initializer one")
-  ; (None,                      Some (get_k_ax_owise cd),        "otherwise one", "otherwise one")
-  ; (None,                      Some (get_k_ax_rule cd),         "rewriting rule", "rewriting rules")
-  ; (None,                      Some (get_k_ax_without_attr  cd), "without attribute", "without attribute")
-  ; (None,                      Some (get_k_ax_with_one_attr cd), "with one attribute", "with one attribute")
-  ; (None,                      Some (get_k_ax_several_attr  cd), "with several attributes", "with several attributes") ]
-  *)
 
 let extract_info_before cd =
   [ (0, get_k_import cd,          "import",          "imports")

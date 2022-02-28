@@ -19,21 +19,19 @@ module Sort = struct
   type t = sort
   let compare = String.compare
 end
-module Induc = Map.Make(Sort)
-
-;; (* ( sort |-> symbol list) *)
+module Induc = Map.Make(Sort) (* ( sort |-> symbol list) *)
 
 (** Inductive type *)
 let induc_to_p_inductive : sort * symbol list -> p_inductive =
   fun (sort, s_l) ->
   (* p_inductive_aux = p_ident * p_term * (p_ident * p_term) list *)
   let f s = (create_p_ident (get_name s), Translating.Symbol.sym_curry s) in
-  no_pos (create_p_ident sort, p_TYPE, List.map f s_l)
+  create_inductive (create_p_ident sort) p_TYPE (List.map f s_l)
 
 (** [create_inductive_type i] creates non-mutual inductive type
     without parameter and position. *)
 let create_inductive_type : sort * symbol list -> p_command = fun i ->
-  no_pos (P_inductive ([], [], [induc_to_p_inductive i]))
+  create_LP_inductive [] [] [induc_to_p_inductive i]
 
 
 (** [create_LHS al] creates a LHS of a rewriting rule thanks to an alias. *)
@@ -70,23 +68,23 @@ let create_RHS : t -> p_term = fun ax ->
     an alias (for LHS) and an axiom (for RHS). *)
 let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
   data_matching := StrMap.empty ;
-  let rule =
-    try
-      (* Be careful: the order of the computation is important
-         because of references *)
-      let lhs = create_LHS al in
-      let rhs = create_RHS ax in
-      (lhs, rhs)
-    with ConditionalRule _ ->
-      wrn_msg _STDOUT "WARNING: Conditional rewriting rule." ;
-      (p_TYPE, p_TYPE)
-  in
-  no_pos rule
+  try
+    (* Be careful: the order of the computation is important
+       because of references *)
+    let lhs = create_LHS al in
+    let rhs = create_RHS ax in
+    create_rule lhs rhs
+  with ConditionalRule _ ->
+    wrn_msg _STDOUT "WARNING: Conditional rewriting rule." ;
+    create_rule p_TYPE p_TYPE
 
+(** Axiom *)
+let equality_axiom_to_p_rule : axiom -> p_command = fun ax ->
+  create_multi_rule [of_equality_axiom ax]
 
 (** Alias *)
 let unconditional_rule_to_p_rule : alias -> axiom -> p_command =
-  fun al ax -> no_pos (P_rules [create_rewriting_rule al ax])
+  fun al ax -> create_multi_rule [create_rewriting_rule al ax]
 
 (** Main (old) algorithm *)
 
@@ -231,7 +229,7 @@ let pp_axiom ppc cd prt : quant_var list * axiom * attribute list -> unit =
   | [Unit _] | [Assoc _] | [Idem _] ->
      (* if is_only_assoc ax then @TODO *)
      incr_real_rule cd ;
-     prt ppc (Translating.Translation.equality_axiom_to_p_rule ax)
+     prt ppc (equality_axiom_to_p_rule ax)
   | _ -> () (* @TODO *)
 
 

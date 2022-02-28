@@ -3,17 +3,6 @@ open LP.Syntax
 open Interface.LP_p_term
 open Interface.Getter_term
 
-(*
-  (* Etre constant n'implique pas qu'on n'est pas une fonction : cela
-   * implique juste qu'on ne peut plus réduire le symbole.
-   * Un symbole qui n'a pas de paramètre est donc constant (on veut le
-   * traduire comme cela ?), mais pas l'inverse.
-   * En K, on est constant si notre type est un sous-type du type KResult ? *)
-  let is_constant
-
-   (is_constant, is_injective, is_constructor, is_comm, is_assoc,
-    is_left, is_right) *)
-
 (** To translate a list of attributes into a property *)
 
 type t = { is_constant    : bool
@@ -51,35 +40,6 @@ let get_comm        : t -> bool = fun v -> v.is_comm
 let get_assoc       : t -> bool = fun v -> v.is_assoc
 let get_left        : t -> bool = fun v -> v.is_left
 (*let get_right       : t -> bool = fun v -> v.is_right *)
-           (*
-  let find_ac : attribute list -> prop = fun a_l ->
-    let rec aux l acc = match l with
-     | []  -> acc
-     | t::q -> match t with
-                | Constructor  -> aux q (set_constructor acc)
-                | Injective    -> aux q (set_injec acc)
-                | Assoc        -> aux q (set_assoc acc)
-                | Comm         -> aux q (set_comm  acc)
-                | Left         -> aux q (set_left  acc)
-                | Right        -> aux q (set_right acc)
-    in
-    aux a_l Defin
-  in
-
-
-  let kjrhf : attribute list -> p_modifier list * bool = fun a_l ->
-    match t with
-     | []  -> []
-     | t::q -> match t with
-                 | Constructor  -> aux q (set_constructor acc)
-                | Injective    -> P_prop(Injec) :: aux q (set_injec acc)
-                | Assoc        -> aux q (set_assoc acc)
-                | Comm         -> P_prop(Commu) :: aux q (set_comm  acc)
-                | Left         -> aux q (set_left  acc)
-                | Right        -> aux q (set_right acc)
-
-
- *)
 
 let get_modifier : attribute list -> p_modifier list = fun attr_l ->
   (* On collecte les informations que l'on peut avoir *)
@@ -90,23 +50,25 @@ let get_modifier : attribute list -> p_modifier list = fun attr_l ->
               | Injective   _ -> aux q (set_injec acc true)
               | Assoc       _ -> aux q (set_assoc acc true)
               | Comm        _ -> aux q (set_comm  acc true)
-              (*| Left        _ -> aux q (set_left  acc true)
+            (*| Left        _ -> aux q (set_left  acc true)
               | Right       _ -> aux q (set_right acc true)*)
               | _             -> aux q acc
   in
   let tmp = aux attr_l no_information in
   (* On traduit ces informations en p_modifier list *)
   let b = get_left tmp in
-  let res = [] in
-  let res = if get_injec tmp && not(get_constructor tmp) then create_prop(Injec)::res else res in
+  let res =
+    if get_injec tmp && not(get_constructor tmp)
+    then [create_prop(Injec)]
+    else []
+  in
   let res = if get_assoc tmp && get_comm tmp then create_prop(AC(b))::res
             else
               if get_assoc tmp then res (* you need to generate the rule *)
               else
                 if get_comm tmp then create_prop(Commu)::res
                 else res
-  in
-  (* @TODO Const ? *)
+  in (* @TODO Const ? *)
   res
 
 (** To translate symbol *)

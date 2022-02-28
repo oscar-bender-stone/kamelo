@@ -1,4 +1,4 @@
-(** Getter *)
+(** Getter for Kore command *)
 
 open Type
 
@@ -15,5 +15,3 @@ val is_rule      : axiom -> bool
 val is_conditional_rule : axiom -> bool
 val is_cooling_rule : attribute list -> bool
 val is_heating_rule : attribute list -> bool
-
-(** For alias *)

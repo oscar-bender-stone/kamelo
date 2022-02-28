@@ -92,14 +92,39 @@ let create_p_symbol (mod_l : p_modifier list) (name : string) (param_l : p_param
   ; p_sym_prf = None
   ; p_sym_def = is_def}
 
-  (*
-(** [create_symbol sym] creates a symbol without position. *)
-let create_symbol : p_symbol -> p_command = fun sym ->
-   no_pos (P_symbol sym)
-   *)
-
+(** [create_symbol name typ] creates a symbol named [name]
+    with the type [typ]. *)
 let create_symbol : string -> p_term -> p_symbol =
   fun name typ -> create_p_symbol [] name [] (Some typ) None
+
+(** [create_LP_symbol sym] creates a symbol without position. *)
+let create_LP_symbol : p_symbol -> p_command = fun sym ->
+   no_pos (P_symbol sym)
+
+(** [create_rule lhs rhs] creates a rule [lhs] --> [rhs] without position. *)
+let create_rule : p_term -> p_term -> p_rule = fun lhs rhs ->
+  no_pos (lhs, rhs)
+
+(** [create_multi_rule rule_l] creates a command with several rules,
+    without position. *)
+let create_multi_rule : p_rule list -> p_command = fun rule_l ->
+  no_pos (P_rules rule_l)
+
+(** [create_inductive name typ constructor_l] creates an inductive type named
+    [name], with the type [typ] and the constructor [constructor_l],
+    without position. *)
+let create_inductive :
+      p_ident -> p_term -> (p_ident * p_term) list -> p_inductive =
+  fun name typ constructor_l -> no_pos (name, typ, constructor_l)
+
+(** [create_LP_inductive prop_l param_l induc_l] creates a command with
+    several inductive types, but without position, where [prop_l] is the list
+    of properties, [param_l] is the list of parameters and [induc_l] is the
+    list of inductive definitions. *)
+let create_LP_inductive :
+      p_modifier list -> p_params list -> p_inductive list -> p_command =
+  fun prop_l param_l induc_l ->
+  no_pos (P_inductive (prop_l, param_l, induc_l))
 
 (** [create_compute_command p] creates a command to compute the p_term [p]. *)
 let create_compute_command : p_term -> p_command = fun p ->

@@ -18,7 +18,7 @@ let pp_symbol_prelude ppc cd prt : p_symbol -> unit = fun sym ->
    | Some v ->
       Translating.Viry.symb_signature :=
         Translating.Axiom.StrMap.add sym.p_sym_nam.elt v !Translating.Viry.symb_signature
-   | None -> ()) ; prt ppc (no_pos (P_symbol sym))
+   | None -> ()) ; prt ppc (create_LP_symbol sym)
 
 let pp_sort_prelude ppc cd prt : p_symbol -> unit = fun sym ->
   incr_real_symbol cd ;
@@ -26,13 +26,13 @@ let pp_sort_prelude ppc cd prt : p_symbol -> unit = fun sym ->
    | Some v ->
       Translating.Axiom.sort_signature :=
         Translating.Axiom.StrMap.add sym.p_sym_nam.elt v !Translating.Axiom.sort_signature
-   | None -> ()) ; *) prt ppc (no_pos (P_symbol sym))
+   | None -> ()) ; *) prt ppc (create_LP_symbol sym)
 
 
 let pp_builtin_prelude ppc _ prt : p_command -> unit = fun b -> prt ppc b
 
 let pp_rule_prelude ppc _ prt : p_rule -> unit = fun r ->
-  prt ppc (no_pos (P_rules [r]))
+  prt ppc (create_multi_rule [r])
 
 let create_prelude ppc prt : string -> unit = fun _ ->
   let cd = Mecanism.Count_data.reset_count_data 0 in
@@ -42,7 +42,7 @@ let create_prelude ppc prt : string -> unit = fun _ ->
   let pp_r = pp_rule_prelude ppc cd prt in
   (* STEP 1: The injection _INJD: injective symbol δ : SortK → TYPE; *)
   print_comment ppc "Our injection between K and Dedukti";
-  pp_symb (create_p_symbol [no_pos (P_prop Injec)] "δ" []
+  pp_symb (create_p_symbol [create_prop Injec] "δ" []
              (Some (create_arrow p_SORTK p_TYPE)) None) ;
   (* Hooked-sort *)
   print_comment ppc "Translation of hooked sorts";
@@ -79,7 +79,8 @@ let create_prelude ppc prt : string -> unit = fun _ ->
      (* STEP 4: Add semantic rules *)
      print_comment ppc "Translation of semantic rules";
      let g ((hl, bl), (hr, br)) =
-       pp_r (no_pos (List.fold_left create_appl hl bl,
-                     List.fold_left create_appl hr br))
+       pp_r (create_rule
+               (List.fold_left create_appl hl bl)
+               (List.fold_left create_appl hr br))
      in
      List.iter g (semantic_rule())

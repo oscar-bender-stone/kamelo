@@ -37,7 +37,7 @@ let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
        end
     | Equals(_, x, Dom_val(_, d)) when d = _TRUE  -> aux x
     | Equals(_, x, Dom_val(_, d)) when d = _FALSE -> create_appl (create_ident _NOT_BOOL) (aux x)
-    | Equals _ -> failwith "EQUALS"
+    | Equals _ -> raise (NotYetImplemented "Need to update [Eval_strategy_curry_new] - Case EQUALS")
     | Dom_val(_, name) -> create_ident name
     (*| In _ -> failwith "OK, guys" *)
     (*| Exists _ -> failwith "EXISTS"
@@ -50,7 +50,7 @@ let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
     | And (_, ax1, Predicate(Var(n,_))) ->
        let res = aux ax1 in
        data_matching := StrMap.add n res !data_matching ; res
-    | _ -> failwith "Not yet implemented [Axiom.curry]."
+    | _ -> raise (NotYetImplemented "Need to update [Eval_strategy.curry_new].")
   in
   aux ax
 
@@ -99,10 +99,10 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> alias -> quant_var 
   in
   let is_owise = List.fold_left (||) false attr_l in
   match is_owise, cond with
-  | false, None   -> (no_pos (lhs, rhs), Uncond,     default_prio)::acc
-  | false, Some x -> (no_pos (lhs, rhs), Cond x,     default_prio)::acc
-  | true,  None   -> (no_pos (lhs, rhs), OwiseRule,  default_prio)::acc
-  | true,  Some _ -> failwith "Not possible [create_ctrs_rule]."
+  | false, None   -> (create_rule lhs rhs, Uncond,     default_prio)::acc
+  | false, Some x -> (create_rule lhs rhs, Cond x,     default_prio)::acc
+  | true,  None   -> (create_rule lhs rhs, OwiseRule,  default_prio)::acc
+  | true,  Some _ -> raise (InternalError "Case not possible in [trans_cooling_rule].")
 
 (** To translate heating rules *)
 let trans_heating_rule : attribute list -> ctrs_rule list -> alias -> quant_var list * axiom -> ctrs_rule list =
@@ -238,7 +238,7 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> alias -> quant_var 
       aux (List.length p_l) (create_ident name)
     in
     (* Use it *)
-    (no_pos (lambda_lhs new_pattern, lambda_rhs new_pattern), Uncond, default_prio)::acc
+    (create_rule (lambda_lhs new_pattern) (lambda_rhs new_pattern), Uncond, default_prio)::acc
   in
   List.fold_left gen_specialization acc constr_sym_l
 
@@ -260,7 +260,7 @@ let trans_semantic_rule : attribute list -> ctrs_rule list -> alias -> quant_var
   in
   let is_owise = List.fold_left (||) false attr_l in
   match is_owise, cond with
-  | false, None   -> (no_pos (lhs, rhs), Uncond,     default_prio)::acc
-  | false, Some x -> (no_pos (lhs, rhs), Cond x,     default_prio)::acc
-  | true,  None   -> (no_pos (lhs, rhs), OwiseRule,  default_prio)::acc
-  | true,  Some _ -> failwith "Not possible [create_ctrs_rule]."
+  | false, None   -> (create_rule lhs rhs, Uncond,     default_prio)::acc
+  | false, Some x -> (create_rule lhs rhs, Cond x,     default_prio)::acc
+  | true,  None   -> (create_rule lhs rhs, OwiseRule,  default_prio)::acc
+  | true,  Some _ -> raise (InternalError "Case not possible in [trans_semantic_rule].")

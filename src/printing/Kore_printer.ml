@@ -84,7 +84,7 @@ let pp_kore_sort ppc : sort -> attribute list -> unit = fun s attr_l ->
   print ppc "sort %s " (pp s) ; pp_kore_attribute_list ppc attr_l
 
 let pp_kore_hooked_sort ppc : sort -> attribute list -> unit =
-  fun s attr_l -> print ppc "hooked-sort %s " (pp s) ; pp_kore_attribute_list ppc attr_l
+  fun s attr_l -> print ppc "hooked-sort %s " (pp s) ;  pp_kore_attribute_list ppc attr_l
 
 let pp_kore_symbol ppc : string -> symbol -> attribute list -> unit =
   fun keyword (name, qv_l, p_l, p) attr_l ->

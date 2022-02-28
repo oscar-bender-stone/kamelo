@@ -3,6 +3,15 @@ open LP_p_term
 open LP.Syntax
 open Common.Type
 
+(** [wrap s] creates the p_term δ [s]. *)
+let wrap : string -> p_term = fun s -> create_appl p_INJD (create_ident s)
+
+(** [get_sort_type s] creates the type :
+      - p_TYPE       if s = _SORTK
+      - p_SORTK      otherwise *)
+let get_sort_type : sort -> p_term = fun s ->
+  if s = _SORTK then p_TYPE else p_SORTK
+
 (** [create_type_atomic s] creates the type :
       - _SORTK       if s = _SORTK
       - p_INJD (f s) otherwise
