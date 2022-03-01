@@ -63,6 +63,8 @@ let axiom_cases
          incr_k_ax_idem  cd ; f_equals_ax_idem attr_l acc (qv_l, ax)
       | Some (Unit  _) ->
          incr_k_ax_unit  cd ; f_equals_ax_unit attr_l acc (qv_l, ax)
+      | Some (Simpl _) -> (* Some (Simplification  _) - Axiome du prélude  *)
+         incr_k_ax_without_attr cd ; f_equals_ax_default attr_l acc (qv_l, ax)
       | None -> (* Some (Simplification  _) - Axiome du prélude  *)
          incr_k_ax_without_attr cd ; f_equals_ax_default attr_l acc (qv_l, ax)
       | _ -> raise (InternalError "Need to update [axiom_cases], case Equals."))
