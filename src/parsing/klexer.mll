@@ -55,7 +55,10 @@
 
   | LEFT
   | RIGHT
+  | PRIORITY
   | PRIORITIES
+
+  | PRIVATE
 
   | CONSTRUCTOR
   | INJECTIVE
@@ -221,7 +224,10 @@ rule token = parse
 
   | "left"               { LEFT           }
   | "right"              { RIGHT          }
+  | "priority"           { PRIORITY       }
   | "priorities"         { PRIORITIES     }
+
+  | "private"            { PRIVATE        }
 
   | "constructor"        { CONSTRUCTOR    }
   | "injective"          { INJECTIVE      }

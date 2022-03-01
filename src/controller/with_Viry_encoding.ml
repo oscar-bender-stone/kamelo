@@ -65,7 +65,7 @@ let main cd : (* TODO fix heterogenous signature *)
      (fun attr_l (sort_l, sym_l, r_l) sign al ax  ->
       (sort_l, sym_l, trans_semantic_rule attr_l r_l al ax), sign))
     propagation (f_subsort, propagation)
-    (propagation, propagation, propagation, propagation)
+    (propagation, propagation, propagation, propagation, propagation)
     propagation propagation
     (propagation, trans_implies, trans_implies, trans_implies,
      propagation, trans_implies, trans_implies)

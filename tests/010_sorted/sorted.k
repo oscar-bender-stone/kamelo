@@ -15,6 +15,7 @@ endmodule
 
 module SORTED
    imports SORTED-SYNTAX
+   imports BOOL
    imports INT
 
    rule sorted .L => true
