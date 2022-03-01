@@ -1,7 +1,6 @@
 open Common.Type
-   open LP.Syntax
 open Common.Xlib_OCaml
-
+open Interface.Signature
 open Terminal.Display_console
 
 open Controller.Prelude (* TODO delete *)
@@ -31,7 +30,7 @@ let () =
      Mecanism.Count_data.incr_real_import cd ;
      LP.LP_printer.pp_command ff import_trans ;
      (* STEP 3: Translate the executable *)
-     let p_exec = Translating.Axiom.curry_ident exec in
+     let p_exec = Translating.Axiom.curry_ident exec empty_sign in
      (* STEP 4: Add free variables *)
      let f_pp : string -> string list -> unit = fun key var_l ->
        let var_type =
@@ -40,7 +39,7 @@ let () =
            (Interface.LP_p_term.create_ident key) in
        let comm name =
          let _ = Controller.Prelude.pp_symbol_prelude ff cd
-           (LP.LP_printer.pp_command) StrMap.empty
+           (LP.LP_printer.pp_command) empty_sign
            (Interface.LP_p_term.create_symbol name var_type) in ()
        in
        List.iter (fun name -> comm name) var_l
@@ -84,7 +83,7 @@ let () =
      (* STEP : Translation of the semantics module. *)
 
      (* STEP C: Generate a file for each Kore module *)
-     let module_to_file : p_term StrMap.t -> kmodule -> p_term StrMap.t =
+     let module_to_file : signature -> kmodule -> signature =
        fun sign m ->
        (* let name, import_l, command_l, attribut_l = m in *)
        let name, _, kommand_l, _ = m in
@@ -142,7 +141,7 @@ let () =
      in
      (* STEP D: Iteration on .kore file *)
      print_header_kamelo ();
-     let sign_g = module_to_file StrMap.empty (List.hd file) in
+     let sign_g = module_to_file empty_sign (List.hd file) in
      print_comment ff "PRELUDE";
      let sign_res =
        Controller.Prelude.create_prelude ff printing sign_g "prelude"

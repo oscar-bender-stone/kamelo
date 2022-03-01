@@ -3,6 +3,8 @@ open Common.Type
 open Common.Xlib_OCaml
 open LP.Syntax
 
+open Interface.Signature
+
 type t = axiom
 
 (** ****************************************************** *)
@@ -12,23 +14,18 @@ type t = axiom
 val free_var : (string list) StrMap.t ref
 
 val data_matching : p_term StrMap.t ref
-val subsort_data  : (string list) StrMap.t ref
 
 val do_specific_thing : bool ref
-
 val reset_var : unit -> unit
 
-val change_sort_inj : p_term -> p_term
+val change_sort_inj : p_term -> signature -> p_term
 
-(* val subsort_data : (string list) StrMap.t ref *)
-val from_subsort_axiom : string -> string -> unit
-val collect_subsort_data : axiom -> unit
+val collect_subsort_data : axiom -> signature -> signature
 
 
-
-val curry : (string -> p_term) -> t -> p_term
-val curry_ident   : t -> p_term
-val curry_pattern : t -> p_term
+val curry : (string -> p_term) -> t -> signature -> p_term
+val curry_ident   : t -> signature -> p_term
+val curry_pattern : t -> signature -> p_term
 
 
 (** **************************************************** *)

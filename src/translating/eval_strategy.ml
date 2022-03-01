@@ -1,21 +1,17 @@
-open Axiom
 open LP.Syntax
+
 open Common.Type
 open Common.Getter
 open Common.Error
 open Common.Xlib_OCaml
+
 open Interface.LP_p_term
 open Interface.K_prelude
+open Interface.Signature
 
-module Sort = struct
-  type t = sort
-  let compare = String.compare
-end
-module Induc = Map.Make(Sort)
+open Axiom
 
-let data_induc : (symbol list) Induc.t ref = ref Induc.empty
-
-let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
+let curry_new : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign ->
   let rec aux : t -> p_term = fun ax ->
     let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
     match ax with
@@ -32,7 +28,7 @@ let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
                          then
                            (let res = StrMap.find n !data_matching in
                             (if !do_specific_thing
-                             then Axiom.change_sort_inj res
+                             then Axiom.change_sort_inj res sign
                              else res))
                          else f_var n)
        end
@@ -57,7 +53,7 @@ let curry_new : (string -> p_term) -> t -> p_term = fun f_var ax ->
 
 let curry_condition = curry_new create_pattern_var
 
-let create_LHS : alias -> p_term * p_term option = fun al ->
+let create_LHS : alias -> signature -> p_term * p_term option = fun al sign ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
   let def = get_def al in
   match def with
@@ -66,32 +62,32 @@ let create_LHS : alias -> p_term * p_term option = fun al ->
        match a with
        | And(_,a1,a2) ->
           (match a1 with
-           | Top _ -> curry_pattern a2, None
-           | _     -> let res = curry_pattern a2 in res, Some (curry_condition a1))
+           | Top _ -> curry_pattern a2 sign, None
+           | _     -> let res = curry_pattern a2 sign in res, Some (curry_condition a1 sign))
        |  _ -> raise (InternalError "The heating/cooling rule has no condition")
      end
   | D _ -> raise (NotYetImplemented "Alias (LHS) with a unique symbol as body.")
 
-let create_RHS : t -> p_term = fun ax ->
+let create_RHS : t -> signature -> p_term = fun ax sign ->
   match ax with
   | Rewrites(_,_,And(_,a1,a2)) ->
      if is_conditional_rule a1 then
        raise (NotYetImplemented "KProver claim.")
      else
-       Axiom.curry_pattern a2
+       Axiom.curry_pattern a2 sign
   |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
 
 
 (** To translate cooling rules *)
-let trans_cooling_rule : attribute list -> ctrs_rule list -> alias -> quant_var list * axiom -> ctrs_rule list =
-  fun attr_l acc al (_, ax) ->
+let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+  fun attr_l acc sign al (_, ax) ->
   do_specific_thing := true ;
   data_matching := StrMap.empty ; reset_var() ;
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al in
-  let rhs = create_RHS ax in
+  let lhs, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign in
   do_specific_thing := false ;
   let attr_l =
     List.map (fun attr -> match attr with
@@ -106,14 +102,14 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> alias -> quant_var 
   | true,  Some _ -> raise (InternalError "Case not possible in [trans_cooling_rule].")
 
 (** To translate heating rules *)
-let trans_heating_rule : attribute list -> ctrs_rule list -> alias -> quant_var list * axiom -> ctrs_rule list =
-  fun attr_l acc al (_, ax) ->
+let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+  fun attr_l acc sign al (_, ax) ->
   data_matching := StrMap.empty ; reset_var() ;
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al in
-  let rhs = create_RHS ax in
+  let lhs, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign in
   do_specific_thing := false ;
 
   (* Selection of the variable to specialize, with its sort *)
@@ -197,15 +193,15 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> alias -> quant_var 
   let constr_sym_l =
     let natural_constr =
       try
-        Induc.find sort_v !data_induc
-      with Not_found -> failwith ("No constructor symbol for the sort" ^ sort_v)
+        Induc.find sort_v sign.inductive
+      with Not_found -> failwith ("No constructor symbol for the sort " ^ sort_v)
     in
     (* Get constructors by transitivty of subsort sorts *)
     let subsort_l =
-      StrMap.fold (fun key s_l l -> if List.mem sort_v s_l then key::l else l) !(Axiom.subsort_data) []
+      StrMap.fold (fun key s_l l -> if List.mem sort_v s_l then key::l else l) sign.subsort []
     in
     let f l s =
-      let tmp = try Induc.find s !data_induc with Not_found -> [] in
+      let tmp = try Induc.find s sign.inductive with Not_found -> [] in
       tmp@l
     in
     List.fold_left f natural_constr subsort_l
@@ -245,14 +241,14 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> alias -> quant_var 
 
 
 (** To translate semantic rules *)
-let trans_semantic_rule : attribute list -> ctrs_rule list -> alias -> quant_var list * axiom -> ctrs_rule list =
-  fun attr_l acc al (_, ax) ->
+let trans_semantic_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+  fun attr_l acc sign al (_, ax) ->
   data_matching := StrMap.empty ; reset_var() ;
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al in
-  let rhs = create_RHS ax in
+  let lhs, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign in
   do_specific_thing := false ;
   let attr_l =
     List.map (fun attr -> match attr with

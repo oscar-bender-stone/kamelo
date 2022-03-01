@@ -1,26 +1,23 @@
+open LP.Syntax
+open LP.LP_printer
+
 open Common.Type
 open Common.Getter
 open Common.Error
 open Common.Xlib_OCaml
 
+open Interface.Output
+open Interface.LP_p_term
+open Interface.Signature
+
 open Translating.Axiom
 
 open Mecanism.Count_data
-open Interface.Output
-open Interface.LP_p_term
-open LP.Syntax
-open LP.LP_printer
 
 exception KComputation of string
 exception ConditionalRule of string
 
 let check_induc = ref false
-
-module Sort = struct
-  type t = sort
-  let compare = String.compare
-end
-module Induc = Map.Make(Sort) (* ( sort |-> symbol list) *)
 
 (** Inductive type *)
 let induc_to_p_inductive : sort * symbol list -> p_inductive =
@@ -47,7 +44,7 @@ let create_LHS : alias -> p_term = fun al ->
          if is_conditional_rule a1 then
             raise (ConditionalRule "Conditional rewriting rule not supported yet.")
          else
-           (try curry_pattern a2
+           (try curry_pattern a2 empty_sign
             with KComputation _ ->
               wrn_msg _STDOUT "WARNING: K computation found." ; p_TYPE)
       (* _ -> failwith "LHS"*)
@@ -62,7 +59,7 @@ let create_RHS : t -> p_term = fun ax ->
      if is_conditional_rule a1 then
        raise (ConditionalRule "Conditional rewriting rule not supported yet.")
      else
-       curry_pattern a2
+       curry_pattern a2 empty_sign
   |  _ -> failwith "In RHS: Not yet implemented"
 
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to

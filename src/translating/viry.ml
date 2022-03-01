@@ -117,6 +117,7 @@ open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
 open Interface.Getter_term
+open Interface.Signature
 open Axiom
 
 (** A supposed safe prefix, i.e. there is no name beginning with it. *)
@@ -422,10 +423,7 @@ let create_otherwise_rule tracker nb rhs : p_rule =
 (** The main algorithm *)
 (** ------------------ *)
 
-(** To store the type of each symbol *)
-(* let symb_signature : p_term StrMap.t ref = ref StrMap.empty *)
-
-let viry_encoding : ctrs_rule list -> p_term StrMap.t -> p_symbol list * p_rule list = fun l sign ->
+let viry_encoding : ctrs_rule list -> signature -> p_symbol list * p_rule list = fun l sign ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
   let flat_bool_sym = create_p_symbol [] _flatBool [] (Some p_SORTK) None in
@@ -454,7 +452,7 @@ let viry_encoding : ctrs_rule list -> p_term StrMap.t -> p_symbol list * p_rule 
       let flat_head_name = safe_prefix ^ head_name in
       let flat_head_type =
         try
-          extend_type (StrMap.find head_name sign) nb_cond
+          extend_type (StrMap.find head_name sign.typing) nb_cond
         with Not_found -> raise (Common.Error.InternalError ("The symbol " ^ head_name ^ "wasn't defined."))
       in
       let flat_head_sym =
@@ -463,7 +461,7 @@ let viry_encoding : ctrs_rule list -> p_term StrMap.t -> p_symbol list * p_rule 
       (* [4.] Generate the encapsulation rule. *)
       let encap_r = create_encapsulation_rule tracker mglhs nb_cond in
       (* [5.] For each rule in C_σ *)
-      let rec aux_rule : int -> p_rule list -> ctrs_rule list -> p_rule list = (*   fold_lefti *)
+      let rec aux_rule : int -> p_rule list -> ctrs_rule list -> p_rule list = (* ~ fold_lefti *)
         fun i acc ctrs_l ->
         match ctrs_l with
         | [] -> acc

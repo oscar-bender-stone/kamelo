@@ -1,11 +1,13 @@
 
-open Interface.LP_p_term
-open Interface.K_prelude
 open LP.Syntax
 
 open Common.Type
 open Common.Error
 open Common.Xlib_OCaml
+
+open Interface.LP_p_term
+open Interface.K_prelude
+open Interface.Signature
 
 type t = axiom
 
@@ -41,13 +43,8 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
 (** Currently, functional axioms aren't used and
     subsort axioms are just used to change some injections. *)
 
-(** où key est une sous-sorte des sortes dans la liste *)
-let subsort_data : (string list) StrMap.t ref = ref StrMap.empty
-
-let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
-  subsort_data := add_update s1 s2 !subsort_data
-
-(** [collect_subsort_data ax] updates the database of subsorts
+(** [collect_subsort_data ax sign] updates the relations of subsorts in the
+    signature [sign].
     For instance, if this function matches an axiom with the following shape:
       \exists{R} (Val:SortKItem{},
                   \equals{SortKItem{}, R}
@@ -55,10 +52,11 @@ let from_subsort_axiom : string -> string -> unit = fun s1 s2 ->
                        inj{SortCell{}, SortKItem{}} (From:SortCell{})))
     then it adds the subsort relation SortCell <: SortKItem.
     Otherwise, it raises an error. *)
-  let collect_subsort_data : axiom -> unit = function
-    | Exists (_, _, Equals(_, _, Predicate(Sym(s, [S s1; S s2], _)))) when s = _INJ ->
-       from_subsort_axiom s1 s2
-    | _ -> raise (InternalError "Need to update [Axiom.collect_subsort_data].")
+let collect_subsort_data : axiom -> signature -> signature = fun ax sign ->
+  match ax with
+  | Exists (_, _, Equals(_, _, Predicate(Sym(s, [S s1; S s2], _)))) when s = _INJ ->
+     { sign with subsort = add_update s1 s2 sign.subsort }
+  | _ -> raise (InternalError "Need to update [Axiom.collect_subsort_data].")
 
 let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
@@ -71,7 +69,7 @@ let init_var : string * p_term = ("", p_TYPE)
 let specific_var : (string * p_term) ref = ref init_var
 let reset_var : unit -> unit = fun () -> specific_var := init_var
 
-let change_sort_inj : p_term -> p_term = fun t ->
+let change_sort_inj : p_term -> signature -> p_term = fun t sign ->
   let rec aux t = match t with
     | P_Appl(
         {elt=P_Appl(
@@ -86,7 +84,7 @@ let change_sort_inj : p_term -> p_term = fun t ->
          then key ^ acc
          else "" ^ acc
        in
-       let new_s = StrMap.fold f !subsort_data "" in
+       let new_s = StrMap.fold f sign.subsort "" in
        let new_s = if new_s = "" then s1 else new_s in
        let res s2 =
          P_Appl(
@@ -98,7 +96,7 @@ let change_sort_inj : p_term -> p_term = fun t ->
              ; pos=x16},
              {elt=P_Patt(Some {elt=n ;pos=x17}, x18) ; pos=x19} )
        in
-       if not(new_s = s1) then specific_var := (n, LP.Pos.none (res s1)) ;
+       if not(new_s = s1) then specific_var := (n, no_pos (res s1)) ;
        res s2
     | P_Appl(({elt=t1;pos=x1}), ({elt=t2 ;pos=x2})) ->
        P_Appl(({elt=aux t1;pos=x1}), ({elt=aux t2 ;pos=x2}))
@@ -106,7 +104,7 @@ let change_sort_inj : p_term -> p_term = fun t ->
   in
   {elt=aux t.elt ; pos= t.pos}
 
-let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
+let curry : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign ->
   let rec aux : t -> p_term = fun ax ->
     let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
     match ax with
@@ -120,7 +118,7 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
              let res = List.fold_left create_appl p_INJ tmp in
              let res = List.fold_left f_sym res a_l in
              if !do_specific_thing
-             then change_sort_inj res
+             then change_sort_inj res sign
              else res
            else
              List.fold_left f_sym (create_ident n) a_l
@@ -133,7 +131,7 @@ let curry : (string -> p_term) -> t -> p_term = fun f_var ax ->
                                   wrn_1 "\nSpecific var: %s\n" n ; *)
                               if (fst !specific_var) = (Interface.Output.pp n)
                               then snd !specific_var
-                              else change_sort_inj (f_var n))
+                              else change_sort_inj (f_var n) sign)
                            else f_var n))
        end
     | Dom_val(s, name) ->
@@ -164,12 +162,14 @@ let curry_pattern = curry create_pattern_var
     (Associative, Commutative, Unit and Idempotence one) *)
 (** **************************************************** *)
 
-let of_equality_axiom : t -> p_rule = fun ax ->
+let of_equality_axiom : t -> p_rule = fun ax -> (* TODO sign ?*)
   data_matching := StrMap.empty ;
   match ax with
   | Equals(_, ax1, ax2) ->
      (try
-        create_rule (curry_pattern ax1) (curry_pattern ax2)
+        create_rule
+          (curry_pattern ax1 empty_sign)
+          (curry_pattern ax2 empty_sign)
       with _ -> raise (InternalError "Need to update [Axiom.of_equality_axiom]."))
   | _ -> raise (InternalError "The current axiom isn't an equality one.\n
                 Please, raise an issue.")

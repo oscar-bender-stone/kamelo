@@ -2,7 +2,8 @@
 module StrMap = Map.Make(String)
 
 (** [add_update key value m] adds the value [value] at the entry [key] in the map [m]. *)
-let add_update : string -> 'a -> ('a list) StrMap.t -> ('a list) StrMap.t = fun key value m ->
+let add_update : string -> 'a -> ('a list) StrMap.t -> ('a list) StrMap.t =
+  fun key value m ->
   let f a = match a with
     | None   -> Some [value]   (* Si l'entrée n'existait pas encore *)
     | Some l -> Some(value::l) (* Si l'entrée existait déjà *)

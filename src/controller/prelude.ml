@@ -3,6 +3,7 @@ open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
 open Interface.Getter_term
+open Interface.Signature
 
 open Common.Error
 open Common.Xlib_OCaml
@@ -13,10 +14,11 @@ open Translating.Prelude_data
 let print_comment ppc message =
   print ppc "\n// " ; print ppc message ; print ppc "\n"
 
-let pp_symbol_prelude ppc cd prt : p_term StrMap.t -> p_symbol -> p_term StrMap.t = fun sign sym ->
+let pp_symbol_prelude ppc cd prt : signature -> p_symbol -> signature = fun sign sym ->
   incr_real_symbol cd ; prt ppc (create_LP_symbol sym) ;
   match sym.p_sym_typ with
-  | Some v -> StrMap.add (Interface.Output.pp sym.p_sym_nam.elt) v sign
+  | Some v ->
+     { sign with typing = StrMap.add (Interface.Output.pp sym.p_sym_nam.elt) v sign.typing }
   | None   -> sign
 
 let pp_sort_prelude ppc cd prt : p_symbol -> unit = fun sym ->
@@ -33,7 +35,7 @@ let pp_builtin_prelude ppc _ prt : p_command -> unit = fun b -> prt ppc b
 let pp_rule_prelude ppc _ prt : p_rule -> unit = fun r ->
   prt ppc (create_multi_rule [r])
 
-let create_prelude ppc prt : p_term StrMap.t -> string -> p_term StrMap.t =
+let create_prelude ppc prt : signature -> string -> signature =
   fun sign _ ->
   let cd = Mecanism.Count_data.reset_count_data 0 in
   let pp_sort = pp_sort_prelude ppc cd prt in
