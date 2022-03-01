@@ -8,6 +8,7 @@ open Common.Xlib_OCaml
 open Interface.LP_p_term
 open Interface.K_prelude
 open Interface.Signature
+open Interface.Output
 
 open Axiom
 
@@ -117,21 +118,18 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
     | Some (* Si de la forme : LblnotBool'Unds'{}(LblisKResult{}(kseq{}(inj{SortAExp{}, SortKItem{}}(VarHOLE:SortAExp{}),dotk{}())))) *)
       ( {elt=P_Appl(
                  {elt=P_Appl(
-                          {elt=P_Iden({elt=(_, "Lbl'Unds'andBool'Unds'");pos=_}, _);pos=_},
-                          _) (* true /\ true *)
+                          {elt=P_Iden({elt=(_, s_and);pos=_}, _);pos=_}, _) (* true /\ true *)
                  ; pos=_},
 
-
-
                  {elt=P_Appl(
-                          {elt=P_Iden({elt=(_, "LblnotBool'Unds'");pos=_}, _);pos=_},
+                          {elt=P_Iden({elt=(_, s_not);pos=_}, _);pos=_},
                           {elt=P_Appl(
-                                   {elt=P_Iden({elt=(_, "LblisKResult");pos=_}, _);pos=_},
+                                   {elt=P_Iden({elt=(_, s_kresult);pos=_}, _);pos=_},
                                    {elt=P_Appl(
-                                            {elt=P_Appl({elt=P_Iden({elt=(_,"kseq");pos=_}, _);pos=_},
+                                            {elt=P_Appl({elt=P_Iden({elt=(_, s_kseq);pos=_}, _);pos=_},
                                                         {elt=P_Appl(
                                                                  {elt=P_Appl(
-                                                                          {elt=P_Appl({elt=P_Iden({elt=(_,"inj");pos=_}, _);pos=_},
+                                                                          {elt=P_Appl({elt=P_Iden({elt=(_, s_inj);pos=_}, _);pos=_},
                                                                                       {elt=P_Expl({elt=P_Iden ({elt=(_,s1) ;pos=_}, _); pos=_}) ; pos=_} )
                                                                           ; pos=_},
                                                                           {elt=P_Expl({elt=P_Iden ({elt=(_,_) ;pos=_}, _); pos=_}) ; pos=_} )
@@ -139,62 +137,27 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
                                                                  {elt=P_Patt(Some {elt=n ;pos=_}, _) ; pos=_} )
                                                         ; pos=_} )
                                             ; pos=_},
-                                            {elt=P_Iden({elt=(_,"dotk");pos=_}, _);pos=_} )
+                                            {elt=P_Iden({elt=(_, s_dotk);pos=_}, _);pos=_} )
                                    ; pos=_} )
                           ; pos=_} )
                  ; pos=_} )
 
-
         ; pos=_}
 
-
-
-
-      ) -> n, s1
-
-    | Some (* Si de la forme : LblnotBool'Unds'{}(LblisKResult{}(kseq{}(inj{SortAExp{}, SortKItem{}}(VarHOLE:SortAExp{}),dotk{}())))) *)
-( {elt=P_Appl(
-           {elt=P_Appl(
-                    {elt=P_Iden({elt=(_,"_andBool_");pos=_}, _);pos=_},
-                    _) (* true /\ true *)
-           ; pos=_},
-
-
-
-           {elt=P_Appl(
-                    {elt=P_Iden({elt=(_, "notBool_");pos=_}, _);pos=_},
-                    {elt=P_Appl(
-                             {elt=P_Iden({elt=(_,"isKResult");pos=_}, _);pos=_},
-                             {elt=P_Appl(
-                                      {elt=P_Appl({elt=P_Iden({elt=(_,"kseq");pos=_}, _);pos=_},
-                                                  {elt=P_Appl(
-                                                           {elt=P_Appl(
-                                                                    {elt=P_Appl({elt=P_Iden({elt=(_,"inj");pos=_}, _);pos=_},
-                                                                                {elt=P_Expl({elt=P_Iden ({elt=(_,s1) ;pos=_}, _); pos=_}) ; pos=_} )
-                                                                    ; pos=_},
-                                                                    {elt=P_Expl({elt=P_Iden ({elt=(_,_) ;pos=_}, _); pos=_}) ; pos=_} )
-                                                           ; pos=_},
-                                                           {elt=P_Patt(Some {elt=n;pos=_}, _) ; pos=_} )
-                                                  ; pos=_} )
-                                      ; pos=_},
-                                      {elt=P_Iden({elt=(_,"dotk");pos=_}, _);pos=_} )
-                             ; pos=_} )
-                    ; pos=_} )
-           ; pos=_} )
-
-
-  ; pos=_}
-
-) -> n, s1
-    | Some _ -> failwith "Unexpected shape for the condition."
-    | None -> failwith "No condition for a heating rule."
+      ) -> if s_and = pp _AND_BOOL && s_not = pp _NOT_BOOL
+              && s_kresult = pp _IS_KRESULT && s_kseq = pp _KSEQ
+              && s_inj = pp _INJ && s_dotk = pp _DOTK
+           then n, s1
+           else raise (NotYetImplemented "Unexpected shape for the condition.")
+    | Some _ -> raise (NotYetImplemented "Unexpected shape for the condition.")
+    | None   -> raise (InternalError "No condition for a heating rule.")
   in
   (* Get the list of constructor symbols *)
   let constr_sym_l =
     let natural_constr =
       try
         Induc.find sort_v sign.inductive
-      with Not_found -> failwith ("No constructor symbol for the sort " ^ sort_v)
+      with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
     in
     (* Get constructors by transitivty of subsort sorts *)
     let subsort_l =

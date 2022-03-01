@@ -42,7 +42,7 @@ let get_left        : t -> bool = fun v -> v.is_left
 (*let get_right       : t -> bool = fun v -> v.is_right *)
 
 let get_modifier : attribute list -> p_modifier list = fun attr_l ->
-  (* On collecte les informations que l'on peut avoir *)
+  (* Collect of properties *)
   let rec aux l acc = match l with
     | [] -> acc
     | t::q -> match t with
@@ -55,7 +55,7 @@ let get_modifier : attribute list -> p_modifier list = fun attr_l ->
               | _             -> aux q acc
   in
   let tmp = aux attr_l no_information in
-  (* On traduit ces informations en p_modifier list *)
+  (* Translation into p_modifier list *)
   let b = get_left tmp in
   let res =
     if get_injec tmp && not(get_constructor tmp)

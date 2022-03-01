@@ -1,37 +1,8 @@
 
-
 let readable = ref false
 
-(* Meilleure complexité avec une map, mais moins lisible *)
-
-(*
-let pretty_name : string -> (string * string) list -> string = fun s iso ->
-  let len = ref (String.length s) in
-  let res = ref s in
-  let rec aux l = match l with
-     | [] -> !res
-     | (pattern, new_s)::t ->
-        let head_len = String.length pattern in
-        let new_len  = String.length new_s   in
-        let rec comparison k i pattern j =
-          if j = head_len then
-            (res := String.sub !res 0 k ^ new_s ^ String.sub !res (k+new_len+1) (!len-(k+new_len+1)-1);
-             len := String.length !res)
-          else
-            if i+k < !len && j < head_len && !res.[i] = pattern.[j]
-            then comparison  k    (i+1) pattern (j+1)
-            else comparison (k+1) (k+1) pattern  0
-        in
-        comparison 0 0 pattern 0;
-        (*for k = 0 to !len-1 do
-          res := comparison k !res k pattern 0;
-          len := String.length !res
-        done; *)
-        aux t
-  in
-  aux iso
- *)
-
+(** [pretty_string iso s] replaces each pattern in the string [s] according to
+    the list of string pairs [iso]. *)
 let pretty_string : (string * string) list -> string -> string = fun iso s ->
   let rec aux l s = match l with
      | [] -> s
@@ -40,8 +11,12 @@ let pretty_string : (string * string) list -> string -> string = fun iso s ->
   in
   aux iso s
 
+(** [skip_sign s] creates a pattern with the string [s] to delete
+    the signature encoding in the name of a symbol. *)
 let skip_sign s = "_\\([A-Z-]*\\)" ^ s ^ "\\([A-Za-z_-]+\\)"
 
+(** [string_symbol_isomorphism] is a list of string pairs.
+    This list is useful to replace the first component of a pair by the second one. *)
 let string_symbol_isomorphism =
   [ ("Lbl", "") ; ("Var", "") ; (* ("Sort", "") ; ("Stop", ".") ; *) ("Unds", "_") ; ("'", "") ;  ("-LT-", "<") ; ("-GT-", ">") ;
     ("Pipe", "|") ; ("Eqls", "=") ; ("Slsh", "/") ; ("Hash", "#") ; ("Tild", "~") ; ("Perc", "%") ; ("Star", "*") ; ("Quot", "") ;
@@ -51,4 +26,5 @@ let string_symbol_isomorphism =
     ; (skip_sign "-SYNTAX", "_") ; (skip_sign "-COMMON", "")
     ; (skip_sign "INT", "_INT") ; (skip_sign "LIST", "_LIST") ; (skip_sign "SET", "_SET") ; (skip_sign "MAP", "_MAP") ]
 
+(** To make readable symbol name *)
 let pp s = if !readable then pretty_string string_symbol_isomorphism s else s

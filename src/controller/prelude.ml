@@ -22,13 +22,7 @@ let pp_symbol_prelude ppc cd prt : signature -> p_symbol -> signature = fun sign
   | None   -> sign
 
 let pp_sort_prelude ppc cd prt : p_symbol -> unit = fun sym ->
-  incr_real_symbol cd ;
-  (* (match sym.p_sym_typ with
-   | Some v ->
-      Translating.Axiom.sort_signature :=
-        Translating.Axiom.StrMap.add sym.p_sym_nam.elt v !Translating.Axiom.sort_signature
-   | None -> ()) ; *) prt ppc (create_LP_symbol sym)
-
+  incr_real_symbol cd ; prt ppc (create_LP_symbol sym)
 
 let pp_builtin_prelude ppc _ prt : p_command -> unit = fun b -> prt ppc b
 
@@ -82,12 +76,6 @@ let create_prelude ppc prt : signature -> string -> signature =
        pp_symb sign (create_symbol n (create_type_arrow (n,l)))
      in
      let sign = List.fold_left f sign hooked_symbol in
-(*
-val fold_left : ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a
-
-fold_left f init [b1; ...; bn] is f (... (f (f init b1) b2) ...) bn
- *)
-
      (* STEP 4: Add semantic rules *)
      print_comment ppc "Translation of semantic rules";
      let g ((hl, bl), (hr, br)) =

@@ -42,5 +42,5 @@ let _K_CELL  = "Lbl'-LT-'k'-GT-'" (* "<k>" *)
 let p_K_CELL = create_ident _K_CELL
 
 (** The specific predicate about the resulting values *)
-let _IS_KRESULT  = "isKResult"
+let _IS_KRESULT  = "LblisKResult"
 let p_IS_KRESULT = create_ident _IS_KRESULT

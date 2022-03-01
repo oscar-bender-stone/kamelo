@@ -39,7 +39,7 @@ val of_equality_axiom : t -> p_rule
 (** To translate implies-axioms    *)
 (** ****************************** *)
 
-(** Type of extra data about a rule *) (* Mettre aussi priority ? *)
+(** Type of extra data about a rule *) (* TODO add priority ? *)
 type extra_data_rule =
  | Uncond         (* A uncondtional rule *)
  | Cond of p_term (* A conditional rule with a condition *)
@@ -49,6 +49,6 @@ type extra_data_rule =
     ((LHS, RHS), extra_data_rule, priority) *)
 type ctrs_rule = p_rule * extra_data_rule * int
 
-(** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
-    to a rewriting rule. *)
+(** [of_implies_axiom ax] translates the axiom [ax] which begins by
+    "\implies" to a rewriting rule. *)
 val of_implies_axiom : t -> ctrs_rule

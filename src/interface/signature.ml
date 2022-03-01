@@ -20,11 +20,12 @@ let empty_sign =
     subsort   = StrMap.empty ;
     inductive = Induc.empty  }
 
-(** [add_update key value m] adds the value [value] at the entry [key] in the map [m]. *)
+(** [add_update key value m] adds the value [value] at the entry [key] in
+    the map [m]. *)
 let add_update_induc : string -> 'a -> ('a list) Induc.t -> ('a list) Induc.t =
   fun key value m ->
   let f a = match a with
-    | None   -> Some [value]   (* Si l'entrée n'existait pas encore *)
-    | Some l -> Some(value::l) (* Si l'entrée existait déjà *)
+    | None   -> Some [value]   (* If the key did not yet exist *)
+    | Some l -> Some(value::l) (* If the key already existed   *)
   in
   Induc.update key f m

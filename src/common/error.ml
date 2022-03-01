@@ -17,9 +17,9 @@ let msg_2 ppc = fun msg arg1 arg2 ->
 (** Coloried message *)
 
 let wrn_msg ppc = fun msg -> print ppc (yel msg) ; print ppc "\n"
-(* let wrn_1   ppc = fun msg arg -> print ppc (yel msg) arg ; print ppc "\n"
-let wrn_2   ppc = fun msg arg1 arg2 ->
-  print ppc (yel msg) arg1 arg2 ; print ppc "\n" *)
+let wrn_1 ppc = fun msg arg -> print ppc (yel msg) arg ; print ppc "\n"
+let wrn_2 ppc = fun msg arg1 arg2 ->
+  print ppc (yel msg) arg1 arg2 ; print ppc "\n"
 
 let blue_msg_1 ppc = fun msg arg -> print ppc (blu msg) arg ; print ppc "\n"
 
@@ -34,12 +34,6 @@ let green_msg_1 ppc = fun msg arg ->
   print ppc (gre msg) arg ; print ppc "\n"
 let green_msg_2 ppc = fun msg arg1 arg2 ->
   print ppc (gre msg) arg1 arg2 ; print ppc "\n"
-
-
-let wrn_1 ppc = fun msg arg -> print ppc (yel msg) arg ; print ppc "\n"
-let wrn_2 ppc = fun msg arg1 arg2 ->
-  print ppc (yel msg) arg1 arg2 ; print ppc "\n"
-
 
 (** Exception *)
 

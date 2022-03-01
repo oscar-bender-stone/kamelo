@@ -80,7 +80,7 @@ for d in $for_test; do
    if [ $is_kompiled = false ]; then
       if [ $(echo $semName | cut -c-2) = "M_" ]
       then make ; semName=$(echo $semName | cut -c3-)
-      else kompile $semName.k
+      else echo "\nCompilation of the semantic" $semName.k ; kompile $semName.k
       fi
    fi
 
@@ -95,7 +95,7 @@ for d in $for_test; do
    mkdir $curr_gen_folder
    mkdir $curr_gen_folder/$curr_exec_folder
    # Traduction de la sémantique
-   echo "Traduction de la sémantique" $semName.kore
+   echo "Translation of the semantic" $semName.kore
    ./$kamelo_script -r $tests_folder/$d/$semName.kore
    # rm $tests_folder/$d/$semName.kore
    mv $semName.$extension $curr_gen_folder/
@@ -112,7 +112,7 @@ for d in $for_test; do
       # Traduction vers Kore
       # pour utiliser krun, il faut être dans le dossier où se trouve "semName-kompiled/"
       cd ..
-      echo "Traduction du programme" $f
+      echo "Translation of the program" $f
       new_name=${f%.*} # Suppression de l'extension (A faire avec la commande POSIX basename?)
       krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
       # Traduction vers Dedukti

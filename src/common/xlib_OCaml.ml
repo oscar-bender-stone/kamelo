@@ -5,8 +5,8 @@ module StrMap = Map.Make(String)
 let add_update : string -> 'a -> ('a list) StrMap.t -> ('a list) StrMap.t =
   fun key value m ->
   let f a = match a with
-    | None   -> Some [value]   (* Si l'entrée n'existait pas encore *)
-    | Some l -> Some(value::l) (* Si l'entrée existait déjà *)
+    | None   -> Some [value]   (* If the key did not yet exist *)
+    | Some l -> Some(value::l) (* If the key already existed   *)
   in
   StrMap.update key f m
 
@@ -14,7 +14,7 @@ let add_update : string -> 'a -> ('a list) StrMap.t -> ('a list) StrMap.t =
     The value [value] it is added only if it was not already in the list associated with [key]. *)
 let add_update_without_dup : string -> 'a -> ('a list) StrMap.t -> ('a list) StrMap.t = fun key value m ->
   let f a = match a with
-    | None   -> Some [value]                                        (* Si l'entrée n'existait pas encore *)
-    | Some l -> if List.mem value l then Some l else Some(value::l) (* Si l'entrée existait déjà *)
+    | None   -> Some [value]                                        (* If the key did not yet exist *)
+    | Some l -> if List.mem value l then Some l else Some(value::l) (* If the key already existed   *)
   in
   StrMap.update key f m

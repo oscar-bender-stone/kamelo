@@ -5,23 +5,7 @@ open Common.Error
 open Count_data
 
 (* type rewrite = { lhs : alias ; rhs : quant_var list * axiom }
-type common_data = Format.formatter * count_data * attribute list *)
-
-(* Main algorithm : compute the number of ... + create or not the dependency graph *)
-
-(* BAD IDEA
-let check_is_predicat (cd : count_data) (attr_l : attribute list) (acc : 'a)
-      (ax : axiom) (* a bit redundant *)
-      (f_rewrite        : attribute list -> 'a -> 'b -> 'a) (init_rewrite : 'b)
-      (f_axiom          : attribute list -> 'a -> 'c -> 'a) (init_axiom : 'c)
-    : 'a =
-  if Axiom.is_rule_axiom ax
-  then (incr_k_ax_rule         cd ; f_rewrite attr_l acc init_rewrite)
-  else (incr_k_ax_without_attr cd ; f_axiom   attr_l acc init_axiom)
-         if Axiom.is_predicate_axiom ax
-      then (incr_k_ax_predicat cd ; f_ax_predicat acc (qv_l, ax))
-      else (incr_k_ax_owise    cd ; f_ax_owise    acc (qv_l, ax))
-*)
+   type common_data = Format.formatter * count_data * attribute list *)
 
 type ('a, 's) meta_axiom = attribute list -> 'a -> 's -> quant_var list * axiom -> ('a * 's)
 
@@ -126,7 +110,7 @@ let rewriting_cases
   | [Owise _] -> incr_k_ax_semantic cd ; f_semantic attr_l acc sign al (qv_l, ax)
   | [Other (attr, _)] ->
      wrn_1 _STDOUT "New attribut (%s) used in a rewriting rule!" attr ; (acc, sign)
-  (* | [Priority _] ->
+  (* | [Priority _] -> TODO update!
    wrn_1 _STDOUT ("Rules with priority isn't supported yet.") ; (acc, sign) *)
   (* raise (InternalError "The attribut priority isn't supported yet.") *)
   | [] -> incr_k_ax_semantic cd ; f_semantic attr_l acc sign al (qv_l, ax)
