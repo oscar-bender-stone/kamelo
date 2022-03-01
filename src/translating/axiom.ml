@@ -247,7 +247,15 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
       | Bottom _ -> failwith "BOTTOM"
       | Top    _ -> failwith "TOP"
       | Rewrites _ -> failwith "REWRITES" *)
-      | Not(_, In(_, (v,_), a)) -> raise (NotYetImplemented "TODO")
+      | Not(_, In(_, (v,_), a)) ->
+         create_appl
+           p_NOT_BOOL
+           (create_appl
+              (create_appl p_EQ_K (create_ident v)) (* TODO typage + quelle égalité ? *)
+              (aux a)) (* raise (NotYetImplemented "TODO") *)
+        (* symbol eq : δ SortKItem → δ SortKItem → δ SortKItem;
+           rule ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 ♭ ↪
+                ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 (♭inj (LblnotBool'Unds' (inj (eq (inj $Var'Unds'0) (inj 0))))); *)
       | And (_, ax1, Predicate(Var(n,_))) ->
          let res = aux ax1 in
          data_matching := StrMap.add n res !data_matching ; res
@@ -293,8 +301,9 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
   | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), And(_, Equals(_,l,r), Top _)) ->
      (let c = Not(pNot, In(pIn,(v,t),a)) in
       let data = collect a1 data in
-      try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
-      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4"))
+      create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42)
+      (* try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
+      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4")) *)
 (* An example of the previous case:
   axiom{R} \implies{R} (
     \and{R} (

@@ -124,6 +124,11 @@ let rewriting_cases
   | [Heat _] -> incr_k_ax_heating  cd ; f_heating  attr_l acc sign al (qv_l, ax)
   | [Cool _] -> incr_k_ax_cooling  cd ; f_cooling  attr_l acc sign al (qv_l, ax)
   | [Owise _] -> incr_k_ax_semantic cd ; f_semantic attr_l acc sign al (qv_l, ax)
+  | [Other (attr, _)] ->
+     wrn_1 _STDOUT "New attribut (%s) used in a rewriting rule!" attr ; (acc, sign)
+  (* | [Priority _] ->
+   wrn_1 _STDOUT ("Rules with priority isn't supported yet.") ; (acc, sign) *)
+  (* raise (InternalError "The attribut priority isn't supported yet.") *)
   | [] -> incr_k_ax_semantic cd ; f_semantic attr_l acc sign al (qv_l, ax)
   | _ -> raise (InternalError "Need to update [rewriting_cases].")
 

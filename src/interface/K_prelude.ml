@@ -25,14 +25,21 @@ let p_TRUE  = create_ident _TRUE
 let p_FALSE = create_ident _FALSE
 
 
-let _AND_BOOL = "Lbl'Unds'andBool'Unds"
-let _OR_BOOL  = "Lbl'Unds'orBool'Unds"
-let _NOT_BOOL = "LblnotBool'Unds"
+let _AND_BOOL = "Lbl'Unds'andBool'Unds'"
+let _OR_BOOL  = "Lbl'Unds'orBool'Unds'"
+let _NOT_BOOL = "LblnotBool'Unds'"
 (* let _EQUALS_BOOL = "\equals"
 let _DOMAIN_VALUES = *)
+let p_AND_BOOL = create_ident _AND_BOOL
+let p_OR_BOOL  = create_ident _OR_BOOL
+let p_NOT_BOOL = create_ident _NOT_BOOL
+
+let _EQ_K  = "Lbl'UndsEqlsEqls'K'Unds'"
+let p_EQ_K = create_ident _EQ_K
 
 (** The cell's name of the cell k *)
-let _K_CELL = "Lbl'-LT-'k'-GT-'" (* "<k>" *)
+let _K_CELL  = "Lbl'-LT-'k'-GT-'" (* "<k>" *)
+let p_K_CELL = create_ident _K_CELL
 
 (** The specific predicate about the resulting values *)
 let _IS_KRESULT  = "isKResult"
