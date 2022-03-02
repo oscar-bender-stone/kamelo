@@ -292,9 +292,8 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
   | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), And(_, Equals(_,l,r), Top _)) ->
      (let c = Not(pNot, In(pIn,(v,t),a)) in
       let data = collect a1 data in
-      create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42)
-      (* try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
-      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4")) *)
+      try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
+      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4"))
 (* An example of the previous case:
   axiom{R} \implies{R} (
     \and{R} (
