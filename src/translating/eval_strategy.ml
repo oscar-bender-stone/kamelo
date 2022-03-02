@@ -78,6 +78,8 @@ let create_RHS : t -> signature -> p_term = fun ax sign ->
        Axiom.curry_pattern a2 sign
   |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
 
+(*        rule E1 and E2               => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C)
+       et rule E1 ~> (freezer1_and E2) => E1 and E2               requires E1 ∈ KResult      (règle H) *)
 
 (** To translate cooling rules *)
 let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =

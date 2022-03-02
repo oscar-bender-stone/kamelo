@@ -1,7 +1,7 @@
 
 open Common.Type
 open Common.Error
-open Mecanism.Iterator
+open Mecanism.Kommand_iterator
 open Interface.Output
 
 type output = Format.formatter

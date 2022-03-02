@@ -7,7 +7,7 @@ open Common.Xlib_OCaml
 open Interface.Signature
 open Interface.Output
 
-open Mecanism.Iterator
+open Mecanism.Kommand_iterator
 
 open Translating.Sort
 open Translating.Symbol
