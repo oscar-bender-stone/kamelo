@@ -17,9 +17,11 @@ let axiom_iter
   (f_in       : param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd)
   (f_exists   : param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd)
   (f_not      : param list * 'r                  -> 's -> 'd -> 'r * 's * 'd)
+  (f_not_in   : param list * param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd)
   (f_equals   : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
   (f_or       : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
   (f_and      : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
+  (f_and_var  : param list * name * param * 'r   -> 's -> 'd -> 'r * 's * 'd) (* Special case *)
   (f_implies  : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
   (f_rewrites : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd) : 'r * 's * 'd =
   let rec aux : axiom -> 's -> 'd -> 'r * 's * 'd = fun ax sign local_data ->
@@ -38,11 +40,15 @@ let axiom_iter
        let r, s, d = aux ax sign local_data in f_in     (p_l, (v,p), r) s d
     | Exists(p_l, (v,p), ax)       ->
        let r, s, d = aux ax sign local_data in f_exists (p_l, (v,p), r) s d
+    | Not(p_l, In(pIn, (v,n), ax)) ->
+       let r, s, d = aux ax sign local_data in f_not_in (p_l, pIn, (v,n), r) s d
     | Not(p_l, ax)                 ->
        let r, s, d = aux ax sign local_data in f_not    (p_l, r) s d
     | Equals(p_l, ax1, ax2)        ->
        let r1, s1, d1 = aux ax1 sign local_data in
        let r2, s2, d2 = aux ax2 s1 d1           in f_equals   (p_l, r1, r2) s2 d2
+    | And(p_l, ax, Predicate (Var(n, p))) ->
+       let r, s, d = aux ax sign local_data in f_and_var (p_l, n, p, r) s d
     | And(p_l, ax1, ax2)           ->
        let r1, s1, d1 = aux ax1 sign local_data in
        let r2, s2, d2 = aux ax2 s1 d1           in f_and      (p_l, r1, r2) s2 d2
@@ -66,8 +72,10 @@ let axiom_iter_default_error
   (f_predicate_var : name * param                -> 's -> 'd -> 'r * 's * 'd)
   (f_dom_val  : sort * name                      -> 's -> 'd -> 'r * 's * 'd)
   (f_not      : param list * 'r                  -> 's -> 'd -> 'r * 's * 'd)
+  (f_not_in   : param list * param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd)
   (f_equals   : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
-  (f_and      : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd) : 'r * 's * 'd =
+  (f_and      : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
+  (f_and_var  : param list * name * param * 'r   -> 's -> 'd -> 'r * 's * 'd) : 'r * 's * 'd =
   let f_bottom_err _ _ _ =
       raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case bottom") in
   let f_top_err _ _ _ =
@@ -85,7 +93,7 @@ let axiom_iter_default_error
   axiom_iter qv_l ax f_var init_sign init_local_data
     f_predicate_sym f_predicate_var f_dom_val
     f_bottom_err f_top_err f_in_err f_exists_err
-    f_not f_equals
+    f_not f_not_in f_equals
     f_or_err
-    f_and
+    f_and f_and_var
     f_implies_err f_rewrites_err

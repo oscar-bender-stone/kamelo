@@ -235,29 +235,26 @@ let local_curry : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = fun
   let f_predicate_var (n, _) s d =
       (if StrMap.mem n local_data then StrMap.find n local_data else f_var n), s, d in
   let f_dom_val (_, name) s d = create_ident name, s, d in
-(*  let f_not (_, In(_, (v,_), a)) s d =
-      match with
-      | In(_, (v,_), a) ->
-         create_appl
-           p_NOT_BOOL
-           (create_appl
-              (create_appl p_EQ_K (create_ident v)) (* TODO typage + quelle égalité ? *)
-              (aux a)) (* raise (NotYetImplemented "TODO") *)
-        (* symbol eq : δ SortKItem → δ SortKItem → δ SortKItem;
+  let f_not_in (_, _, (v,_), a) s d =
+    create_appl
+      p_NOT_BOOL
+      (create_appl
+         (create_appl p_EQ_K (create_ident v)) (* TODO typage + quelle égalité ? *)
+         a), s, d (* raise (NotYetImplemented "TODO") *)
+  in     (* symbol eq : δ SortKItem → δ SortKItem → δ SortKItem;
            rule ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 ♭ ↪
                 ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 (♭inj (LblnotBool'Unds' (inj (eq (inj $Var'Unds'0) (inj 0))))); *)
-      | raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")    in *)
   let f_not _ _ _ =
       raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")      in (* TODO different! *)
   let f_equals _ _ _ =
       raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals")   in
   let f_and _ _ _ =
       raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")      in (* TODO different! *)
-  (* let f_and (_, ax1, ax2) s d = match  (_, ax1, Predicate(Var(n,_))) -> aux ax1 in *)
+  let f_and_var (_, _, _, ax) s d = ax, s, d in
   let res, _, _ =
     axiom_iter_default_error [] ax f_var StrMap.empty StrMap.empty
       f_predicate_sym f_predicate_var f_dom_val
-      f_not f_equals f_and
+      f_not f_not_in f_equals f_and f_and_var
   in res
 
 let local_curry = local_curry create_pattern_var
