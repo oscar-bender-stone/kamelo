@@ -85,12 +85,12 @@ let create_RHS : t -> signature -> p_term = fun ax sign ->
 let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
   do_specific_thing := true ;
-  data_matching := StrMap.empty ; reset_var() ;
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
   let lhs, cond = create_LHS al sign in
   let rhs = create_RHS ax sign in
+  data_matching := StrMap.empty ; reset_var() ;
   do_specific_thing := false ;
   let attr_l =
     List.map (fun attr -> match attr with
@@ -106,7 +106,6 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
 (** To translate heating rules *)
 let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
-  data_matching := StrMap.empty ; reset_var() ;
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
@@ -206,7 +205,6 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
 (** To translate semantic rules *)
 let trans_semantic_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
-  data_matching := StrMap.empty ; reset_var() ;
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in

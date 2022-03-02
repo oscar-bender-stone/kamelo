@@ -4,7 +4,6 @@ open LP.LP_printer
 open Common.Type
 open Common.Getter
 open Common.Error
-open Common.Xlib_OCaml
 
 open Interface.Output
 open Interface.LP_p_term
@@ -65,7 +64,6 @@ let create_RHS : t -> p_term = fun ax ->
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)
 let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
-  data_matching := StrMap.empty ;
   try
     (* Be careful: the order of the computation is important
        because of references *)

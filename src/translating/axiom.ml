@@ -163,7 +163,6 @@ let curry_pattern = curry create_pattern_var
 (** **************************************************** *)
 
 let of_equality_axiom : t -> p_rule = fun ax -> (* TODO sign ?*)
-  data_matching := StrMap.empty ;
   match ax with
   | Equals(_, ax1, ax2) ->
      (try
@@ -256,9 +255,7 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
         (* symbol eq : δ SortKItem → δ SortKItem → δ SortKItem;
            rule ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 ♭ ↪
                 ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 (♭inj (LblnotBool'Unds' (inj (eq (inj $Var'Unds'0) (inj 0))))); *)
-      | And (_, ax1, Predicate(Var(n,_))) ->
-         let res = aux ax1 in
-         data_matching := StrMap.add n res !data_matching ; res
+      | And (_, ax1, Predicate(Var(n,_))) -> aux ax1
       | _ -> raise (NotYetImplemented "Need to update [Axiom.local_curry].")
     in
     aux ax
@@ -274,15 +271,6 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
     | In(_,(v,_),a) -> StrMap.add v (local_curry a acc) acc
     | And(_,Top _,ax) | And(_,ax,Top _) -> collect ax acc
     | And(_, ax1, ax2) -> collect ax2 (collect ax1 acc)
-
-       (* (match a with
-                    | Predicat (Var(n, _)) ->
-                       StrMap.add v (create_ident n) local_data
-                    | Predicat (Sym) ->
-                       kseq{}(inj{SortMap{}, SortKItem{}}(VarK:SortMap{}),dotk{}())
-                    | Dom_val(_, n) ->
-                       StrMap.add v (create_ident n) local_data
-                    | _ -> failwith "Fatal Error in [collect].") *)
     | _ -> raise (NotYetImplemented "Need to update [Axiom.collect].")
   in
   let data = StrMap.empty in
