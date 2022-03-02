@@ -184,27 +184,7 @@ let of_equality_axiom : t -> p_rule = fun ax -> (* TODO sign ?*)
 (** To translate implies-axioms    *)
 (** ****************************** *)
 
-(* axiom{R} \implies{R} (
-   *   \and{R}(
-   *     \top{R}(),
-   *     \and{R} (
-   *         \in{SortBool{}, R} (
-   *           X0:SortBool{},
-   *           \dv{SortBool{}}("false")
-   *         ),\and{R} (
-   *         \in{SortBool{}, R} (
-   *           X1:SortBool{},
-   *           VarB:SortBool{}
-   *         ),
-   *         \top{R} ()
-   *       ))),
-   *   \and{R} (
-   *     \equals{SortBool{},R} (
-   *       Lbl'Unds'orBool'Unds'{}(X0:SortBool{},X1:SortBool{}),
-   *       VarB:SortBool{}),
-   *     \top{R}())) *)
-
-(** Type of extra data about a rule *) (* Mettre aussi priority ? *)
+(** Type of extra data about a rule *) (* TODO priority ? *)
 type extra_data_rule =
  | Uncond         (* A uncondtional rule *)
  | Cond of p_term (* A conditional rule with a condition *)
@@ -213,6 +193,29 @@ type extra_data_rule =
 (** Type of a rule in a CTRS, which has the form
     ((LHS, RHS), extra_data_rule, priority) *)
 type ctrs_rule = p_rule * extra_data_rule * int
+
+(* This is an example of the implies-axiom translation:
+   axiom{R} \implies{R} (
+   *   \and{R}(
+   *     \top{R}(),          <-- Condition
+   *     \and{R} (                           | local data:
+   *         \in{SortBool{}, R} (            |   X0 = false
+   *           X0:SortBool{},                |
+   *           \dv{SortBool{}}("false")  <-- |
+   *         ),\and{R} (                     |
+   *         \in{SortBool{}, R} (            |   X1 = VarB
+   *           X1:SortBool{},                |
+   *           VarB:SortBool{}               |
+   *         ),                              |
+   *         \top{R} ()                      |
+   *       ))),                              |
+   *   \and{R} (
+   *     \equals{SortBool{},R} (
+   *       Lbl'Unds'orBool'Unds'{}(X0:SortBool{},X1:SortBool{}), <-- LHS
+   *       VarB:SortBool{}),                                     <-- RHS
+   *     \top{R}()))
+
+ So, the rule is: false orBool VarB --> VarB *)
 
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
     to a rewriting rule. *)
@@ -320,6 +323,5 @@ let of_implies_axiom : t -> ctrs_rule = fun ax ->
           \top{R} ()
         )
   ))
- [...]
- *)
+ [...] *)
   | _ -> raise (NotYetImplemented "Need to update [Axiom.of_implies_axiom].")
