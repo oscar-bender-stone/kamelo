@@ -2,13 +2,8 @@
 module AND-CONTEXT-SYNTAX
   import BOOL
   syntax BExp ::= Bool
-<<<<<<< HEAD
                   | "(" BExp ")" [bracket]
                   | BExp "and" BExp  [left]
-=======
-                | "(" BExp ")" [bracket]
-                | BExp "and" BExp  [left]
->>>>>>> ci_new_bis
 endmodule
 
 module AND-CONTEXT
