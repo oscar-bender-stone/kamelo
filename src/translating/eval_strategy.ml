@@ -101,8 +101,7 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
   match is_owise, cond with
   | false, None   -> (create_rule lhs rhs, Uncond,     default_prio)::acc
   | false, Some x -> (create_rule lhs rhs, Cond x,     default_prio)::acc
-  | true,  None   -> (create_rule lhs rhs, OwiseRule,  default_prio)::acc
-  | true,  Some _ -> raise (InternalError "Case not possible in [trans_cooling_rule].")
+  | true,  _ -> raise (InternalError "Case not possible in [trans_cooling_rule].")
 
 (** To translate heating rules *)
 let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
@@ -113,7 +112,6 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
   let default_prio = 42 in
   let lhs, cond = create_LHS al sign in
   let rhs = create_RHS ax sign in
-  do_specific_thing := false ;
 
   (* Selection of the variable to specialize, with its sort *)
   let new_v, sort_v = match cond with
@@ -214,7 +212,6 @@ let trans_semantic_rule : attribute list -> ctrs_rule list -> signature -> alias
   let default_prio = 42 in
   let lhs, cond = create_LHS al sign in
   let rhs = create_RHS ax sign in
-  do_specific_thing := false ;
   let attr_l =
     List.map (fun attr -> match attr with
                           | Owise _ -> true
