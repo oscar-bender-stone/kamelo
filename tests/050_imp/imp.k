@@ -84,7 +84,7 @@ module IMP
 
  // -----------------  Pgm  ---------------------------------
     rule <k> var (X,Xs => Xs);_ </k>
-         <env> Rho:Map (.Map => X |-> 0) </env> requires notBool (X in keys(Rho))
+         <env> Rho:Map (.Map => X |-> 0) </env> requires notBool (X in_keys(Rho))
     rule var .Ids; S => S
 
 endmodule

@@ -4,7 +4,10 @@ module AND-ATTRIBUT-SYNTAX
   syntax BExp ::= Bool
                   | "(" BExp ")" [bracket]
                   | BExp "and" BExp  [left, strict(1)]
+<<<<<<< HEAD
 
+=======
+>>>>>>> ci_new_bis
 endmodule
 
 module AND-ATTRIBUT

@@ -55,7 +55,10 @@
 
 %token LEFT
 %token RIGHT
+%token PRIORITY
 %token PRIORITIES
+
+%token PRIVATE
 
 %token CONSTRUCTOR
 %token INJECTIVE
@@ -258,7 +261,10 @@ useless_attribute:
 
   | LEFT           attri_params { } // let a1,a2 = $2 in Left(a1, a2)         }
   | RIGHT          attri_params { } // let a1,a2 = $2 in Right(a1, a2)        }
+  | PRIORITY       attri_params { }
   | PRIORITIES     attri_params { } // let a1,a2 = $2 in Priorities(a1, a2)   }
+
+  | PRIVATE        attri_params { }
 
   | TOPCELLINIT    attri_params { } // { let a1,a2 = $2 in Topcellinit (a1, a2) }
   | TOPCELL        attri_params { } // { let a1,a2 = $2 in Topcell(a1, a2)      }

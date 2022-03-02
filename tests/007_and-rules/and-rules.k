@@ -1,9 +1,15 @@
 
 module AND-RULES-SYNTAX
   import BOOL
+<<<<<<< HEAD
     syntax BExp ::= Bool
                    | "(" BExp ")"
                    | BExp "and" BExp  [left]
+=======
+  syntax BExp ::= Bool
+                | "(" BExp ")"
+                | BExp "and" BExp  [left]
+>>>>>>> ci_new_bis
 endmodule
 
 module AND-RULES
