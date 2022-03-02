@@ -1,8 +1,11 @@
 
 open Common.Type
+open Common.Error
 
-(** [axiom_cases cd attr_l curr_attr acc sign qv_l ax f_exists f_equals f_or_bottom f_not f_implies]
-    acc ~ extra_data + sign ~ signature *)
+(** [axiom_iter qv_l ax f_var init_sign init_local_data
+    f_predicate_sym f_predicate_var f_dom_val
+    f_bottom f_top f_in f_exists f_not f_equals f_or f_and f_implies f_rewrites]
+    to iterate over an axiom [ax]. *)
 let axiom_iter
   (qv_l : quant_var list) (ax : axiom)
   (f_var : string -> 'r) (init_sign : 's) (init_local_data : 'd)
@@ -54,3 +57,35 @@ let axiom_iter
        let r2, s2, d2 = aux ax2 s1 d1           in f_rewrites (p_l, r1, r2) s2 d2
   in
   aux ax init_sign init_local_data
+
+(** [axiom_iter_default_error] is similar to [axiom_iter] with default errors. *)
+let axiom_iter_default_error
+  (qv_l : quant_var list) (ax : axiom)
+  (f_var : string -> 'r) (init_sign : 's) (init_local_data : 'd)
+  (f_predicate_sym : name * param list * 'r list -> 's -> 'd -> 'r * 's * 'd) (* 'r or 'r list ? *)
+  (f_predicate_var : name * param                -> 's -> 'd -> 'r * 's * 'd)
+  (f_dom_val  : sort * name                      -> 's -> 'd -> 'r * 's * 'd)
+  (f_not      : param list * 'r                  -> 's -> 'd -> 'r * 's * 'd)
+  (f_equals   : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
+  (f_and      : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd) : 'r * 's * 'd =
+  let f_bottom_err _ _ _ =
+      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case bottom") in
+  let f_top_err _ _ _ =
+      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case top")    in
+  let f_in_err _ _ _ =
+      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case in")     in
+  let f_exists_err _ _ _ =
+      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case exists") in
+  let f_or_err _ _ _ =
+      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case or")       in
+  let f_implies_err _ _ _ =
+      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case implies")  in
+  let f_rewrites_err _ _ _ =
+      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case rewrites") in
+  axiom_iter qv_l ax f_var init_sign init_local_data
+    f_predicate_sym f_predicate_var f_dom_val
+    f_bottom_err f_top_err f_in_err f_exists_err
+    f_not f_equals
+    f_or_err
+    f_and
+    f_implies_err f_rewrites_err
