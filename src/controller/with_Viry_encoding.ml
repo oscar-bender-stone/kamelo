@@ -54,9 +54,9 @@ let main cd : (* TODO fix heterogenous signature *)
     kommand_iter_without_alias cd kommand_l ([], [], []) init_sign
     f_sort propagation f_symbol propagation propagation
     ((fun attr_l (sort_l, sym_l, r_l) sign al ax  ->
-      (sort_l, sym_l, trans_heating_rule  attr_l r_l sign al ax), sign),
-     (fun attr_l (sort_l, sym_l, r_l) sign al ax  ->
       (sort_l, sym_l, trans_cooling_rule  attr_l r_l sign al ax), sign),
+     (fun attr_l (sort_l, sym_l, r_l) sign al ax  ->
+      (sort_l, sym_l, trans_heating_rule  attr_l r_l sign al ax), sign),
      (fun attr_l (sort_l, sym_l, r_l) sign al ax  ->
       (sort_l, sym_l, trans_semantic_rule attr_l r_l sign al ax), sign))
     propagation (f_subsort, propagation)

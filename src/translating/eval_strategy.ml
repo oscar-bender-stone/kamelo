@@ -35,7 +35,7 @@ let curry_new : (string -> p_term) -> t -> signature -> p_term = fun f_var ax si
        end
     | Equals(_, x, Dom_val(_, d)) when d = _TRUE  -> aux x
     | Equals(_, x, Dom_val(_, d)) when d = _FALSE -> create_appl (create_ident _NOT_BOOL) (aux x)
-    | Equals _ -> raise (NotYetImplemented "Need to update [Eval_strategy_curry_new] - Case EQUALS")
+    | Equals _ -> raise (NotYetImplemented "Need to update [Eval_strategy.curry_new] - Case EQUALS")
     | Dom_val(_, name) -> create_ident name
     (*| In _ -> failwith "OK, guys" *)
     (*| Exists _ -> failwith "EXISTS"
@@ -81,8 +81,139 @@ let create_RHS : t -> signature -> p_term = fun ax sign ->
 (*        rule E1 and E2               => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C)
        et rule E1 ~> (freezer1_and E2) => E1 and E2               requires E1 ∈ KResult      (règle H) *)
 
-(** To translate cooling rules *)
+(* To understand this algorithm, consider the following example:
+          rule E1 ~> (freezer1_and E2) => E1 and E2 requires E1 ∈ KResult (règle H) *)
+
+
+(** To translate heating rules *) (* For now, its a cooling rule... *)
+let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+  fun attr_l acc sign al (_, ax) ->
+  do_specific_thing := true ;
+  (* Be careful: the order of the computation is important
+     because of references *)
+  let default_prio = 42 in
+  let lhs, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign in
+  data_matching := StrMap.empty ; reset_var() ;
+  do_specific_thing := false ;
+  let attr_l =
+    List.map (fun attr -> match attr with
+                          | Owise _ -> true
+                          | _ -> false) attr_l
+  in
+  let is_owise = List.fold_left (||) false attr_l in
+  match is_owise, cond with
+  | false, None   -> (create_rule lhs rhs, Uncond,     default_prio)::acc
+  | false, Some x -> (create_rule lhs rhs, Cond x,     default_prio)::acc
+  | true,  _ -> raise (InternalError "Case not possible in [trans_cooling_rule].")
+
+
+
+
+
+
+
+(** [get_cond_data_in_cooling_rule cond] returns the main variable of a condition, with its type.
+    For example, if cond = LblnotBool'Unds'{}(LblisKResult{}(kseq{}(inj{SortAExp{}, SortKItem{}}(VarHOLE:SortAExp{}),dotk{}()))),
+    get_cond_data_in_cooling_rule cond returns (VarHOLE, SortAExp). *)
+let get_cond_data_in_cooling_rule : p_term option -> string * string = fun cond ->
+  match cond with
+  | Some (* for example: LblnotBool'Unds'{}(LblisKResult{}(kseq{}(inj{SortAExp{}, SortKItem{}}(VarHOLE:SortAExp{}),dotk{}()))) *)
+    ( {elt=P_Appl(
+               {elt=P_Appl(
+                        {elt=P_Iden({elt=(_, s_and);pos=_}, _);pos=_}, _) (* true /\ true *)
+               ; pos=_},
+
+               {elt=P_Appl(
+                        {elt=P_Iden({elt=(_, s_not);pos=_}, _);pos=_},
+                        {elt=P_Appl(
+                                 {elt=P_Iden({elt=(_, s_kresult);pos=_}, _);pos=_},
+                                 {elt=P_Appl(
+                                          {elt=P_Appl({elt=P_Iden({elt=(_, s_kseq);pos=_}, _);pos=_},
+                                                      {elt=P_Appl(
+                                                               {elt=P_Appl(
+                                                                        {elt=P_Appl({elt=P_Iden({elt=(_, s_inj);pos=_}, _);pos=_},
+                                                                                    {elt=P_Expl({elt=P_Iden ({elt=(_,s1) ;pos=_}, _); pos=_}) ; pos=_} )
+                                                                        ; pos=_},
+                                                                        {elt=P_Expl({elt=P_Iden ({elt=(_,_) ;pos=_}, _); pos=_}) ; pos=_} )
+                                                               ; pos=_},
+                                                               {elt=P_Patt(Some {elt=n ;pos=_}, _) ; pos=_} )
+                                                      ; pos=_} )
+                                          ; pos=_},
+                                          {elt=P_Iden({elt=(_, s_dotk);pos=_}, _);pos=_} )
+                                 ; pos=_} )
+                        ; pos=_} )
+               ; pos=_} )
+
+      ; pos=_}
+
+    ) -> if s_and = pp _AND_BOOL && s_not = pp _NOT_BOOL
+            && s_kresult = pp _IS_KRESULT && s_kseq = pp _KSEQ
+            && s_inj = pp _INJ && s_dotk = pp _DOTK
+         then n, s1 (* for example: VarHOLE, SortAExp *)
+         else raise (NotYetImplemented "Unexpected shape for the condition.")
+  | Some _ -> raise (NotYetImplemented "Unexpected shape for the condition.")
+  | None   -> raise (InternalError "No condition for a heating rule.")
+
+(** [subst t a name] replaces each variable named [name], by [a] in [t]. *)
+let subst t a name =
+  let rec aux : p_term -> p_term = fun t ->
+    match t with
+    | ({elt=P_Appl(t1, t2);pos=p}) -> {elt=P_Appl(aux t1, aux t2);pos=p}
+    | ({elt=P_Patt(Some {elt=x;pos=_}, _);pos=_}) ->
+       if x = name then a else t
+    | t -> t
+  in
+  aux t
+
+(** [gen_new_pattern] generates the new pattern *) (* TODO *)
+let gen_new_pattern : symbol -> p_term = fun sym ->
+  (* TODO Take into count "qv_l" in symbol = name * quant_var list * param list * param *)
+  let name, _, p_l, _ = sym in
+  let rec aux : int -> p_term -> p_term = fun i acc ->
+    if i = 0 then acc
+    else
+      let new_name = Viry.safe_prefix ^ (string_of_int i) in (* create_pattern_var ("y" ^ (string_of_int i)) *)
+      aux (i-1) ({elt=P_Appl(acc,{elt=P_Patt(Some {elt=new_name ; pos=None}, None); pos=None});pos=None})
+  in
+  aux (List.length p_l) (create_ident name)
+
+(** To translate cooling rules *) (* For now, its a heating rule... *)
 let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+  fun attr_l acc sign al (_, ax) ->
+  (* To understand this algorithm, consider the following example:
+        rule E1 and E2 => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C) *)
+
+  (* STEP 0:  *)
+  let default_prio = 42 in
+  let lhs, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign in
+
+  (* STEP 1: Get the variable to destruct with its type (here "E1" and "BExp") *)
+  let new_v, sort_v = get_cond_data_in_cooling_rule cond in
+
+  (* STEP 2: Get the constructors associated (here, "and", "<" and "not") *)
+  let constructor_l =
+    try
+      Induc.find sort_v sign.inductive
+    with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
+  in
+
+  (* STEP 3: Generate the new pattern ($X1 and $X2), ($X1 < $X2) and (not $X1) *)
+  let lambda_lhs p = subst lhs p new_v in (* To replace each variable by the new pattern *)
+  let lambda_rhs p = subst rhs p new_v in (* To replace each variable by the new pattern *)
+  let gen_specialization : ctrs_rule list -> symbol -> ctrs_rule list = fun acc sym ->
+    let new_pattern = gen_new_pattern sym in
+    (create_rule (lambda_lhs new_pattern) (lambda_rhs new_pattern), Uncond, default_prio)::acc
+  in
+  (* STEP 4: Replace each variable by the new pattern, for each constructor *)
+  List.fold_left gen_specialization acc constructor_l
+
+
+
+
+(** To translate cooling rules *)
+let trans_cooling_rule_old : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
   do_specific_thing := true ;
   (* Be careful: the order of the computation is important
@@ -104,7 +235,7 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
   | true,  _ -> raise (InternalError "Case not possible in [trans_cooling_rule].")
 
 (** To translate heating rules *)
-let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+let trans_heating_rule_old : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
   (* Be careful: the order of the computation is important
      because of references *)
@@ -113,44 +244,7 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
   let rhs = create_RHS ax sign in
 
   (* Selection of the variable to specialize, with its sort *)
-  let new_v, sort_v = match cond with
-    | Some (* Si de la forme : LblnotBool'Unds'{}(LblisKResult{}(kseq{}(inj{SortAExp{}, SortKItem{}}(VarHOLE:SortAExp{}),dotk{}())))) *)
-      ( {elt=P_Appl(
-                 {elt=P_Appl(
-                          {elt=P_Iden({elt=(_, s_and);pos=_}, _);pos=_}, _) (* true /\ true *)
-                 ; pos=_},
-
-                 {elt=P_Appl(
-                          {elt=P_Iden({elt=(_, s_not);pos=_}, _);pos=_},
-                          {elt=P_Appl(
-                                   {elt=P_Iden({elt=(_, s_kresult);pos=_}, _);pos=_},
-                                   {elt=P_Appl(
-                                            {elt=P_Appl({elt=P_Iden({elt=(_, s_kseq);pos=_}, _);pos=_},
-                                                        {elt=P_Appl(
-                                                                 {elt=P_Appl(
-                                                                          {elt=P_Appl({elt=P_Iden({elt=(_, s_inj);pos=_}, _);pos=_},
-                                                                                      {elt=P_Expl({elt=P_Iden ({elt=(_,s1) ;pos=_}, _); pos=_}) ; pos=_} )
-                                                                          ; pos=_},
-                                                                          {elt=P_Expl({elt=P_Iden ({elt=(_,_) ;pos=_}, _); pos=_}) ; pos=_} )
-                                                                 ; pos=_},
-                                                                 {elt=P_Patt(Some {elt=n ;pos=_}, _) ; pos=_} )
-                                                        ; pos=_} )
-                                            ; pos=_},
-                                            {elt=P_Iden({elt=(_, s_dotk);pos=_}, _);pos=_} )
-                                   ; pos=_} )
-                          ; pos=_} )
-                 ; pos=_} )
-
-        ; pos=_}
-
-      ) -> if s_and = pp _AND_BOOL && s_not = pp _NOT_BOOL
-              && s_kresult = pp _IS_KRESULT && s_kseq = pp _KSEQ
-              && s_inj = pp _INJ && s_dotk = pp _DOTK
-           then n, s1
-           else raise (NotYetImplemented "Unexpected shape for the condition.")
-    | Some _ -> raise (NotYetImplemented "Unexpected shape for the condition.")
-    | None   -> raise (InternalError "No condition for a heating rule.")
-  in
+  let new_v, sort_v = get_cond_data_in_cooling_rule cond in
   (* Get the list of constructor symbols *)
   let constr_sym_l =
     let natural_constr =

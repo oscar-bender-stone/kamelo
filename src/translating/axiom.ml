@@ -259,38 +259,38 @@ let local_curry : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = fun
 
 let local_curry = local_curry create_pattern_var
 
+(** [collect ax acc] *)
+let rec collect : t -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
+  match ax with
+  | Top _ -> acc
+  | In(_,(v1,_), And(_, Dom_val(x,"false"), Predicate(Var(v2, _))))
+    | In(_,(v1,_), And(_, Predicate(Var(v2, _)), Dom_val(x,"false"))) ->
+     let tmp = StrMap.add v1 (local_curry (Dom_val(x,"false")) acc) acc in
+     StrMap.add v2 (local_curry (Dom_val(x,"false")) tmp) tmp
+  | In(_,(v,_),a) -> StrMap.add v (local_curry a acc) acc
+  | And(_,Top _,ax) | And(_,ax,Top _) -> collect ax acc
+  | And(_, ax1, ax2) -> collect ax2 (collect ax1 acc)
+  | _ -> raise (NotYetImplemented "Need to update [Axiom.collect].")
 
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
     to a rewriting rule. *)
 let of_implies_axiom : t -> ctrs_rule = fun ax ->
-  let rec collect : t -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
-    match ax with
-    | Top _ -> acc
-    | In(_,(v1,_), And(_, Dom_val(x,"false"), Predicate(Var(v2, _))))
-         | In(_,(v1,_), And(_, Predicate(Var(v2, _)), Dom_val(x,"false"))) ->
-       let tmp = StrMap.add v1 (local_curry (Dom_val(x,"false")) acc) acc in
-       StrMap.add v2 (local_curry (Dom_val(x,"false")) tmp) tmp
-    | In(_,(v,_),a) -> StrMap.add v (local_curry a acc) acc
-    | And(_,Top _,ax) | And(_,ax,Top _) -> collect ax acc
-    | And(_, ax1, ax2) -> collect ax2 (collect ax1 acc)
-    | _ -> raise (NotYetImplemented "Need to update [Axiom.collect].")
-  in
-  let data = StrMap.empty in
+  let init_data = StrMap.empty in
   match ax with
   | Implies(_, And(_,Top _, a1), And(_, Equals(_,l,r), Top _)) ->
-     (let data = collect a1 data in
+     (let data = collect a1 init_data in
       try create_rule (local_curry l data) (local_curry r data), Uncond, 42
       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 1"))
   | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), And(_, Equals(_,l,r), Top _)) ->
-     (let data = collect a1 data in
+     (let data = collect a1 init_data in
       try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 2"))
   | Implies(_, Equals(_, c, Dom_val(_,"true")), And(_, Equals(_,l,r), Top _)) ->
-      (try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
+      (try create_rule (local_curry l init_data) (local_curry r init_data), Cond (local_curry c init_data), 42
        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 3"))
   | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), And(_, Equals(_,l,r), Top _)) ->
      (let c = Not(pNot, In(pIn,(v,t),a)) in
-      let data = collect a1 data in
+      let data = collect a1 init_data in
       try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4"))
 (* An example of the previous case:
