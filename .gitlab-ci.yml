@@ -33,6 +33,7 @@ preprocessing:
 
     script:
         # Obtain and install opam locally.
+        - sudo apt update
         - sudo apt install wget
 
         - ls /usr/bin/opam
