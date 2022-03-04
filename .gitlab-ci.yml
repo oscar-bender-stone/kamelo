@@ -7,7 +7,7 @@ stages:
 
 #image: ocaml/opam:debian-11-ocaml-4.12
 #image: debian:stable # ocaml/opam:debian-testing-opam
-image: ocaml/opam:ubuntu-18.04-ocaml-4.13
+image: ocaml/opam:ubuntu-18.04-opam
 
 ### Configuration section
 
@@ -36,13 +36,13 @@ preprocessing:
         - sudo apt update
         - sudo apt install wget
 
-        - ls /usr/bin/opam
 
-        - sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
-        - sudo chmod 755 /usr/bin/opam
+
+        #- sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
+        #- sudo chmod 755 /usr/bin/opam
         # Initialize the switch.
         - echo "--- Installation of dependencies"
-        - opam init -a --disable-sandboxing --compiler="$OCAML_VERSION"
+        #- opam init -a --disable-sandboxing --compiler="$OCAML_VERSION"
         - opam update
         - opam switch create "$OCAML_VERSION"
         - eval $(opam env)
