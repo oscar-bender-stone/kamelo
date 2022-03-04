@@ -38,9 +38,9 @@ let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
                  | [] -> l2
                  | h::t -> (f h)::(map_append t f l2)
  *)
-(** ****************************************************** *)
+(** ------------------------------------------------------ *)
 (** To translate exists-axioms (functional or subsort one) *)
-(** ****************************************************** *)
+(** ------------------------------------------------------ *)
 
 (** Currently, functional axioms aren't used and
     subsort axioms are just used to change some injections. *)
@@ -159,10 +159,10 @@ let curry : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign -
 let curry_ident = curry create_ident
 let curry_pattern = curry create_pattern_var
 
-(** **************************************************** *)
+(** ---------------------------------------------------- *)
 (** To translate equals-axioms
     (Associative, Commutative, Unit and Idempotence one) *)
-(** **************************************************** *)
+(** ---------------------------------------------------- *)
 
 let of_equality_axiom : t -> p_rule = fun ax -> (* TODO sign ?*)
   match ax with
@@ -175,16 +175,16 @@ let of_equality_axiom : t -> p_rule = fun ax -> (* TODO sign ?*)
   | _ -> raise (InternalError "The current axiom isn't an equality one.\n
                 Please, raise an issue.")
 
-(** **************************************************** *)
+(** ---------------------------------------------------- *)
 (** To translate or-axioms, bottom-axioms, not-axioms
     (aka constructor one) *)
-(** **************************************************** *)
+(** ---------------------------------------------------- *)
 
 (** Currently, these axioms aren't used. *)
 
-(** ****************************** *)
+(** ------------------------------ *)
 (** To translate implies-axioms    *)
-(** ****************************** *)
+(** ------------------------------ *)
 
 (** Type of extra data about a rule *) (* TODO priority ? *)
 type extra_data_rule =

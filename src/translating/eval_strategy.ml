@@ -81,36 +81,111 @@ let create_RHS : t -> signature -> p_term = fun ax sign ->
 (*        rule E1 and E2               => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C)
        et rule E1 ~> (freezer1_and E2) => E1 and E2               requires E1 ∈ KResult      (règle H) *)
 
-(* To understand this algorithm, consider the following example:
-          rule E1 ~> (freezer1_and E2) => E1 and E2 requires E1 ∈ KResult (règle H) *)
+exception Not_In
 
+(** [get_var_and_sort_inj cond sign] returns the variable in the condition [cond]
+    with its input sort and output sort. *) (* TODO update when there are several variables *)
+let get_var_and_sort_inj : p_term -> signature -> string * string * string = fun cond sign ->
+  let rec aux t = match t with
+    (* If t has the shape: _INJ {s1} {s2} ($HOLE) *)
+    | P_Appl(
+        {elt=P_Appl(
+            {elt=P_Appl({elt=P_Iden({elt=(x1, s);pos=x2}, x3);pos=x4},
+                        {elt=P_Expl({elt=P_Iden ({elt=(x5,s1) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
+            ; pos=x10},
+            {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
+        ; pos=x16},
+        {elt=P_Patt(Some {elt=("HOLE" as n) ;pos=x17}, x18) ; pos=x19} ) when s = _INJ -> n, s1, s2 (* TODO remove HOLE *)
+
+    | P_Appl(({elt=t1;pos=x1}), ({elt=t2 ;pos=x2})) ->
+       (try aux t1
+        with Not_In -> aux t2)
+    | P_Iden _ | P_Expl _ -> raise Not_In
+    | t -> aux t
+  in
+  aux cond.elt
+
+(** [subst t a name] replaces each variable named [name], by [a] in [t]. *)
+let subst t a name =
+  let rec aux : p_term -> p_term = fun t ->
+    match t with
+    | ({elt=P_Appl(t1, t2);pos=p}) -> {elt=P_Appl(aux t1, aux t2);pos=p}
+    | ({elt=P_Patt(Some {elt=x;pos=_}, _);pos=_}) ->
+       if x = name then a else t
+    | t -> t
+  in
+  aux t
+
+(** [subst_sort t new_s name] replaces the sort of each variable named [name], by [new_s] in [t]. *)
+let subst_sort (t : p_term) new_s name : p_term =
+  let rec aux : p_term_aux -> p_term_aux = fun t ->
+    match t with
+    (* If t has the shape: _INJ {s1} {s2} (name), replaces it by _INJ {new_s} {s2} (name) *)
+    | P_Appl(
+        {elt=P_Appl(
+                 {elt=P_Appl({elt=P_Iden({elt=(x1, s);pos=x2}, x3);pos=x4},
+                             {elt=P_Expl({elt=P_Iden ({elt=(x5,s1) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
+                 ; pos=x10},
+                 {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
+        ; pos=x16},
+        {elt=P_Patt(Some {elt=n ;pos=x17}, x18) ; pos=x19} ) when s = _INJ && n = name ->
+       P_Appl(
+           {elt=P_Appl(
+                    {elt=P_Appl({elt=P_Iden({elt=(x1, s);pos=x2}, x3);pos=x4},
+                                {elt=P_Expl({elt=P_Iden ({elt=(x5,new_s) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
+                    ; pos=x10},
+                    {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
+           ; pos=x16},
+           {elt=P_Patt(Some {elt=n ;pos=x17}, x18) ; pos=x19} )
+
+    | P_Appl(({elt=t1;pos=x1}), ({elt=t2 ;pos=x2})) ->
+       P_Appl(({elt=aux t1;pos=x1}), ({elt=aux t2 ;pos=x2}))
+    | _ -> t
+  in
+  {elt=aux t.elt ; pos= t.pos}
 
 (** To translate heating rules *) (* For now, its a cooling rule... *)
 let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
-  do_specific_thing := true ;
+  (* To understand this algorithm, consider the following example:
+          rule E1 ~> (freezer1_and E2) => E1 and E2 requires E1 ∈ KResult (règle H) *)
+
+  (* STEP 0: *)
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
   let lhs, cond = create_LHS al sign in
   let rhs = create_RHS ax sign in
-  data_matching := StrMap.empty ; reset_var() ;
-  do_specific_thing := false ;
-  let attr_l =
-    List.map (fun attr -> match attr with
-                          | Owise _ -> true
-                          | _ -> false) attr_l
+
+  let cond = match cond with | None -> raise (InternalError "No condition for a heating rule.") | Some x -> x in
+
+  (* STEP 1: Get the variable in the condition with its type (here "E1" and "BExp")  *)
+  let var_name, sort_input, sort_output = get_var_and_sort_inj cond sign in
+
+  (* STEP 2: Compute the subsort that defines KResult (here "Bool") *)
+  let f : string -> string list -> string -> string = fun key v acc -> (* TODO if there are several subsorts ? *)
+    if List.mem _SORT_KRESULT v && List.mem sort_input v
+    then key ^ acc
+    else "" ^ acc
   in
-  let is_owise = List.fold_left (||) false attr_l in
-  match is_owise, cond with
-  | false, None   -> (create_rule lhs rhs, Uncond,     default_prio)::acc
-  | false, Some x -> (create_rule lhs rhs, Cond x,     default_prio)::acc
-  | true,  _ -> raise (InternalError "Case not possible in [trans_cooling_rule].")
+  let new_s = StrMap.fold f sign.subsort "" in
+  let new_s = if new_s = "" then sort_input else new_s in
 
+  (* STEP 3:  *)
+  let new_pattern : p_term =  (* _INJ {new_s} {sort_output} (var_name) *)
+    {elt=P_Appl(
+        {elt=P_Appl(
+                 {elt=P_Appl({elt=P_Iden({elt=([], _INJ);pos=None}, false);pos=None},
+                             {elt=P_Expl({elt=P_Iden ({elt=([], new_s) ;pos=None}, false); pos=None}) ; pos=None} )
+                 ; pos=None},
+                 {elt=P_Expl({elt=P_Iden ({elt=([], sort_input) ;pos=None}, false); pos=None}) ; pos=None} )
+        ; pos=None},
+        {elt=P_Patt(Some {elt=var_name ;pos=None}, None) ; pos=None} )
+    ; pos=None}
+  in
+  (* STEP 4: Update the injection (here, replace "_INJ {BExp} {s} (E1)" by "_INJ {Bool} {s} (E1)") *)
 
-
-
-
+  (create_rule (subst_sort lhs new_s var_name) (subst rhs new_pattern var_name), Uncond, default_prio)::acc
 
 
 (** [get_cond_data_in_cooling_rule cond] returns the main variable of a condition, with its type.
@@ -153,18 +228,7 @@ let get_cond_data_in_cooling_rule : p_term option -> string * string = fun cond 
          then n, s1 (* for example: VarHOLE, SortAExp *)
          else raise (NotYetImplemented "Unexpected shape for the condition.")
   | Some _ -> raise (NotYetImplemented "Unexpected shape for the condition.")
-  | None   -> raise (InternalError "No condition for a heating rule.")
-
-(** [subst t a name] replaces each variable named [name], by [a] in [t]. *)
-let subst t a name =
-  let rec aux : p_term -> p_term = fun t ->
-    match t with
-    | ({elt=P_Appl(t1, t2);pos=p}) -> {elt=P_Appl(aux t1, aux t2);pos=p}
-    | ({elt=P_Patt(Some {elt=x;pos=_}, _);pos=_}) ->
-       if x = name then a else t
-    | t -> t
-  in
-  aux t
+  | None   -> raise (InternalError "No condition for a cooling rule.")
 
 (** [gen_new_pattern] generates the new pattern *) (* TODO *)
 let gen_new_pattern : symbol -> p_term = fun sym ->
