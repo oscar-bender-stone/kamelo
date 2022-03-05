@@ -144,6 +144,20 @@ let subst_sort (t : p_term) new_s name : p_term =
   in
   {elt=aux t.elt ; pos= t.pos}
 
+(** [create_inj_var input_sort output_sort var_name] creates the Dedukti term
+    [_INJ {new_sort} {sort_output} (var_name)]. *)
+let create_inj_var : string -> string -> string -> p_term =
+  fun input_sort output_sort var_name ->
+  {elt=P_Appl(
+        {elt=P_Appl(
+              {elt=P_Appl({elt=P_Iden({elt=([], _INJ);pos=None}, false);pos=None},
+                      {elt=P_Expl({elt=P_Iden ({elt=([], input_sort) ;pos=None}, false); pos=None}) ; pos=None} )
+              ; pos=None},
+              {elt=P_Expl({elt=P_Iden ({elt=([], output_sort) ;pos=None}, false); pos=None}) ; pos=None} )
+        ; pos=None},
+        {elt=P_Patt(Some {elt=var_name ;pos=None}, None) ; pos=None} )
+  ; pos=None}
+
 (** To translate heating rules *) (* For now, its a cooling rule... *)
 let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
@@ -172,17 +186,8 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
   let new_s = if new_s = "" then sort_input else new_s in
 
   (* STEP 3:  *)
-  let new_pattern : p_term =  (* _INJ {new_s} {sort_output} (var_name) *)
-    {elt=P_Appl(
-        {elt=P_Appl(
-                 {elt=P_Appl({elt=P_Iden({elt=([], _INJ);pos=None}, false);pos=None},
-                             {elt=P_Expl({elt=P_Iden ({elt=([], new_s) ;pos=None}, false); pos=None}) ; pos=None} )
-                 ; pos=None},
-                 {elt=P_Expl({elt=P_Iden ({elt=([], sort_input) ;pos=None}, false); pos=None}) ; pos=None} )
-        ; pos=None},
-        {elt=P_Patt(Some {elt=var_name ;pos=None}, None) ; pos=None} )
-    ; pos=None}
-  in
+  let new_pattern : p_term = create_inj_var new_s sort_input var_name in (* _INJ {new_s} {sort_input} (var_name) *)
+
   (* STEP 4: Update the injection (here, replace "_INJ {BExp} {s} (E1)" by "_INJ {Bool} {s} (E1)") *)
 
   (create_rule (subst_sort lhs new_s var_name) (subst rhs new_pattern var_name), Uncond, default_prio)::acc
@@ -230,7 +235,7 @@ let get_cond_data_in_cooling_rule : p_term option -> string * string = fun cond 
   | Some _ -> raise (NotYetImplemented "Unexpected shape for the condition.")
   | None   -> raise (InternalError "No condition for a cooling rule.")
 
-(** [gen_new_pattern] generates the new pattern *) (* TODO *)
+(** [gen_new_pattern sym] generates the new pattern, as $\flat1 and $\flat2 *) (* TODO *)
 let gen_new_pattern : symbol -> p_term = fun sym ->
   (* TODO Take into count "qv_l" in symbol = name * quant_var list * param list * param *)
   let name, _, p_l, _ = sym in
@@ -242,13 +247,21 @@ let gen_new_pattern : symbol -> p_term = fun sym ->
   in
   aux (List.length p_l) (create_ident name)
 
+let is_subsort_KResult : signature -> string -> bool = fun sign s ->
+  let subsort_l =
+    try
+      StrMap.find s sign.subsort
+    with Not_found -> raise (InternalError ("No sort " ^ s))
+  in
+  List.mem "SortKResult" subsort_l
+
 (** To translate cooling rules *) (* For now, its a heating rule... *)
 let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
   (* To understand this algorithm, consider the following example:
         rule E1 and E2 => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C) *)
 
-  (* STEP 0:  *)
+  (* STEP 0: Translate Kore pattern into Dedukti term *)
   let default_prio = 42 in
   let lhs, cond = create_LHS al sign in
   let rhs = create_RHS ax sign in
@@ -256,25 +269,42 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
   (* STEP 1: Get the variable to destruct with its type (here "E1" and "BExp") *)
   let new_v, sort_v = get_cond_data_in_cooling_rule cond in
 
-  (* STEP 2: Get the constructors associated (here, "and", "<" and "not") *)
+
+  (* STEP 2: Generate a rule for each constructor of [sort_v] *)
+
+  (* A. Get the constructors associated (here, "and", "<" and "not") *)
   let constructor_l =
     try
       Induc.find sort_v sign.inductive
     with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
   in
 
-  (* STEP 3: Generate the new pattern ($X1 and $X2), ($X1 < $X2) and (not $X1) *)
+  (* B. Generate the new pattern, as ($X1 and $X2), ($X1 < $X2) and (not $X1) *)
   let lambda_lhs p = subst lhs p new_v in (* To replace each variable by the new pattern *)
   let lambda_rhs p = subst rhs p new_v in (* To replace each variable by the new pattern *)
   let gen_specialization : ctrs_rule list -> symbol -> ctrs_rule list = fun acc sym ->
     let new_pattern = gen_new_pattern sym in
     (create_rule (lambda_lhs new_pattern) (lambda_rhs new_pattern), Uncond, default_prio)::acc
   in
-  (* STEP 4: Replace each variable by the new pattern, for each constructor *)
-  List.fold_left gen_specialization acc constructor_l
+  (* C. Replace each variable by the new pattern, for each constructor *)
+  let tmp_res = List.fold_left gen_specialization acc constructor_l in
 
+  (* STEP 3: Generate a rule for each subsort of [sort_v] that isn't a subsort of KResult *)
 
-
+  (* A. Get the subsort relations associated (can be "SortIden") *)
+  let subsort_rel_l =
+    let f key s_l l = if List.mem sort_v s_l && not(is_subsort_KResult sign key) then key::l else l in
+    try
+      StrMap.fold f sign.subsort []
+    with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
+  in
+  (* B. Generate the new pattern, as _INJ {SortIden} {s2} E1 *)
+  let curr_pattern s1 = create_inj_var s1 sort_v new_v in
+  let gen_specialization : ctrs_rule list -> string -> ctrs_rule list = fun acc s ->
+    (create_rule (subst lhs (curr_pattern s) new_v) (subst_sort rhs s new_v), Uncond, default_prio)::acc
+  in
+  (* C. Replace each variable by the new pattern, for each constructor *)
+  List.fold_left gen_specialization tmp_res subsort_rel_l
 
 (** To translate cooling rules *)
 let trans_cooling_rule_old : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =

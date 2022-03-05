@@ -73,15 +73,15 @@ module IMP-DICO-SYNTAX
 
     syntax AExp ::= Iden | Int
                   | "(" AExp ")"      [bracket]
-                  | AExp "+" AExp     [left, strict]
-                  | AExp "-" AExp     [left, strict]
-                  > AExp "/" AExp     [left, strict]
-                  | AExp "*" AExp     [left, strict]
+                  | AExp "+" AExp     [left, seqstrict]
+                  | AExp "-" AExp     [left, seqstrict]
+                  > AExp "/" AExp     [left, seqstrict]
+                  | AExp "*" AExp     [left, seqstrict]
 
     syntax BExp ::= Bool
                   | "(" BExp ")"      [bracket]
-                  | AExp "<=" AExp    [strict, latex({#1}\leq{#2})]
-                  | AExp "<"  AExp    [strict]
+                  | AExp "<=" AExp    [seqstrict, latex({#1}\leq{#2})]
+                  | AExp "<"  AExp    [seqstrict]
 
                   | "not" BExp        [strict]
                   > BExp "and" BExp   [left, strict(1)]
