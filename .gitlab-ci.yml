@@ -105,13 +105,14 @@ preprocessing:
         #- cd kamelo
         #- ls
         #- ls tests/
-        - cd tests/050_imp/
-        - kompile imp.k
-        - cd ../..
-        - make
-        - ./KaMeLo tests/050_imp/imp-kompiled/definition.kore
 
-        - make test-lp
+        #- cd tests/050_imp/
+        #- kompile imp.k
+        #- cd ../..
+        #- make
+        #- ./KaMeLo tests/050_imp/imp-kompiled/definition.kore
+
+        #- make test-lp
 
     cache:
          paths:
