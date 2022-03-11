@@ -118,7 +118,7 @@ preprocessing:
          paths:
     #        - build
     #        - /usr/bin/opam
-             - ~/.opam
+             - /home/opam/.opam
     #        - /usr/bin/wget
 
 #test:
