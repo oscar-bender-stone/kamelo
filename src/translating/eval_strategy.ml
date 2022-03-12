@@ -10,36 +10,18 @@ open Interface.K_prelude
 open Interface.Signature
 open Interface.Output
 
-open Mecanism.Axiom_iterator
-
 open Axiom
 
-let curry_new : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term = fun f_var ax sign local_data ->
-  let f_predicate_sym = sym_case in
-  let f_predicate_var (n, p) s d = var_case f_var (n, p) s d in
-  let f_dom_val (_, name) s d = create_ident name, s, d in
-  let f_not _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")            in (* TODO different! *)
-  let f_not_in _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not-in")         in
-  let f_equals _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals")         in
+let curry_condition : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term = fun f_var ax sign local_data ->
   let f_equals_dom_val (p_l, x, s, dom) s d =
     (if dom = _TRUE then x
      else
        if dom = _FALSE then create_appl (create_ident _NOT_BOOL) x
-       else f_equals (p_l, x, x) s d), s, d
-     in
-  let f_and _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")            in (* TODO different! *)
-  let f_and_var (_, n, _, ax) s d = ax, s, StrMap.add n ax d in
-  let res, _, _ =
-    axiom_iter_default_error [] ax f_var sign local_data
-      f_predicate_sym f_predicate_var f_dom_val
-      f_not f_not_in f_equals f_equals_dom_val f_and f_and_var
-  in res
+       else raise (NotYetImplemented "Need to update [Axiom.curry_condition] - Case equals-dom_val")), s, d
+  in
+  fst (curry_meta f_equals_dom_val f_var ax sign local_data)
 
-let curry_condition = curry_new create_pattern_var
+let curry_condition = curry_condition create_pattern_var
 
 let create_LHS : alias -> signature -> p_term * p_term StrMap.t * p_term option = fun al sign ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
