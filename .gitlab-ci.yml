@@ -44,7 +44,8 @@ preprocessing:
         - echo "--- Installation of dependencies"
         #- opam init -a --disable-sandboxing --compiler="$OCAML_VERSION"
         - opam update
-        - opam switch create "$OCAML_VERSION"
+        - if [ ! -d _opam ]; then echo "no local switch in the CI cache, we setup a new switch"; opam switch create --yes --no-install . $OCAML_VERSION; fi
+        #- opam switch create "$OCAML_VERSION"
         - eval $(opam env)
 
 #job:k:
@@ -118,7 +119,7 @@ preprocessing:
          paths:
     #        - build
     #        - /usr/bin/opam
-             - .opam/
+             - _opam
     #        - /usr/bin/wget
 
 #test:
