@@ -1,4 +1,3 @@
-
 open Common.Type
 open Common.Xlib_OCaml
 open LP.Syntax
@@ -11,7 +10,7 @@ open Interface.Signature
 
 val sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd
 val var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t
-val curry_meta :
+val iter_meta :
    (param list * p_term * sort * name    -> signature -> p_term StrMap.t -> p_term * signature * p_term StrMap.t) ->
    (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 
@@ -19,9 +18,9 @@ val curry_meta :
 (** Common functions to iterate on axiom    *)
 (** --------------------------------------- *)
 
-val curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
-val curry_ident   : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
-val curry_pattern : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+val iter_axiom : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+val iter_to_ident   : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+val iter_to_pattern : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 
 (** ------------------------------------------------------ *)
 (** To translate exists-axioms (functional or subsort one) *)

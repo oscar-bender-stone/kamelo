@@ -78,18 +78,18 @@ let create_inj_var : string -> string -> string -> p_term =
         {elt=P_Patt(Some {elt=var_name ;pos=None}, None) ; pos=None} )
   ; pos=None}
 
-(** To iterate on axiom *)
+(** To iterate on condition *)
 
-let curry_condition : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term = fun f_var ax sign local_data ->
+let iter_condition : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term = fun f_var ax sign local_data ->
   let f_equals_dom_val (p_l, x, s, dom) s d =
     (if dom = _TRUE then x
      else
        if dom = _FALSE then create_appl (create_ident _NOT_BOOL) x
-       else raise (NotYetImplemented "Need to update [Axiom.curry_condition] - Case equals-dom_val")), s, d
+       else raise (NotYetImplemented "Need to update [Axiom.iter_condition] - Case equals-dom_val")), s, d
   in
-  fst (curry_meta f_equals_dom_val f_var ax sign local_data)
+  fst (iter_meta f_equals_dom_val f_var ax sign local_data)
 
-let curry_condition = curry_condition create_pattern_var
+let iter_condition = iter_condition create_pattern_var
 
 let create_LHS : alias -> signature -> p_term * p_term StrMap.t * p_term option = fun al sign ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
@@ -100,9 +100,9 @@ let create_LHS : alias -> signature -> p_term * p_term StrMap.t * p_term option 
        match a with
        | And(_,a1,a2) ->
           (match a1 with
-           | Top _ -> let res, local_data = curry_pattern a2 sign StrMap.empty in
+           | Top _ -> let res, local_data = iter_to_pattern a2 sign StrMap.empty in
                       res, local_data, None
-           | _     -> let res, local_data = curry_pattern a2 sign StrMap.empty in res, local_data, Some (curry_condition a1 sign local_data))
+           | _     -> let res, local_data = iter_to_pattern a2 sign StrMap.empty in res, local_data, Some (iter_condition a1 sign local_data))
        |  _ -> raise (InternalError "The heating/cooling rule has no condition")
      end
   | D _ -> raise (NotYetImplemented "Alias (LHS) with a unique symbol as body.")
@@ -113,7 +113,7 @@ let create_RHS : axiom -> signature -> p_term StrMap.t -> p_term = fun ax sign l
      if is_conditional_rule a1 then
        raise (NotYetImplemented "KProver claim.")
      else
-       let res, _ = Axiom.curry_pattern a2 sign local_data in res
+       let res, _ = Axiom.iter_to_pattern a2 sign local_data in res
   |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
 
 (** ---------------------------- *)
@@ -286,9 +286,9 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
     with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
   in
   (* B. Generate the new pattern, as _INJ {SortIden} {s2} E1 *)
-  let curr_pattern s1 = create_inj_var s1 sort_v new_v in
+  let iter_pattern s1 = create_inj_var s1 sort_v new_v in
   let gen_specialization : ctrs_rule list -> string -> ctrs_rule list = fun acc s ->
-    (create_rule (subst lhs (curr_pattern s) new_v) (subst_sort rhs s new_v), Uncond, default_prio)::acc
+    (create_rule (subst lhs (iter_pattern s) new_v) (subst_sort rhs s new_v), Uncond, default_prio)::acc
   in
   (* C. Replace each variable by the new pattern, for each constructor *)
   List.fold_left gen_specialization tmp_res subsort_rel_l

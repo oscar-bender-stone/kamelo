@@ -23,7 +23,7 @@ let check_induc = ref false
 let induc_to_p_inductive : sort * symbol list -> p_inductive =
   fun (sort, s_l) ->
   (* p_inductive_aux = p_ident * p_term * (p_ident * p_term) list *)
-  let f s = (create_p_ident (get_name s), Translating.Symbol.sym_curry s) in
+  let f s = (create_p_ident (get_name s), Translating.Symbol.curry_symbol s) in
   create_inductive (create_p_ident sort) p_TYPE (List.map f s_l)
 
 (** [create_inductive_type i] creates non-mutual inductive type
@@ -44,7 +44,7 @@ let create_LHS : alias -> p_term = fun al ->
          if is_conditional_rule a1 then
             raise (ConditionalRule "Conditional rewriting rule not supported yet.")
          else
-           (try let res, _ = curry_pattern a2 empty_sign StrMap.empty in res
+           (try let res, _ = iter_to_pattern a2 empty_sign StrMap.empty in res
             with KComputation _ ->
               wrn_msg _STDOUT "WARNING: K computation found." ; p_TYPE)
       (* _ -> failwith "LHS"*)
@@ -59,7 +59,7 @@ let create_RHS : axiom -> p_term = fun ax ->
      if is_conditional_rule a1 then
        raise (ConditionalRule "Conditional rewriting rule not supported yet.")
      else
-       let res, _ = curry_pattern a2 empty_sign StrMap.empty in res
+       let res, _ = iter_to_pattern a2 empty_sign StrMap.empty in res
   |  _ -> failwith "In RHS: Not yet implemented"
 
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to

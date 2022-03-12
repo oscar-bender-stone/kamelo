@@ -18,9 +18,9 @@ let axiom_iter
   (f_in         : param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd)
   (f_exists     : param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd)
   (f_not        : param list * 'r                  -> 's -> 'd -> 'r * 's * 'd)
-  (f_not_in     : param list * param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd)
+  (f_not_in     : param list * param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd) (* Special case *)
   (f_equals     : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
-  (f_equals_dom : param list * 'r * sort * name    -> 's -> 'd -> 'r * 's * 'd)
+  (f_equals_dom : param list * 'r * sort * name    -> 's -> 'd -> 'r * 's * 'd) (* Special case *)
   (f_or         : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
   (f_and        : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
   (f_and_var    : param list * name * param * 'r   -> 's -> 'd -> 'r * 's * 'd) (* Special case *)
@@ -28,7 +28,7 @@ let axiom_iter
   (f_rewrites   : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd) : 'r * 's * 'd =
   let rec aux : axiom -> 's -> 'd -> 'r * 's * 'd = fun ax sign local_data ->
     match ax with
-    | Predicate(Sym(n, qv_l, a_l)) ->    (* ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a *)
+    | Predicate(Sym(n, qv_l, a_l)) ->
        let f : ('r list * 's * 'd) -> axiom -> ('r list * 's * 'd) =
          fun (acc, s, d) ax -> let r, s, d = aux ax s d in (r::acc, s, d)
        in
