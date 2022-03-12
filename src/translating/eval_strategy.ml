@@ -45,9 +45,7 @@ let curry_new : (string -> p_term) -> t -> signature -> p_term = fun f_var ax si
       | Bottom _ -> failwith "BOTTOM"
       | Top    _ -> failwith "TOP"
       | Rewrites _ -> failwith "REWRITES" *)
-    | And (_, ax1, Predicate(Var(n,_))) ->
-       let res = aux ax1 in
-       data_matching := StrMap.add n res !data_matching ; res
+    | And (_, ax1, Predicate(Var(n,_))) -> aux ax1
     | _ -> raise (NotYetImplemented "Need to update [Eval_strategy.curry_new].")
   in
   aux ax
@@ -253,7 +251,7 @@ let is_subsort_KResult : signature -> string -> bool = fun sign s ->
       StrMap.find s sign.subsort
     with Not_found -> raise (InternalError ("No sort " ^ s))
   in
-  List.mem "SortKResult" subsort_l
+  List.mem _SORT_KRESULT subsort_l
 
 (** To translate cooling rules *) (* For now, its a heating rule... *)
 let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
@@ -305,90 +303,6 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
   in
   (* C. Replace each variable by the new pattern, for each constructor *)
   List.fold_left gen_specialization tmp_res subsort_rel_l
-
-(** To translate cooling rules *)
-let trans_cooling_rule_old : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
-  fun attr_l acc sign al (_, ax) ->
-  do_specific_thing := true ;
-  (* Be careful: the order of the computation is important
-     because of references *)
-  let default_prio = 42 in
-  let lhs, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign in
-  data_matching := StrMap.empty ; reset_var() ;
-  do_specific_thing := false ;
-  let attr_l =
-    List.map (fun attr -> match attr with
-                          | Owise _ -> true
-                          | _ -> false) attr_l
-  in
-  let is_owise = List.fold_left (||) false attr_l in
-  match is_owise, cond with
-  | false, None   -> (create_rule lhs rhs, Uncond,     default_prio)::acc
-  | false, Some x -> (create_rule lhs rhs, Cond x,     default_prio)::acc
-  | true,  _ -> raise (InternalError "Case not possible in [trans_cooling_rule].")
-
-(** To translate heating rules *)
-let trans_heating_rule_old : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
-  fun attr_l acc sign al (_, ax) ->
-  (* Be careful: the order of the computation is important
-     because of references *)
-  let default_prio = 42 in
-  let lhs, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign in
-
-  (* Selection of the variable to specialize, with its sort *)
-  let new_v, sort_v = get_cond_data_in_cooling_rule cond in
-  (* Get the list of constructor symbols *)
-  let constr_sym_l =
-    let natural_constr =
-      try
-        Induc.find sort_v sign.inductive
-      with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
-    in
-    (* Get constructors by transitivty of subsort sorts *)
-    let subsort_l =
-      StrMap.fold (fun key s_l l -> if List.mem sort_v s_l then key::l else l) sign.subsort []
-    in
-    let f l s =
-      let tmp = try Induc.find s sign.inductive with Not_found -> [] in
-      tmp@l
-    in
-    List.fold_left f natural_constr subsort_l
-  in
-  (* Generation of specialize rules *)
-  let subst t a =
-    let rec aux : p_term -> p_term = fun t -> match t with
-                                              | ({elt=P_Appl(t1, t2);pos=p}) ->
-                                                 {elt=P_Appl(aux t1, aux t2);pos=p}
-                                              | ({elt=P_Patt(Some {elt=x;pos=_}, _);pos=_}) ->
-                                                 if x = new_v
-                                                 then a
-                                                 else t
-                                              | t -> t
-    in
-    aux t
-  in
-  let lambda_lhs p = subst lhs p in
-  let lambda_rhs p = subst rhs p in
-  let gen_specialization : ctrs_rule list -> symbol -> ctrs_rule list = fun acc sym ->
-    (* Generate the new pattern *)
-    (* TODO Take into count "qv_l" in symbol = name * quant_var list * param list * param *)
-    let name, _, p_l, _ = sym in
-    let new_pattern =
-      let rec aux : int -> p_term -> p_term = fun i acc ->
-        if i = 0 then acc
-        else
-          let new_name = Viry.safe_prefix ^ (string_of_int i) in
-          aux (i-1) ({elt=P_Appl(acc,{elt=P_Patt(Some {elt=new_name ; pos=None}, None); pos=None});pos=None})
-      in
-      aux (List.length p_l) (create_ident name)
-    in
-    (* Use it *)
-    (create_rule (lambda_lhs new_pattern) (lambda_rhs new_pattern), Uncond, default_prio)::acc
-  in
-  List.fold_left gen_specialization acc constr_sym_l
-
 
 (** To translate semantic rules *)
 let trans_semantic_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =

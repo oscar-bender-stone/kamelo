@@ -118,10 +118,7 @@ let curry : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign -
              let g p = match p with S x | Q x -> create_implicit_arg x in
              let tmp = List.map g qv_l in
              let res = List.fold_left create_appl p_INJ tmp in
-             let res = List.fold_left f_sym res a_l in
-             if !do_specific_thing
-             then change_sort_inj res sign
-             else res
+             List.fold_left f_sym res a_l
            else
              List.fold_left f_sym (create_ident n) a_l
         | Var(n, _) -> (if StrMap.mem n !data_matching
@@ -149,7 +146,7 @@ let curry : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign -
       | Bottom _ -> failwith "BOTTOM"
       | Top    _ -> failwith "TOP"
       | Rewrites _ -> failwith "REWRITES" *)
-    | And (_, ax1, Predicate(Var(n,_))) ->
+    | And (_, ax1, Predicate(Var(n,_))) -> 
        let res = aux ax1 in
        data_matching := StrMap.add n res !data_matching ; res
     | _ -> raise (NotYetImplemented "Need to update [Axiom.curry].")
