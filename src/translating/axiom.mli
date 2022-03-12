@@ -19,10 +19,6 @@ val curry_meta :
 val collect_subsort_data : axiom -> signature -> signature
 
 
-
-val curry_exec : (string -> p_term) -> axiom -> signature -> p_term * (string list) StrMap.t
-val curry_exec_ident : axiom -> signature -> p_term * (string list) StrMap.t
-
 val curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 val curry_ident   : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 val curry_pattern : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t

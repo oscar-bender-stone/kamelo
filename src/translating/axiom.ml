@@ -51,36 +51,11 @@ let curry_meta :
 
 
 
-let curry_exec : (string -> p_term) -> axiom -> signature -> p_term * (string list) StrMap.t =
-  fun f_var ax sign_init ->
-  let f_predicate_sym = sym_case in
-  let f_predicate_var (n, p) s d = f_var n, s, d in
-  let f_dom_val (sort, name) s d =
-    create_ident name, s, (if sort = _SORT_ID then add_update_without_dup _SORT_ID name d else d) in
-  let f_not _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")            in (* TODO different! *)
-  let f_not_in _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not-in")         in
-  let f_equals _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals")         in
-  let f_equals_dom _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals-dom_val") in
-  let f_and _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")            in (* TODO different! *)
-  let f_and_var _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and-var")        in
-  let res, _, free_var_data =
-    axiom_iter_default_error [] ax f_var sign_init StrMap.empty
-      f_predicate_sym f_predicate_var f_dom_val
-      f_not f_not_in f_equals f_equals_dom f_and f_and_var
-  in res, free_var_data
-
-let curry_exec_ident = curry_exec create_ident
 
 let curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t =
   fun f_var ax sign local_data ->
   let f_equals_dom_val _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals-dom_val") in
+    raise (NotYetImplemented "Need to update [Axiom.curry] - Case equals-dom_val") in
   curry_meta f_equals_dom_val f_var ax sign local_data
 
 let curry_ident = curry create_ident

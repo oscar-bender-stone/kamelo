@@ -40,6 +40,7 @@ The KaMeLo source file hierarchy
         ├── axiom.ml: *... the axioms*  
         ├── cleaning: *To clean before translating*  
         ├── eval_strategy.ml: *... the evaluation strategies*  
+        ├── executable.ml: *... the executables*  
         ├── import.ml: *... file importation*  
         ├── prelude_data.ml: *Data for translating the prelude*  
         ├── sort.ml: *... the sorts*  
