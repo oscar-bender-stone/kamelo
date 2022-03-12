@@ -46,7 +46,6 @@ preprocessing:
         - opam update
         - if [ ! -d _opam ]; then echo "no local switch in the CI cache, we setup a new switch"; opam switch create --yes --no-install . $OCAML_VERSION; fi
         #- opam switch create "$OCAML_VERSION"
-        - eval $(opam env)
 
 #job:k:
 #    stage: installation
@@ -67,8 +66,8 @@ preprocessing:
         - opam install --yes --deps-only -d -t dedukti
         - opam install --yes ocamlformat
         - opam install --yes tezt --no-checksums --keep-build-dir
-        - cd _opam/.opam-switch/sources/tezt.1.0.0/tezt
-        - ls -a
+        #- cd _opam/.opam-switch/sources/tezt.1.0.0/tezt
+        #- ls -a
         #- opam install --yes ./_opam/.opam-switch/sources/tezt.1.0.0/tezt/lib
 
 
@@ -83,7 +82,6 @@ preprocessing:
         - echo "--- Installation of Alt-ergo"
         - sudo apt install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
         - opam install --yes alt-ergo.2.3.0
-        - eval $(opam env)
 
 #job:lambdapi:
 #    stage: installation
