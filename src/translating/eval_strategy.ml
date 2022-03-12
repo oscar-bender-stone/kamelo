@@ -14,10 +14,9 @@ open Mecanism.Axiom_iterator
 
 open Axiom
 
-let curry_new : (string -> p_term) -> axiom -> signature -> p_term = fun f_var ax sign ->
+let curry_new : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term = fun f_var ax sign local_data ->
   let f_predicate_sym = sym_case in
-  let f_predicate_var (n, _) s d =
-    (if StrMap.mem n !data_matching then StrMap.find n !data_matching else f_var n), s, d in
+  let f_predicate_var (n, p) s d = var_case f_var (n, p) s d in
   let f_dom_val (_, name) s d = create_ident name, s, d in
   let f_not _ _ _ =
     raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")            in (* TODO different! *)
@@ -33,16 +32,16 @@ let curry_new : (string -> p_term) -> axiom -> signature -> p_term = fun f_var a
      in
   let f_and _ _ _ =
     raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")            in (* TODO different! *)
-  let f_and_var (_, n, _, ax) s d = data_matching := StrMap.add n ax !data_matching ; ax, s, d in
+  let f_and_var (_, n, _, ax) s d = ax, s, StrMap.add n ax d in
   let res, _, _ =
-    axiom_iter_default_error [] ax f_var "" empty_sign
+    axiom_iter_default_error [] ax f_var sign local_data
       f_predicate_sym f_predicate_var f_dom_val
       f_not f_not_in f_equals f_equals_dom_val f_and f_and_var
   in res
 
 let curry_condition = curry_new create_pattern_var
 
-let create_LHS : alias -> signature -> p_term * p_term option = fun al sign ->
+let create_LHS : alias -> signature -> p_term * p_term StrMap.t * p_term option = fun al sign ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
   let def = get_def al in
   match def with
@@ -51,19 +50,20 @@ let create_LHS : alias -> signature -> p_term * p_term option = fun al sign ->
        match a with
        | And(_,a1,a2) ->
           (match a1 with
-           | Top _ -> curry_pattern a2 sign, None
-           | _     -> let res = curry_pattern a2 sign in res, Some (curry_condition a1 sign))
+           | Top _ -> let res, local_data = curry_pattern a2 sign StrMap.empty in
+                      res, local_data, None
+           | _     -> let res, local_data = curry_pattern a2 sign StrMap.empty in res, local_data, Some (curry_condition a1 sign local_data))
        |  _ -> raise (InternalError "The heating/cooling rule has no condition")
      end
   | D _ -> raise (NotYetImplemented "Alias (LHS) with a unique symbol as body.")
 
-let create_RHS : t -> signature -> p_term = fun ax sign ->
+let create_RHS : axiom -> signature -> p_term StrMap.t -> p_term = fun ax sign local_data ->
   match ax with
   | Rewrites(_,_,And(_,a1,a2)) ->
      if is_conditional_rule a1 then
        raise (NotYetImplemented "KProver claim.")
      else
-       Axiom.curry_pattern a2 sign
+       let res, _ = Axiom.curry_pattern a2 sign local_data in res
   |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
 
 (*        rule E1 and E2               => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C)
@@ -156,8 +156,8 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign in
+  let lhs, local_data, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign local_data in
 
   let cond = match cond with | None -> raise (InternalError "No condition for a heating rule.") | Some x -> x in
 
@@ -251,8 +251,8 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
 
   (* STEP 0: Translate Kore pattern into Dedukti term *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign in
+  let lhs, local_data, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign local_data in
 
   (* STEP 1: Get the variable to destruct with its type (here "E1" and "BExp") *)
   let new_v, sort_v = get_cond_data_in_cooling_rule cond in
@@ -300,8 +300,8 @@ let trans_semantic_rule : attribute list -> ctrs_rule list -> signature -> alias
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign in
+  let lhs, local_data, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign local_data in
   let attr_l =
     List.map (fun attr -> match attr with
                           | Owise _ -> true

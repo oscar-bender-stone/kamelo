@@ -1,6 +1,7 @@
 open LP.Syntax
 open LP.LP_printer
 
+open Common.Xlib_OCaml
 open Common.Type
 open Common.Getter
 open Common.Error
@@ -43,7 +44,7 @@ let create_LHS : alias -> p_term = fun al ->
          if is_conditional_rule a1 then
             raise (ConditionalRule "Conditional rewriting rule not supported yet.")
          else
-           (try curry_pattern a2 empty_sign
+           (try let res, _ = curry_pattern a2 empty_sign StrMap.empty in res
             with KComputation _ ->
               wrn_msg _STDOUT "WARNING: K computation found." ; p_TYPE)
       (* _ -> failwith "LHS"*)
@@ -52,18 +53,18 @@ let create_LHS : alias -> p_term = fun al ->
   | D _ -> failwith "Not possible in rewriting axiom"
 
 (** [create_RHS ax] creates a RHS of a rewriting rule thanks to an axiom. *)
-let create_RHS : t -> p_term = fun ax ->
+let create_RHS : axiom -> p_term = fun ax ->
   match ax with
   | Rewrites(_,_,And(_,a1,a2)) ->
      if is_conditional_rule a1 then
        raise (ConditionalRule "Conditional rewriting rule not supported yet.")
      else
-       curry_pattern a2 empty_sign
+       let res, _ = curry_pattern a2 empty_sign StrMap.empty in res
   |  _ -> failwith "In RHS: Not yet implemented"
 
 (** [create_rewriting_rule al ax] creates a rewriting rule thanks to
     an alias (for LHS) and an axiom (for RHS). *)
-let create_rewriting_rule : alias -> t -> p_rule = fun al ax ->
+let create_rewriting_rule : alias -> axiom -> p_rule = fun al ax ->
   try
     (* Be careful: the order of the computation is important
        because of references *)
@@ -114,9 +115,9 @@ let print_new_attribute : name -> attribute list -> unit = fun name attri_l ->
    est un prédicat : il faut peut-être le rajouter ?
   let of_axiom : quant_var list * t * attribute list -> = fun qv_l ax a_l ->*)
 
-let of_axiom : quant_var list * t * attribute list -> attribute ->
-               (quant_var list * t * attribute list) list ->
-               (quant_var list * t * attribute list) list =
+let of_axiom : quant_var list * axiom * attribute list -> attribute ->
+               (quant_var list * axiom * attribute list) list ->
+               (quant_var list * axiom * attribute list) list =
   fun (qv_l, ax, a_l) attri ax_l ->
   match attri with
   | Subsort     _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)

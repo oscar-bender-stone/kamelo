@@ -5,22 +5,19 @@ open LP.Syntax
 
 open Interface.Signature
 
-type t = axiom
-
 (** ****************************************************** *)
 (** To translate exists-axioms (functional or subsort one) *)
 (** ****************************************************** *)
 
 val free_var : (string list) StrMap.t ref
 
-val data_matching : p_term StrMap.t ref
-
 val collect_subsort_data : axiom -> signature -> signature
 
 val sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd
-val curry : (string -> p_term) -> t -> signature -> p_term
-val curry_ident   : t -> signature -> p_term
-val curry_pattern : t -> signature -> p_term
+val var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t
+val curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+val curry_ident   : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+val curry_pattern : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 
 
 (** **************************************************** *)
@@ -28,7 +25,7 @@ val curry_pattern : t -> signature -> p_term
     (Associative, Commutative, Unit and Idempotence one) *)
 (** **************************************************** *)
 
-val of_equality_axiom : t -> p_rule
+val of_equality_axiom : axiom -> p_rule
 
 (** ****************************** *)
 (** To translate implies-axioms    *)
@@ -46,4 +43,4 @@ type ctrs_rule = p_rule * extra_data_rule * int
 
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by
     "\implies" to a rewriting rule. *)
-val of_implies_axiom : t -> ctrs_rule
+val of_implies_axiom : axiom -> ctrs_rule

@@ -4,7 +4,8 @@ open Common.Error
 
 (** [axiom_iter qv_l ax f_var init_sign init_local_data
     f_predicate_sym f_predicate_var f_dom_val
-    f_bottom f_top f_in f_exists f_not f_equals f_or f_and f_implies f_rewrites]
+    f_bottom f_top f_in f_exists f_not f_equals f_equals_dom
+    f_or f_and f_and_var f_implies f_rewrites]
     to iterate over an axiom [ax]. *)
 let axiom_iter
   (qv_l : quant_var list) (ax : axiom)

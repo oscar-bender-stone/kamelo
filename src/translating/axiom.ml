@@ -11,8 +11,6 @@ open Interface.Signature
 
 open Mecanism.Axiom_iterator
 
-type t = axiom
-
 (* GENRALISATION
 let curry : ('a list -> 'b) -> ('b * 'a -> 'b) -> 'a list -> 'b = fun f g l ->
   let rec aux : 'a list -> (('a list -> 'b) -> 'b) -> 'b = fun l acc ->
@@ -62,9 +60,6 @@ let collect_subsort_data : axiom -> signature -> signature = fun ax sign ->
 
 let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
-let data_matching : p_term StrMap.t ref = ref StrMap.empty (* TODO remove *)
-
-
 let init_var : string * p_term = ("", p_TYPE)
 let specific_var : (string * p_term) ref = ref init_var
 
@@ -79,15 +74,18 @@ let sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd =
    else
      List.fold_left create_appl (create_ident n) a_l), sign, data
 
-let curry : (string -> p_term) -> axiom -> signature -> p_term = fun f_var ax sign ->
+(** [var_case f (n, _) s d] uses local data [d] to replace the variable [n] by a pattern. *)
+let var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t = fun f (n, _) s d ->
+    (if StrMap.mem n d then StrMap.find n d else f n), s, d
+
+let curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t =
+  fun f_var ax sign_init local_data_init ->
   let f_predicate_sym = sym_case in
-  let f_predicate_var (n, _) s d =
-    (if StrMap.mem n !data_matching
-     then StrMap.find n !data_matching
-     else
-       (if (fst !specific_var) = (Interface.Output.pp n) then snd !specific_var else f_var n)), s, d in
-  let f_dom_val (_, name) s d =
-    (if s = _SORT_ID then
+  let f_predicate_var (n, p) s d =
+    let f n = if (fst !specific_var) = (Interface.Output.pp n) then snd !specific_var else f_var n in
+    var_case f (n, p) s d in
+  let f_dom_val (sort, name) s d =
+    (if sort = _SORT_ID then
        free_var := add_update_without_dup _SORT_ID name !free_var ;
      create_ident name), s, d in
   let f_not _ _ _ =
@@ -100,12 +98,12 @@ let curry : (string -> p_term) -> axiom -> signature -> p_term = fun f_var ax si
     raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals-dom_val") in
   let f_and _ _ _ =
     raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")            in (* TODO different! *)
-  let f_and_var (_, n, _, ax) s d = data_matching := StrMap.add n ax !data_matching ; ax, s, d in
-  let res, _, _ =
-    axiom_iter_default_error [] ax f_var "" empty_sign
+  let f_and_var (_, n, _, ax) s d = ax, s, StrMap.add n ax d in
+  let res, _, local_data_res =
+    axiom_iter_default_error [] ax f_var sign_init local_data_init
       f_predicate_sym f_predicate_var f_dom_val
       f_not f_not_in f_equals f_equals_dom f_and f_and_var
-  in res
+  in res, local_data_res
 
 let curry_ident = curry create_ident
 let curry_pattern = curry create_pattern_var
@@ -115,13 +113,13 @@ let curry_pattern = curry create_pattern_var
     (Associative, Commutative, Unit and Idempotence one) *)
 (** ---------------------------------------------------- *)
 
-let of_equality_axiom : t -> p_rule = fun ax -> (* TODO sign ?*)
+let of_equality_axiom : axiom -> p_rule = fun ax -> (* TODO sign ?*)
   match ax with
   | Equals(_, ax1, ax2) ->
      (try
-        create_rule
-          (curry_pattern ax1 empty_sign)
-          (curry_pattern ax2 empty_sign)
+        let lhs, ld = curry_pattern ax1 empty_sign StrMap.empty in
+        let rhs, ld = curry_pattern ax2 empty_sign ld in
+        create_rule lhs rhs
       with _ -> raise (InternalError "Need to update [Axiom.of_equality_axiom]."))
   | _ -> raise (InternalError "The current axiom isn't an equality one.\n
                 Please, raise an issue.")
@@ -170,10 +168,9 @@ type ctrs_rule = p_rule * extra_data_rule * int
 
  So, the rule is: false orBool VarB --> VarB *)
 
-let curry_implies : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = fun f_var ax local_data ->
+let curry_implies : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = fun f_var ax local_data_init ->
   let f_predicate_sym = sym_case in
-  let f_predicate_var (n, _) s d =
-      (if StrMap.mem n local_data then StrMap.find n local_data else f_var n), s, d in
+  let f_predicate_var (n, p) s d = var_case f_var (n, p) s d in
   let f_dom_val (_, name) s d = create_ident name, s, d in
   let f_not_in (_, _, (v,_), a) s d =
     create_appl
@@ -187,14 +184,14 @@ let curry_implies : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = f
   let f_not _ _ _ =
       raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")      in (* TODO different! *)
   let f_equals _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals")   in
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals")     in
   let f_equals_dom _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals-dom_val") in
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals-dom") in
   let f_and _ _ _ =
       raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")      in (* TODO different! *)
   let f_and_var (_, _, _, ax) s d = ax, s, d in
   let res, _, _ =
-    axiom_iter_default_error [] ax f_var StrMap.empty StrMap.empty
+    axiom_iter_default_error [] ax f_var StrMap.empty local_data_init
       f_predicate_sym f_predicate_var f_dom_val
       f_not f_not_in f_equals f_equals_dom f_and f_and_var
   in res
@@ -202,7 +199,7 @@ let curry_implies : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = f
 let curry_implies = curry_implies create_pattern_var
 
 (** [collect ax acc] *)
-let rec collect : t -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
+let rec collect : axiom -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
   match ax with
   | Top _ -> acc
   | In(_,(v1,_), And(_, Dom_val(x,"false"), Predicate(Var(v2, _))))
@@ -216,7 +213,7 @@ let rec collect : t -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
 
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
     to a rewriting rule. *)
-let of_implies_axiom : t -> ctrs_rule = fun ax ->
+let of_implies_axiom : axiom -> ctrs_rule = fun ax ->
   let init_data = StrMap.empty in
   match ax with
   | Implies(_, And(_,Top _, a1), And(_, Equals(_,l,r), Top _)) ->

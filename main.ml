@@ -30,7 +30,7 @@ let () =
      Mecanism.Count_data.incr_real_import cd ;
      LP.LP_printer.pp_command ff import_trans ;
      (* STEP 3: Translate the executable *)
-     let p_exec = Translating.Axiom.curry_ident exec empty_sign in
+     let p_exec, _ = Translating.Axiom.curry_ident exec empty_sign StrMap.empty in
      (* STEP 4: Add free variables *)
      let f_pp : string -> string list -> unit = fun key var_l ->
        let var_type =
