@@ -15,11 +15,6 @@ val free_var : (string list) StrMap.t ref
 
 val data_matching : p_term StrMap.t ref
 
-val do_specific_thing : bool ref
-val reset_var : unit -> unit
-
-val change_sort_inj : p_term -> signature -> p_term
-
 val collect_subsort_data : axiom -> signature -> signature
 
 

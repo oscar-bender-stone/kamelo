@@ -26,11 +26,7 @@ let curry_new : (string -> p_term) -> t -> signature -> p_term = fun f_var ax si
             List.fold_left f_sym res a_l
          | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
          | Var(n, _) -> (if StrMap.mem n !data_matching
-                         then
-                           (let res = StrMap.find n !data_matching in
-                            (if !do_specific_thing
-                             then Axiom.change_sort_inj res sign
-                             else res))
+                         then StrMap.find n !data_matching
                          else f_var n)
        end
     | Equals(_, x, Dom_val(_, d)) when d = _TRUE  -> aux x

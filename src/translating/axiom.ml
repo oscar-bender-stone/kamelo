@@ -64,47 +64,9 @@ let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
 let data_matching : p_term StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
-let do_specific_thing : bool ref = ref false
 
-(* Par rajouter une injection à HOLE *)
 let init_var : string * p_term = ("", p_TYPE)
 let specific_var : (string * p_term) ref = ref init_var
-let reset_var : unit -> unit = fun () -> specific_var := init_var
-
-let change_sort_inj : p_term -> signature -> p_term = fun t sign ->
-  let rec aux t = match t with
-    | P_Appl(
-        {elt=P_Appl(
-            {elt=P_Appl({elt=P_Iden({elt=(x1, s);pos=x2}, x3);pos=x4},
-                        {elt=P_Expl({elt=P_Iden ({elt=(x5,s1) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
-            ; pos=x10},
-            {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
-        ; pos=x16},
-        {elt=P_Patt(Some {elt=("HOLE" as n) ;pos=x17}, x18) ; pos=x19} ) when s = _INJ ->
-       let f : string -> string list -> string -> string = fun key v acc ->
-         if List.mem _SORT_KRESULT v && List.mem s1 v
-         then key ^ acc
-         else "" ^ acc
-       in
-       let new_s = StrMap.fold f sign.subsort "" in
-       let new_s = if new_s = "" then s1 else new_s in
-       let res s2 =
-         P_Appl(
-             {elt=P_Appl(
-                      {elt=P_Appl({elt=P_Iden({elt=(x1, _INJ);pos=x2}, x3);pos=x4},
-                                  {elt=P_Expl({elt=P_Iden ({elt=(x5,new_s) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
-                      ; pos=x10},
-                      {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
-             ; pos=x16},
-             {elt=P_Patt(Some {elt=n ;pos=x17}, x18) ; pos=x19} )
-       in
-       if not(new_s = s1) then specific_var := (n, no_pos (res s1)) ;
-       res s2
-    | P_Appl(({elt=t1;pos=x1}), ({elt=t2 ;pos=x2})) ->
-       P_Appl(({elt=aux t1;pos=x1}), ({elt=aux t2 ;pos=x2}))
-    | _ -> t
-  in
-  {elt=aux t.elt ; pos= t.pos}
 
 let curry : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign ->
   let rec aux : t -> p_term = fun ax ->
@@ -124,14 +86,9 @@ let curry : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign -
         | Var(n, _) -> (if StrMap.mem n !data_matching
                         then StrMap.find n !data_matching
                         else
-                          (if !do_specific_thing
-                           then
-                             ( (* wrn_1 "\nSpecific var: %s") (fst !specific_var) ;
-                                  wrn_1 "\nSpecific var: %s\n" n ; *)
-                              if (fst !specific_var) = (Interface.Output.pp n)
-                              then snd !specific_var
-                              else change_sort_inj (f_var n) sign)
-                           else f_var n))
+                          if (fst !specific_var) = (Interface.Output.pp n)
+                          then snd !specific_var
+                          else f_var n)
        end
     | Dom_val(s, name) ->
        if s = _SORT_ID then
