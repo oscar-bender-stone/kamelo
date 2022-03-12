@@ -5,35 +5,47 @@ open LP.Syntax
 
 open Interface.Signature
 
+(** ------------------------------------------ *)
+(** Some meta-functions to iterate on axiom    *)
+(** ------------------------------------------ *)
+
 val sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd
 val var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t
-
 val curry_meta :
    (param list * p_term * sort * name    -> signature -> p_term StrMap.t -> p_term * signature * p_term StrMap.t) ->
    (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 
-(** ****************************************************** *)
-(** To translate exists-axioms (functional or subsort one) *)
-(** ****************************************************** *)
-
-val collect_subsort_data : axiom -> signature -> signature
-
+(** --------------------------------------- *)
+(** Common functions to iterate on axiom    *)
+(** --------------------------------------- *)
 
 val curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 val curry_ident   : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 val curry_pattern : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 
+(** ------------------------------------------------------ *)
+(** To translate exists-axioms (functional or subsort one) *)
+(** ------------------------------------------------------ *)
 
-(** **************************************************** *)
+val collect_subsort_data : axiom -> signature -> signature
+
+(** ---------------------------------------------------- *)
 (** To translate equals-axioms
     (Associative, Commutative, Unit and Idempotence one) *)
-(** **************************************************** *)
+(** ---------------------------------------------------- *)
 
 val of_equality_axiom : axiom -> p_rule
 
-(** ****************************** *)
+(** ---------------------------------------------------- *)
+(** To translate or-axioms, bottom-axioms, not-axioms
+    (aka constructor one) *)
+(** ---------------------------------------------------- *)
+
+(** Currently, these axioms aren't used. *)
+
+(** ------------------------------ *)
 (** To translate implies-axioms    *)
-(** ****************************** *)
+(** ------------------------------ *)
 
 (** Type of extra data about a rule *) (* TODO add priority ? *)
 type extra_data_rule =

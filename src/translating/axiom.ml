@@ -11,6 +11,10 @@ open Interface.Signature
 
 open Mecanism.Axiom_iterator
 
+(** ------------------------------------------ *)
+(** Some meta-functions to iterate on axiom    *)
+(** ------------------------------------------ *)
+
 let sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd =
   fun (n, qv_l, a_l) sign data ->
   let a_l = List.rev a_l in
@@ -48,9 +52,9 @@ let curry_meta :
       f_not f_not_in f_equals f_equals_dom_val f_and f_and_var
   in res, local_data_res
 
-
-
-
+(** --------------------------------------- *)
+(** Common functions to iterate on axiom    *)
+(** --------------------------------------- *)
 
 let curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t =
   fun f_var ax sign local_data ->
@@ -60,7 +64,6 @@ let curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_ter
 
 let curry_ident = curry create_ident
 let curry_pattern = curry create_pattern_var
-
 
 (** ------------------------------------------------------ *)
 (** To translate exists-axioms (functional or subsort one) *)
