@@ -60,9 +60,6 @@ let collect_subsort_data : axiom -> signature -> signature = fun ax sign ->
 
 let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
 
-let init_var : string * p_term = ("", p_TYPE)
-let specific_var : (string * p_term) ref = ref init_var
-
 let sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd =
   fun (n, qv_l, a_l) sign data ->
   let a_l = List.rev a_l in
@@ -81,9 +78,7 @@ let var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_te
 let curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t =
   fun f_var ax sign_init local_data_init ->
   let f_predicate_sym = sym_case in
-  let f_predicate_var (n, p) s d =
-    let f n = if (fst !specific_var) = (Interface.Output.pp n) then snd !specific_var else f_var n in
-    var_case f (n, p) s d in
+  let f_predicate_var (n, p) s d = var_case f_var (n, p) s d in
   let f_dom_val (sort, name) s d =
     (if sort = _SORT_ID then
        free_var := add_update_without_dup _SORT_ID name !free_var ;
