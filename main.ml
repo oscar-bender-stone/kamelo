@@ -80,7 +80,7 @@ let () =
           (* a. Cleaning the semantic files *)
        let kommand_l =
          if not(name = "BASIC-K" || name = "KSEQ" || name = "INJ" || name = "K") then
-           Translating.Cleaning.cleaning kommand_l
+           Controller.Cleaning.cleaning kommand_l
          else kommand_l
        in
        Common.Error.print ff "\n// Translation of the module ";
