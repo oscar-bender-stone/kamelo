@@ -58,8 +58,6 @@ let collect_subsort_data : axiom -> signature -> signature = fun ax sign ->
      { sign with subsort = add_update s1 s2 sign.subsort }
   | _ -> raise (InternalError "Need to update [Axiom.collect_subsort_data].")
 
-let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
-
 let sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd =
   fun (n, qv_l, a_l) sign data ->
   let a_l = List.rev a_l in
@@ -75,14 +73,37 @@ let sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd =
 let var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t = fun f (n, _) s d ->
     (if StrMap.mem n d then StrMap.find n d else f n), s, d
 
+let curry_exec : (string -> p_term) -> axiom -> signature -> p_term * (string list) StrMap.t =
+  fun f_var ax sign_init ->
+  let f_predicate_sym = sym_case in
+  let f_predicate_var (n, p) s d = f_var n, s, d in
+  let f_dom_val (sort, name) s d =
+    create_ident name, s, (if sort = _SORT_ID then add_update_without_dup _SORT_ID name d else d) in
+  let f_not _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")            in (* TODO different! *)
+  let f_not_in _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not-in")         in
+  let f_equals _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals")         in
+  let f_equals_dom _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals-dom_val") in
+  let f_and _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")            in (* TODO different! *)
+  let f_and_var _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and-var")        in
+  let res, _, free_var_data =
+    axiom_iter_default_error [] ax f_var sign_init StrMap.empty
+      f_predicate_sym f_predicate_var f_dom_val
+      f_not f_not_in f_equals f_equals_dom f_and f_and_var
+  in res, free_var_data
+
+let curry_exec_ident = curry_exec create_ident
+
 let curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t =
   fun f_var ax sign_init local_data_init ->
   let f_predicate_sym = sym_case in
   let f_predicate_var (n, p) s d = var_case f_var (n, p) s d in
-  let f_dom_val (sort, name) s d =
-    (if sort = _SORT_ID then
-       free_var := add_update_without_dup _SORT_ID name !free_var ;
-     create_ident name), s, d in
+  let f_dom_val (_, name) s d = create_ident name, s, d in
   let f_not _ _ _ =
     raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")            in (* TODO different! *)
   let f_not_in _ _ _ =

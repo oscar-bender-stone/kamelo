@@ -9,12 +9,14 @@ open Interface.Signature
 (** To translate exists-axioms (functional or subsort one) *)
 (** ****************************************************** *)
 
-val free_var : (string list) StrMap.t ref
-
 val collect_subsort_data : axiom -> signature -> signature
 
 val sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd
 val var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t
+
+val curry_exec : (string -> p_term) -> axiom -> signature -> p_term * (string list) StrMap.t
+val curry_exec_ident : axiom -> signature -> p_term * (string list) StrMap.t
+
 val curry : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 val curry_ident   : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 val curry_pattern : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
