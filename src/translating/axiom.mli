@@ -17,7 +17,7 @@ val data_matching : p_term StrMap.t ref
 
 val collect_subsort_data : axiom -> signature -> signature
 
-
+val sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd
 val curry : (string -> p_term) -> t -> signature -> p_term
 val curry_ident   : t -> signature -> p_term
 val curry_pattern : t -> signature -> p_term

@@ -10,41 +10,35 @@ open Interface.K_prelude
 open Interface.Signature
 open Interface.Output
 
+open Mecanism.Axiom_iterator
+
 open Axiom
 
-let curry_new : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign ->
-  let rec aux : t -> p_term = fun ax ->
-    let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
-    match ax with
-    | Predicate p ->
-       begin
-         match p with
-         | Sym(s, qv_l, a_l) when s = _INJ ->
-            let g p = match p with S x | Q x -> create_implicit_arg x in
-            let tmp = List.map g qv_l in
-            let res = List.fold_left create_appl p_INJ tmp in
-            List.fold_left f_sym res a_l
-         | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
-         | Var(n, _) -> (if StrMap.mem n !data_matching
-                         then StrMap.find n !data_matching
-                         else f_var n)
-       end
-    | Equals(_, x, Dom_val(_, d)) when d = _TRUE  -> aux x
-    | Equals(_, x, Dom_val(_, d)) when d = _FALSE -> create_appl (create_ident _NOT_BOOL) (aux x)
-    | Equals _ -> raise (NotYetImplemented "Need to update [Eval_strategy.curry_new] - Case EQUALS")
-    | Dom_val(_, name) -> create_ident name
-    (*| In _ -> failwith "OK, guys" *)
-    (*| Exists _ -> failwith "EXISTS"
-      | Or _ -> failwith "OR"
-      | Not _ -> failwith "NOT"
-      | Implies _ -> failwith "IMPLIES"
-      | Bottom _ -> failwith "BOTTOM"
-      | Top    _ -> failwith "TOP"
-      | Rewrites _ -> failwith "REWRITES" *)
-    | And (_, ax1, Predicate(Var(n,_))) -> aux ax1
-    | _ -> raise (NotYetImplemented "Need to update [Eval_strategy.curry_new].")
-  in
-  aux ax
+let curry_new : (string -> p_term) -> axiom -> signature -> p_term = fun f_var ax sign ->
+  let f_predicate_sym = sym_case in
+  let f_predicate_var (n, _) s d =
+    (if StrMap.mem n !data_matching then StrMap.find n !data_matching else f_var n), s, d in
+  let f_dom_val (_, name) s d = create_ident name, s, d in
+  let f_not _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")            in (* TODO different! *)
+  let f_not_in _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not-in")         in
+  let f_equals _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals")         in
+  let f_equals_dom_val (p_l, x, s, dom) s d =
+    (if dom = _TRUE then x
+     else
+       if dom = _FALSE then create_appl (create_ident _NOT_BOOL) x
+       else f_equals (p_l, x, x) s d), s, d
+     in
+  let f_and _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")            in (* TODO different! *)
+  let f_and_var (_, n, _, ax) s d = data_matching := StrMap.add n ax !data_matching ; ax, s, d in
+  let res, _, _ =
+    axiom_iter_default_error [] ax f_var "" empty_sign
+      f_predicate_sym f_predicate_var f_dom_val
+      f_not f_not_in f_equals f_equals_dom_val f_and f_and_var
+  in res
 
 let curry_condition = curry_new create_pattern_var
 
