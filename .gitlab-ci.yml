@@ -69,7 +69,7 @@ preprocessing:
         - opam install --yes tezt --no-checksums --keep-build-dir
         - cd _opam/.opam-switch/sources/tezt.1.0.0/tezt
         - ls -a
-        - opam install --yes ./_opam/.opam-switch/sources/tezt.1.0.0/tezt/lib
+        #- opam install --yes ./_opam/.opam-switch/sources/tezt.1.0.0/tezt/lib
 
 
         #- echo "--- Installation of Z3"
