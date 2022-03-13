@@ -126,7 +126,7 @@ for d in $for_test; do
       mv $curr_gen_folder/$curr_exec_folder/tmp.kore $curr_gen_folder/$curr_exec_folder/$new_name.kore
       # Traduction vers Dedukti
       ./$kamelo_script -r --semantics $semName $curr_gen_folder/$curr_exec_folder/$new_name.kore
-      python3 $python_script $curr_gen_folder/$curr_exec_folder/$new_name.$extension
+      #python3 $python_script $curr_gen_folder/$curr_exec_folder/$new_name.$extension
       # Suppression des fichiers générés
       rm $curr_gen_folder/$curr_exec_folder/$new_name.kore
       rm $curr_gen_folder/$curr_exec_folder/$new_name-res.kore
