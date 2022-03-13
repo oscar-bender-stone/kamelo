@@ -113,6 +113,7 @@
     présentée en 5.(c). *)
 
 open Common.Xlib_OCaml
+open Common.Error
 open LP.Syntax
 open Interface.LP_p_term
 open Interface.K_prelude
@@ -127,7 +128,7 @@ let safe_prefix = "♭"
 let p_FLAT = create_ident safe_prefix
 
 (** The name ♭Bool *)
-let _flatBool = safe_prefix ^ "Bool" (* TODO fix BOOL ?? *)
+let _flatBool = safe_prefix ^ "Bool"
 
 (** The term δ ♭Bool *)
 let p_flatBool = p_INJD_appl_ident _flatBool
@@ -165,37 +166,37 @@ let is_cell : string -> bool = fun s ->
 let is_to_keep : string -> bool = fun s ->
   s = _KSEQ || s = _DOTK || s = _INJ
 
-(** [get_head_symbol _ config] is the function head_<k>, i.e. returns:
-        - None si pas de configuration
-        - Some _ sinon. *)
-let get_head_symbol _ config =
-  let rec aux : p_term -> p_term option = fun t ->
+(** [get_head_symbol config] is the function head_<k>, i.e. returns:
+        - None    if no configuration
+        - Some h  otherwise, where h is the heading symbol of the cell <k>. *)
+let get_head_symbol config =
+  let rec aux : p_term -> string option = fun t ->
     match t.elt with
     | P_Appl(t1, t2) ->
-       (let res = aux t1 in
-        match res with
+       (match aux t1 with
         | None   -> aux t2
         | Some x -> Some x)
     | P_Patt _ -> None
     | P_Expl _ -> None
-    | P_Iden (name, _) as t ->
+    | P_Iden (name, _) ->
        let n = snd name.elt in
-       if is_to_keep n then
-         None
-       else
-         (if is_cell n then None else Some (no_pos t))
-    | _ -> failwith "ERROR"
+       if is_to_keep n then None
+       else (if is_cell n then None else Some n)
+    | _ -> raise (InternalError "The function [Viry.get_head_symbol] need to be fixed.")
   in
   aux config
+
+(* TODO used it?
+    exception KCellNotFound
+    exception KCellNotFoundHere *)
 
 (** [find_equiv_class ec t] adds the p_term [t] into the equivalence
     class [ec].  *)
 let find_equiv_class : equiv_class -> ctrs_rule -> equiv_class =
   fun ec (({elt=(lhs,_);_},_,_) as r) ->
-  let key = match get_head_symbol (ref 0) lhs with
-    | None -> "hum"   (* raise  KCellNotFound *)
-    | Some {elt=(P_Iden({elt=(_,x);_},_));_} -> x
-    | _ -> failwith "Internal error"
+  let key = match get_head_symbol lhs with
+    | None   -> raise (InternalError "The function [Viry.find_equiv_class] need to be fixed.")  (* raise  KCellNotFound *)
+    | Some x -> x
   in
   add_update key r ec
 
@@ -208,13 +209,9 @@ let to_equiv_class : ctrs_rule list -> equiv_class = fun rule_l ->
 (** To iterate on a configuration *)
 (** ----------------------------- *)
 
-(* TODO used it?
-exception KCellNotFound
-exception KCellNotFoundHere *)
-
 (** [has_infered_configuration t] returns true is the term [t]
     is composed of cells, i.e. the configuration has been infered
-    durinng the translation from K to Kore. *) (* TODO correct ? *)
+    during the translation from K to Kore. *) (* TODO correct ? *)
 let rec has_infered_configuration : p_term -> bool = fun t ->
   match t.elt with
   | P_Appl(t,_)    -> has_infered_configuration t
@@ -238,7 +235,7 @@ let update_config : string -> p_term -> (p_term -> p_term) -> p_term =
        if n = head
        then true,  no_pos (P_Iden(({elt=(x1, safe_prefix ^ n);pos=y}), x2))
        else false, t
-    | _ -> failwith "ERROR"
+    | _ -> raise (InternalError "The function [Viry.has_infered_configuration] need to be fixed.")
   in
   let res = snd(aux false config) in
   if has_infered_configuration config then res else f res
@@ -250,9 +247,7 @@ let update_config : string -> p_term -> (p_term -> p_term) -> p_term =
 (** [is_k_cell s] returns if a string [s] is the cell's name
     of the cell k. *)
 let is_k_cell : string -> bool = fun s ->
-  if !Interface.Output.readable
-  then s = "<k>"
-  else s = "Lbl'-LT-'k'-GT-'"
+  s = Interface.Output.pp _K_CELL
 
 (* TODO improve *)
 (** [create_most_general_LHS t] transforms the initial configuration [t]
@@ -262,7 +257,7 @@ let is_k_cell : string -> bool = fun s ->
     where y_i and z_i are fresh variables and, L is a K computation.
     The result is noted mglhs_σ. *)
 let create_most_general_LHS t =
-  let nb = ref 0 in
+  let nb = ref 0 in (* TODO remove ? *)
   let new_var nb =
     incr nb ; create_pattern_var ("x" ^ string_of_int !nb)
   in
@@ -295,8 +290,8 @@ let create_most_general_LHS t =
           else
             if is_head
             then is_in_k_cell, true,  is_head, no_pos t
-            else is_in_k_cell, false, true, no_pos t)
-    | _ -> failwith "ERROR"
+            else is_in_k_cell, false, true,    no_pos t)
+    | _ -> raise (InternalError "The function [Viry.create_most_general_LHS] need to be fixed.")
   in
   let _,_,_,res = aux t (not(has_infered_configuration t)) false in res
 
@@ -343,7 +338,7 @@ let extend_type typ nb =
       | P_Arro(t1, ({elt=P_Iden _;_} as t2)) -> List.rev (t1::acc), t2
       | P_Arro(t1, ({elt=P_Appl _;_} as t2)) -> List.rev (t1::acc), t2
       | P_Arro(t1, ({elt=P_Arro _;_} as t2)) -> aux t2 (t1::acc)
-      | _ -> failwith "Unexpected type which to be extended during Viry's transformation"
+      | _ -> raise (InternalError "Unexpected type which to be extended during Viry's transformation")
     in
     aux typ []
   in
@@ -388,7 +383,7 @@ let create_list_number n i special_sym =
     in
     aux 0
 
-    (** [create_initialisation_rule carrier_sym lhs nb i special_sym_l special_sym_r]
+(** [create_initialisation_rule carrier_sym lhs nb i special_sym_l special_sym_r]
     creates an initialisation rule, i.e. a rule of the form:
     rule [carrier_sym] [lhs] _ ... _ [special_sym_l] _ ... _ ↪
          [carrier_sym] [lhs] _ ... _ [special_sym_r] _ ... _
@@ -409,7 +404,7 @@ let create_reduction_rule tracker nb i special_sym rhs : p_rule =
   let f h = with_one_diff_value h nb i special_sym in
   create_rule (tracker f) rhs
 
-  (** [create_otherwise_rule carrier_sym lhs nb rhs]
+(** [create_otherwise_rule carrier_sym lhs nb rhs]
     creates an otherwise rule, i.e. a rule of the form:
     rule [carrier_sym] [lhs] "false" ... "false" ↪ [rhs]
     where [nb] occurrence(s) of "false". *) (* TODO update *)
@@ -430,7 +425,7 @@ let viry_encoding : ctrs_rule list -> signature -> p_symbol list * p_rule list =
      (* [b.] Create the symbol ♭. *)
   let flat_sym = create_p_symbol [] safe_prefix [] (Some p_flatBool) None in
      (* [c.] Create the symbol ♭inj. *)
-  let flat_inj_type = create_arrow (p_INJD_appl_ident "SortBool") p_flatBool in
+  let flat_inj_type = create_arrow (p_INJD_appl_ident _SORT_BOOL) p_flatBool in
   (* δ SortBool → δ ♭Bool *)
   let flat_inj_sym = create_p_symbol [] _flatINJ [] (Some flat_inj_type) None in
      (* [d]. Create each C_σ from a CTRS. *)
@@ -446,14 +441,14 @@ let viry_encoding : ctrs_rule list -> signature -> p_symbol list * p_rule list =
     then acc_sym, List.map (fun (pr,_,_) -> pr) l@acc_rule
     else
       (* [2.] Generate the most general LHS for a given head symbol σ. *)
-      let (pr, _, _) = List.hd l in (* FIX if the list is empty *)
+      let (pr, _, _) = List.hd l in (* TODO FIX if the list is empty *)
       let mglhs = create_most_general_LHS (fst pr.elt) in
       (* [3.] Generate the ♭-symbol of the current head symbol. *)
       let flat_head_name = safe_prefix ^ head_name in
       let flat_head_type =
         try
           extend_type (StrMap.find head_name sign.typing) nb_cond
-        with Not_found -> raise (Common.Error.InternalError ("The symbol " ^ head_name ^ "wasn't defined."))
+        with Not_found -> raise (InternalError ("The symbol " ^ head_name ^ " wasn't defined."))
       in
       let flat_head_sym =
         create_p_symbol [] flat_head_name [] (Some flat_head_type) None
