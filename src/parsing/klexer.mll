@@ -162,7 +162,7 @@ exception EOFError of string
 
 let letter = ['a'-'z' 'A'-'Z' '_' '-' '@' '\'']+
 let nb     = ['0'-'9']+
-let ident  = ['a'-'z' 'A'-'Z' '_' '-' '@' '\'' '0'-'9']+
+let ident  = ['a'-'z' 'A'-'Z' '_' '-' '@' '\'' '0'-'9' '\\']+
 
 let location   = "org"['a'-'z' 'A'-'Z' '_' '-' '\'' '0'-'9']+ ("Location")
 let source     = "org"['a'-'z' 'A'-'Z' '_' '-' '\'' '0'-'9']+ ("Source")
