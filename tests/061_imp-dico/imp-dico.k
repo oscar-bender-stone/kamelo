@@ -2,64 +2,37 @@ module DICO
     imports INT
     imports BOOL
 
+    syntax Bool ::= KItem "==Dico" KItem [function]
+
 // ### Dico unit
 
   syntax Dico ::= ".Dico"                                [constructor, functional, symbol]
   syntax Dico ::= "(" KItem "|-->" KItem ")" "," Dico    [constructor, functional, symbol]
 
 
-// ### Dico concatenation
-
-  syntax Dico ::= Dico "#" Dico [function, functional, left]
-  
-  rule .Dico # D => D
-  rule ((X1 |--> V1) , D1) # D2 => ((X1 |--> V1) , (D1 # D2))
-
-
 // ### Dico lookup (assume X is in the dictonary)
 
   syntax KItem ::= "lookup" KItem Dico [function]
 
-  rule lookup X ((Y |--> _) , D) => lookup X D requires notBool(X ==K Y)
-  rule lookup X ((Y |--> I) , _) => I          requires notBool(X =/=K Y) //[owise]
+  rule lookup X ((Y |--> _) , D) => lookup X D requires notBool(X ==Dico Y)
+  rule lookup X ((Y |--> I) , _) => I          requires X ==Dico Y //[owise]
 
 
 // ### Dico update (assume X is in the dictonary)
 
   syntax Dico ::= "update" KItem KItem Dico [function]
 
-  rule update X V ((Y |--> W) , D) => ((Y |--> W) , (update X V D)) requires notBool(X ==K Y)
-  rule update X V ((Y |--> _) , D) => ((Y |--> V) , D)              requires notBool(X =/=K Y) //[owise]
-
-
-// ### Dico remove
-
-  syntax Dico ::= "remove" KItem Dico [function]
-
-  rule remove X ((Y |--> V) , D) => ((Y |--> V) , (remove X D)) requires notBool(X ==K Y)
-  rule remove X ((Y |--> _) , D) => D                           requires notBool(X =/=K Y) //[owise]
-  rule remove _ .Dico => .Dico
+  rule update X V ((Y |--> W) , D) => ((Y |--> W) , (update X V D)) requires notBool(X ==Dico Y)
+  rule update X V ((Y |--> _) , D) => ((Y |--> V) , D)              requires X ==Dico Y //[owise]
 
 
 // ### Dico key membership
 
   syntax Bool ::= KItem "in_keys_dico" "(" Dico ")"       [function, functional]
 
-  rule X in_keys_dico ((Y |--> _) , D) => X in_keys_dico(D) requires notBool(X ==K Y)
-  rule X in_keys_dico ((Y |--> _) , _) => true              requires notBool(X =/=K Y) // [owise]
+  rule X in_keys_dico ((Y |--> _) , D) => X in_keys_dico(D) requires notBool(X ==Dico Y)
+  rule X in_keys_dico ((Y |--> _) , _) => true              requires X ==Dico Y // [owise]
   rule _ in_keys_dico (.Dico) => false
-
-
-// ### Dico subset
-
-    // syntax Bool ::= Dico "<=Dico" Dico               [function, functional]
-
-    
-// ### Dico choice
-
-  syntax KItem ::= "choice_dico" "(" Dico ")" [function]
-
-  rule choice_dico((Y |--> _) , _) => Y
 
 endmodule
 
@@ -69,7 +42,7 @@ module IMP-DICO-SYNTAX
 
     syntax Iden ::= "var" "(" Int ")"
 
-    syntax Bool ::= Iden "=Var" Iden [function, functional]
+    syntax Bool ::= Iden "==Var" Iden [function, functional]
 
     syntax AExp ::= Iden | Int
                   | "(" AExp ")"      [bracket]
@@ -114,8 +87,8 @@ module IMP-DICO
                      <env color="red"> .Dico </env>
                   </T>
 
-    rule X ==K Y => X =Var Y
-    rule var(N1) =Var var(N2) => N1 ==Int N2
+    rule X ==Dico Y => X ==Var Y
+    rule var(N1) ==Var var(N2) => N1 ==Int N2
 
  // -----------------  AExp  ------------------------------
     rule <k> var(X) => lookup var(X) M ... </k> <env> M </env>
@@ -152,4 +125,3 @@ module IMP-DICO
     rule decl .IdenL; S => S
 
 endmodule
-

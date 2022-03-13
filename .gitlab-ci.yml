@@ -107,11 +107,12 @@ preprocessing:
         #- ls
         #- ls tests/
 
-        #- cd tests/050_imp/
-        #- kompile imp.k
-        #- cd ../..
-        #- make
-        #- ./KaMeLo tests/050_imp/imp-kompiled/definition.kore
+        - cd tests/061_imp-dico/
+        - kompile imp-dico.k
+        - cd ../..
+        - make
+        - ./KaMeLo -r tests/061_imp-dico/imp-dico-kompiled/definition.kore
+        - lambdapi check imp-dico.lp
 
         #- make test-lp
 
