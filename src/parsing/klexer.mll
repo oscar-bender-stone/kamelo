@@ -56,7 +56,10 @@
 
   | LEFT
   | RIGHT
+  | PRIORITY
   | PRIORITIES
+
+  | PRIVATE
 
   | CONSTRUCTOR
   | INJECTIVE
@@ -172,6 +175,7 @@ rule token = parse
   | "//"                 { comment lexbuf  }
   | "/*"                 { scomment lexbuf }
 
+<<<<<<< HEAD
   | "module"             { MODULE          }
   | "endmodule"          { ENDMODULE       }
   | "import"             { IMPORT          }
@@ -223,7 +227,10 @@ rule token = parse
 
   | "left"               { LEFT            }
   | "right"              { RIGHT           }
+  | "priority"           { PRIORITY        }
   | "priorities"         { PRIORITIES      }
+
+  | "private"            { PRIVATE         }
 
   | "constructor"        { CONSTRUCTOR     }
   | "injective"          { INJECTIVE       }

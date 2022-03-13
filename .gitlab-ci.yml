@@ -1,0 +1,133 @@
+
+### Configuration stage
+stages:
+  - build
+#  - installation
+  - test
+
+#image: ocaml/opam:debian-11-ocaml-4.12
+#image: debian:stable # ocaml/opam:debian-testing-opam
+image: ocaml/opam:ubuntu-18.04-opam
+
+### Configuration section
+
+.build-matrix:
+    only: [pushes]
+    parallel:
+        matrix:
+            #- OCAML_VERSION: "4.07.1"
+            #- OCAML_VERSION: "4.08.1"
+            #- OCAML_VERSION: "4.09.1"
+            #- OCAML_VERSION: "4.10.2"
+            #- OCAML_VERSION: "4.11.1"
+            - OCAML_VERSION: "4.13.1"
+
+preprocessing:
+    extends: .build-matrix
+    stage: build
+    only: [pushes]
+
+    variables:
+        FF_USE_FASTZIP: "true"
+        K_VERSION: "5.2.95" # "5.0.1" # "5.2.82"
+
+    script:
+        # Obtain and install opam locally.
+        - sudo apt update
+        - sudo apt install wget
+
+
+
+        #- sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
+        #- sudo chmod 755 /usr/bin/opam
+        # Initialize the switch.
+        - echo "--- Installation of dependencies"
+        #- opam init -a --disable-sandboxing --compiler="$OCAML_VERSION"
+        - opam update
+        - if [ ! -d _opam ]; then echo "no local switch in the CI cache, we setup a new switch"; opam switch create --yes --no-install . $OCAML_VERSION; fi
+        #- opam switch create "$OCAML_VERSION"
+
+#job:k:
+#    stage: installation
+#    script:
+        #- git clone https://github.com/runtimeverification/k.git
+        #- cd k/
+        #- sudo sh install-k
+        - wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_"$K_VERSION"_amd64_bionic.deb
+        - sudo apt install -y ./kframework_"$K_VERSION"_amd64_bionic.deb
+
+
+        #- echo "--- Installation of K"
+        #- wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
+        #- sudo apt-get install -y ./kframework_5.2.81_amd64_bullseye.deb
+
+        - echo "--- Installation of Dedukti"
+        - opam pin add -n -k path dedukti .
+        - opam install --yes --deps-only -d -t dedukti
+        - opam install --yes ocamlformat
+        - opam install --yes tezt --no-checksums --keep-build-dir
+        #- cd _opam/.opam-switch/sources/tezt.1.0.0/tezt
+        #- ls -a
+        #- opam install --yes ./_opam/.opam-switch/sources/tezt.1.0.0/tezt/lib
+
+
+        #- echo "--- Installation of Z3"
+        #- sudo apt install --yes libgmp-dev
+        #- sudo apt install --yes python3
+        #- opam install --yes z3
+
+#job:altergo:
+#    stage: installation
+#    script:
+        - echo "--- Installation of Alt-ergo"
+        - sudo apt install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
+        - opam install --yes alt-ergo.2.3.0
+
+#job:lambdapi:
+#    stage: installation
+#    script:
+        - echo "--- Installation of Lambdapi"
+        - opam pin add -n -k path lambdapi .
+        - sudo apt --yes install libsigsegv2
+        - opam install --yes --deps-only -d -t lambdapi
+        - eval $(opam env)
+        - why3 config detect
+
+
+        #- echo "--- Installation of K"
+        #- wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
+        #- sudo apt-get install --yes ./kframework_5.2.81_amd64_bullseye.deb
+
+#job:kamelo:
+#    stage: installation
+#    script:
+        - echo "--- Installation of KaMeLo"
+        #- git clone https://gitlab.com/semantiko/kamelo.git
+        #- cd kamelo
+        #- ls
+        #- ls tests/
+
+        - cd tests/061_imp-dico/
+        - kompile imp-dico.k
+        - cd ../..
+        - make
+        - ./KaMeLo -r tests/061_imp-dico/imp-dico-kompiled/definition.kore
+        - lambdapi check imp-dico.lp
+
+        #- make test-lp
+
+    cache:
+         paths:
+    #        - build
+    #        - /usr/bin/opam
+             - _opam
+    #        - /usr/bin/wget
+
+#test:
+#    stage: test
+#    only: [pushes] #, merge_requests]
+#    script:
+#      - make install
+#      - echo "running tests..."
+#      - make tests
+#      - make sanity_check

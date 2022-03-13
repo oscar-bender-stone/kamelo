@@ -80,7 +80,7 @@ for d in $for_test; do
    if [ $is_kompiled = false ]; then
       if [ $(echo $semName | cut -c-2) = "M_" ]
       then make ; semName=$(echo $semName | cut -c3-)
-      else echo "\nCompilation of the semantic:" $semName.k ; kompile $semName.k
+      else echo "" ; echo "Compilation of the semantic:" $semName.k ; kompile $semName.k
       fi
    fi
 

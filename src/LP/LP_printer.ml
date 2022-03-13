@@ -226,7 +226,7 @@ let rec pp_p_term : p_term pp = fun ppf t ->
     | (P_NLit(i)           , _    ) -> out ppf "%i" i
     (* We print minimal parentheses, and ignore the [Wrap] constructor. *)
     | (P_Wrap(t)           , _    ) -> pp priority ppf t
-    | (P_Expl(t)           , _    ) -> out ppf "{%a}" func t
+    | (P_Expl(t)           , _    ) -> out ppf "[%a]" func t
     | (_                   , _    ) -> out ppf "(%a)" func t
   in
   let rec toplevel ppf t =
