@@ -43,8 +43,8 @@ The KaMeLo source file hierarchy
         ├── executable.ml:         *... the executables*  
         ├── import.ml:            *... file importation*  
         ├── prelude_interface.ml: *... the K prelude interface*  
-        ├── sort.ml:               *... the sorts*  
+        ├── sort.ml:                    *... the sorts*  
         ├── symbol.ml:            *... the symbols*  
-        └── viry.ml:               *... the conditional rewriting rules*  
+        └── viry.ml:                     *... the conditional rewriting rules*  
 
 Note: The files "dune" are just here to compile the OCaml code.  
