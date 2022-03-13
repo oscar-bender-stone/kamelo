@@ -8,7 +8,7 @@ open Interface.Signature
 open Common.Error
 open Common.Xlib_OCaml
 open Mecanism.Count_data
-open Translating.Prelude_data
+open Translating.Prelude_interface
 
 (* let print_comment : output -> string -> unit = fun ppf message -> *)
 let print_comment ppc message =

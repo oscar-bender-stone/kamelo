@@ -1,3 +1,8 @@
+(** To translate heating and cooling rules, i.e. evaluation strategies
+    For example:
+      rule E1 and E2               => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C) and
+      rule E1 ~> (freezer1_and E2) => E1 and E2               requires E1 ∈ KResult      (règle H)     *)
+
 open LP.Syntax
 
 open Common.Type
@@ -12,90 +17,11 @@ open Interface.Output
 
 open Axiom
 
-let curry_new : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign ->
-  let rec aux : t -> p_term = fun ax ->
-    let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
-    match ax with
-    | Predicate p ->
-       begin
-         match p with
-         | Sym(s, qv_l, a_l) when s = _INJ ->
-            let g p = match p with S x | Q x -> create_implicit_arg x in
-            let tmp = List.map g qv_l in
-            let res = List.fold_left create_appl p_INJ tmp in
-            List.fold_left f_sym res a_l
-         | Sym(n, _, a_l) -> List.fold_left f_sym (create_ident n) a_l
-         | Var(n, _) -> f_var n
-       end
-    | Equals(_, x, Dom_val(_, d)) when d = _TRUE  -> aux x
-    | Equals(_, x, Dom_val(_, d)) when d = _FALSE -> create_appl (create_ident _NOT_BOOL) (aux x)
-    | Equals _ -> raise (NotYetImplemented "Need to update [Eval_strategy.curry_new] - Case EQUALS")
-    | Dom_val(_, name) -> create_ident name
-    (*| In _ -> failwith "OK, guys" *)
-    (*| Exists _ -> failwith "EXISTS"
-      | Or _ -> failwith "OR"
-      | Not _ -> failwith "NOT"
-      | Implies _ -> failwith "IMPLIES"
-      | Bottom _ -> failwith "BOTTOM"
-      | Top    _ -> failwith "TOP"
-      | Rewrites _ -> failwith "REWRITES" *)
-    | And (_, ax1, Predicate(Var(n,_))) -> aux ax1
-    | _ -> raise (NotYetImplemented "Need to update [Eval_strategy.curry_new].")
-  in
-  aux ax
+(** ---------------------------- *)
+(** Common functions             *)
+(** ---------------------------- *)
 
-let curry_condition = curry_new create_pattern_var
-
-let create_LHS : alias -> signature -> p_term * p_term option = fun al sign ->
-  let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
-  let def = get_def al in
-  match def with
-  | A a ->
-     begin
-       match a with
-       | And(_,a1,a2) ->
-          (match a1 with
-           | Top _ -> curry_pattern a2 sign, None
-           | _     -> let res = curry_pattern a2 sign in res, Some (curry_condition a1 sign))
-       |  _ -> raise (InternalError "The heating/cooling rule has no condition")
-     end
-  | D _ -> raise (NotYetImplemented "Alias (LHS) with a unique symbol as body.")
-
-let create_RHS : t -> signature -> p_term = fun ax sign ->
-  match ax with
-  | Rewrites(_,_,And(_,a1,a2)) ->
-     if is_conditional_rule a1 then
-       raise (NotYetImplemented "KProver claim.")
-     else
-       Axiom.curry_pattern a2 sign
-  |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
-
-(*        rule E1 and E2               => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C)
-       et rule E1 ~> (freezer1_and E2) => E1 and E2               requires E1 ∈ KResult      (règle H) *)
-
-exception Not_In
-
-(** [get_var_and_sort_inj cond sign] returns the variable in the condition [cond]
-    with its input sort and output sort. *) (* TODO update when there are several variables *)
-let get_var_and_sort_inj : p_term -> signature -> string * string * string = fun cond sign ->
-  let rec aux t = match t with
-    (* If t has the shape: _INJ {s1} {s2} ($HOLE) *)
-    | P_Appl(
-        {elt=P_Appl(
-            {elt=P_Appl({elt=P_Iden({elt=(x1, s);pos=x2}, x3);pos=x4},
-                        {elt=P_Expl({elt=P_Iden ({elt=(x5,s1) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
-            ; pos=x10},
-            {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
-        ; pos=x16},
-        {elt=P_Patt(Some {elt=("HOLE" as n) ;pos=x17}, x18) ; pos=x19} ) when s = _INJ -> n, s1, s2 (* TODO remove HOLE *)
-
-    | P_Appl(({elt=t1;pos=x1}), ({elt=t2 ;pos=x2})) ->
-       (try aux t1
-        with Not_In -> aux t2)
-    | P_Iden _ | P_Expl _ -> raise Not_In
-    | t -> aux t
-  in
-  aux cond.elt
+(** To do substitution *)
 
 (** [subst t a name] replaces each variable named [name], by [a] in [t]. *)
 let subst t a name =
@@ -136,6 +62,8 @@ let subst_sort (t : p_term) new_s name : p_term =
   in
   {elt=aux t.elt ; pos= t.pos}
 
+(** To create a specific Dedukti term *)
+
 (** [create_inj_var input_sort output_sort var_name] creates the Dedukti term
     [_INJ {new_sort} {sort_output} (var_name)]. *)
 let create_inj_var : string -> string -> string -> p_term =
@@ -150,7 +78,72 @@ let create_inj_var : string -> string -> string -> p_term =
         {elt=P_Patt(Some {elt=var_name ;pos=None}, None) ; pos=None} )
   ; pos=None}
 
-(** To translate heating rules *) (* For now, its a cooling rule... *)
+(** To iterate on condition *)
+
+let iter_condition : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term = fun f_var ax sign local_data ->
+  let f_equals_dom_val (p_l, x, s, dom) s d =
+    (if dom = _TRUE then x
+     else
+       if dom = _FALSE then create_appl (create_ident _NOT_BOOL) x
+       else raise (NotYetImplemented "Need to update [Axiom.iter_condition] - Case equals-dom_val")), s, d
+  in
+  fst (iter_meta f_equals_dom_val f_var ax sign local_data)
+
+let iter_condition = iter_condition create_pattern_var
+
+let create_LHS : alias -> signature -> p_term * p_term StrMap.t * p_term option = fun al sign ->
+  let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
+  let def = get_def al in
+  match def with
+  | A a ->
+     begin
+       match a with
+       | And(_,a1,a2) ->
+          (match a1 with
+           | Top _ -> let res, local_data = iter_to_pattern a2 sign StrMap.empty in
+                      res, local_data, None
+           | _     -> let res, local_data = iter_to_pattern a2 sign StrMap.empty in res, local_data, Some (iter_condition a1 sign local_data))
+       |  _ -> raise (InternalError "The heating/cooling rule has no condition")
+     end
+  | D _ -> raise (NotYetImplemented "Alias (LHS) with a unique symbol as body.")
+
+let create_RHS : axiom -> signature -> p_term StrMap.t -> p_term = fun ax sign local_data ->
+  match ax with
+  | Rewrites(_,_,And(_,a1,a2)) ->
+     if is_conditional_rule a1 then
+       raise (NotYetImplemented "KProver claim.")
+     else
+       let res, _ = Axiom.iter_to_pattern a2 sign local_data in res
+  |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
+
+(** ---------------------------- *)
+(** To translate heating rules   *) (* For now, its a cooling rule... *)
+(** ---------------------------- *)
+
+exception Not_In
+
+(** [get_var_and_sort_inj cond sign] returns the variable in the condition [cond]
+    with its input sort and output sort. *) (* TODO update when there are several variables *)
+let get_var_and_sort_inj : p_term -> signature -> string * string * string = fun cond sign ->
+  let rec aux t = match t with
+    (* If t has the shape: _INJ {s1} {s2} ($HOLE) *)
+    | P_Appl(
+        {elt=P_Appl(
+            {elt=P_Appl({elt=P_Iden({elt=(x1, s);pos=x2}, x3);pos=x4},
+                        {elt=P_Expl({elt=P_Iden ({elt=(x5,s1) ;pos=x6}, x7); pos=x8}) ; pos=x9} )
+            ; pos=x10},
+            {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
+        ; pos=x16},
+        {elt=P_Patt(Some {elt=("HOLE" as n) ;pos=x17}, x18) ; pos=x19} ) when s = _INJ -> n, s1, s2 (* TODO remove HOLE *)
+
+    | P_Appl(({elt=t1;pos=x1}), ({elt=t2 ;pos=x2})) ->
+       (try aux t1
+        with Not_In -> aux t2)
+    | P_Iden _ | P_Expl _ -> raise Not_In
+    | t -> aux t
+  in
+  aux cond.elt
+
 let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
   (* To understand this algorithm, consider the following example:
@@ -160,8 +153,8 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign in
+  let lhs, local_data, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign local_data in
 
   let cond = match cond with | None -> raise (InternalError "No condition for a heating rule.") | Some x -> x in
 
@@ -184,6 +177,9 @@ let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias 
 
   (create_rule (subst_sort lhs new_s var_name) (subst rhs new_pattern var_name), Uncond, default_prio)::acc
 
+(** ---------------------------- *)
+(** To translate cooling rules   *) (* For now, its a heating rule... *)
+(** ---------------------------- *)
 
 (** [get_cond_data_in_cooling_rule cond] returns the main variable of a condition, with its type.
     For example, if cond = LblnotBool'Unds'{}(LblisKResult{}(kseq{}(inj{SortAExp{}, SortKItem{}}(VarHOLE:SortAExp{}),dotk{}()))),
@@ -245,9 +241,8 @@ let is_subsort_KResult : signature -> string -> bool = fun sign s ->
       StrMap.find s sign.subsort
     with Not_found -> raise (InternalError ("No sort " ^ s))
   in
-  List.mem "SortKResult" subsort_l
+  List.mem _SORT_KRESULT subsort_l
 
-(** To translate cooling rules *) (* For now, its a heating rule... *)
 let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
   (* To understand this algorithm, consider the following example:
@@ -255,8 +250,8 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
 
   (* STEP 0: Translate Kore pattern into Dedukti term *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign in
+  let lhs, local_data, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign local_data in
 
   (* STEP 1: Get the variable to destruct with its type (here "E1" and "BExp") *)
   let new_v, sort_v = get_cond_data_in_cooling_rule cond in
@@ -291,21 +286,24 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
     with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
   in
   (* B. Generate the new pattern, as _INJ {SortIden} {s2} E1 *)
-  let curr_pattern s1 = create_inj_var s1 sort_v new_v in
+  let iter_pattern s1 = create_inj_var s1 sort_v new_v in
   let gen_specialization : ctrs_rule list -> string -> ctrs_rule list = fun acc s ->
-    (create_rule (subst lhs (curr_pattern s) new_v) (subst_sort rhs s new_v), Uncond, default_prio)::acc
+    (create_rule (subst lhs (iter_pattern s) new_v) (subst_sort rhs s new_v), Uncond, default_prio)::acc
   in
   (* C. Replace each variable by the new pattern, for each constructor *)
   List.fold_left gen_specialization tmp_res subsort_rel_l
 
-(** To translate semantic rules *)
+(** ---------------------------- *)
+(** To translate semantic rules  *)
+(** ---------------------------- *)
+
 let trans_semantic_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun attr_l acc sign al (_, ax) ->
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign in
+  let lhs, local_data, cond = create_LHS al sign in
+  let rhs = create_RHS ax sign local_data in
   let attr_l =
     List.map (fun attr -> match attr with
                           | Owise _ -> true

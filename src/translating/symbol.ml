@@ -73,9 +73,9 @@ let get_modifier : attribute list -> p_modifier list = fun attr_l ->
 
 (** To translate symbol *)
 
-let sym_curry : symbol -> p_term = fun s ->
+let curry_symbol : symbol -> p_term = fun s ->
   let _, _, p_l, p = s in
-  (* let f = fun (a:p_term) (b:axiom) : p_term -> create_arrow a (sym_curry b) in *)
+  (* let f = fun (a:p_term) (b:axiom) : p_term -> create_arrow a (curry_symbol b) in *)
   let g = fun a ->
     match a with
     | S x | Q x -> create_type_atomic x
@@ -90,6 +90,6 @@ let symbol_to_p_symbol : symbol -> attribute list -> p_command =
   let param_l = create_p_params qvar_l in
   let res =
     create_p_symbol (get_modifier attr_l) name param_l
-      (Some (sym_curry s)) None
+      (Some (curry_symbol s)) None
   in
   create_LP_symbol res

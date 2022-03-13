@@ -9,8 +9,9 @@ The KaMeLo source file hierarchy
    │   ├── type.ml: *Type to abstract Kore file*  
    │   └── xlib_OCaml.ml: *Extension of the OCaml standard library*  
    ├── controller/  
+   │   ├── cleaning: *To clean before translating*  
    │   ├── old.ml: *The first translation (use the option --old)*  
-   │   ├── prelude.ml: *To print the prelude*  
+   │   ├── prelude.ml: *To print the K prelude interface*  
    │   └── with_Viry_encoding.ml: *A translation with Viry encoding*  
    ├── interface/  
    │   ├── getter_term.ml: *Some getters on K and Dedukti*  
@@ -37,14 +38,13 @@ The KaMeLo source file hierarchy
    │   ├── cmd_line.ml: *To parse the command line*  
    │   └── display_console.ml: *To print the recap of the translation in the terminal*  
    └── translating/: *The translation of...*  
-        ├── axiom.ml: *... the axioms*  
-        ├── cleaning: *To clean before translating*  
-        ├── eval_strategy.ml: *... the evaluation strategies*  
-        ├── import.ml: *... file importation*  
-        ├── prelude_data.ml: *Data for translating the prelude*  
-        ├── sort.ml: *... the sorts*  
-        ├── symbol.ml: *... the symbols*  
-        └── viry.ml: *... the conditional rewriting rules*  
- 
+        ├── axiom.ml:                      *... the axioms*  
+        ├── eval_strategy.ml:         *... the evaluation strategies*  
+        ├── executable.ml:             *... the executables*  
+        ├── import.ml:                     *... file importation*  
+        ├── prelude_interface.ml: *... the K prelude interface*  
+        ├── sort.ml:                         *... the sorts*  
+        ├── symbol.ml:                   *... the symbols*  
+        └── viry.ml:                         *... the conditional rewriting rules*  
 
 Note: The files "dune" are just here to compile the OCaml code.  

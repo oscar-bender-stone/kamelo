@@ -54,7 +54,7 @@ let set_mimic o =
     if List.mem o kore_mimic then mimic := M_Kore
     else
       if List.mem o dk_mimic then mimic := M_Dedukti
-      else failwith ("The option" ^ o ^ "is unknow.")
+      else failwith ("The option " ^ o ^ " is unknow.")
 
 let dk_output = [".dk"]
 let lp_output = [".lp"] (* ["LP"; "Lambdapi"; "lambdapi"; "lp"; "Dedukti3"; "dedukti3"; "DK3"; "Dk3"; "dk3"] *)
@@ -66,7 +66,7 @@ let set_output o =
     if List.mem o kore_output then output := O_Kore
     else
       if List.mem o lp_output then output := O_LP
-      else failwith ("The option"^ o ^ "is unknow")
+      else failwith ("The option "^ o ^ " is unknow")
 
 let set_semantics s = semantics_file := s
 
@@ -74,8 +74,8 @@ let set_semantics s = semantics_file := s
 let parse : unit -> unit = fun () ->
   let usage_msg =
     "usage: ./KaMeLo [--semantics (.lp|.dk)]
-     [--mimic (K|Kore|Dedukti)] [-o (Dedukti|Lambdapi|Kore)]
-     [--inductive] [--readable] [--no-color] kore_file"
+     [--mimic (K|Kore|Dedukti)] [--output (.dk|.lp|.mykore)]
+     [--inductive] [--old] [-v] [--readable] [--no-color] kore_file"
   in
   parse
     [("--semantics",  String (fun o -> set_semantics o),

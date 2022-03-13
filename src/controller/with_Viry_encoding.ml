@@ -20,7 +20,7 @@ let main cd : (* TODO fix heterogenous signature *)
       (p_command list * p_command list * p_symbol list * p_rule list) *
         signature =
   fun kommand_l init_sign ->
-  (* STEP 1: From K commands to CTRS rules (and partial printing). *)
+  (* STEP 1: From K commands to CTRS rules. *)
   let f_sort _ acc sign s =
     let new_s = sort_to_p_symbol (pp s) in
     let sort_l, sym_l, ctrs_l = acc in (new_s::sort_l, sym_l, ctrs_l), sign
@@ -35,7 +35,7 @@ let main cd : (* TODO fix heterogenous signature *)
     let s = (pp name, qv_l, p_l, p) in
     let new_s = symbol_to_p_symbol s attr_l in
     let sort_l, sym_l, ctrs_l = acc in
-    let new_typing = StrMap.add (pp name) (sym_curry s) sign.typing in
+    let new_typing = StrMap.add (pp name) (curry_symbol s) sign.typing in
     (sort_l, new_s::sym_l, ctrs_l), { sign with typing = new_typing }
   in
   let propagation = fun _ acc sign _ -> (acc, sign) in

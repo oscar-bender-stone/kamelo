@@ -1,10 +1,11 @@
 
 open LP_p_term
 
-let _SORTK = "SortK"
-let _SORT_KITEM = "SortKItem"
+let _SORTK        = "SortK"
+let _SORT_KITEM   = "SortKItem"
 let _SORT_KRESULT = "SortKResult"
-let _SORT_ID = "SortId"
+let _SORT_ID      = "SortId"
+let _SORT_BOOL    = "SortBool"
 let _INJD  = "δ"
 let _INJ   = "inj"
 let _KSEQ  = "kseq"
@@ -13,8 +14,8 @@ let _DOTK  = "dotk"
 let _TRUE  = "true"
 let _FALSE = "false"
 
-let p_SORTK = create_ident _SORTK
-let p_SORT_KITEM = create_ident _SORT_KITEM
+let p_SORTK        = create_ident _SORTK
+let p_SORT_KITEM   = create_ident _SORT_KITEM
 let p_SORT_KRESULT = create_ident _SORT_KRESULT
 let p_INJD  = create_ident _INJD
 let p_INJ   = create_ident _INJ

@@ -1,35 +1,50 @@
-
 open Common.Type
 open Common.Xlib_OCaml
 open LP.Syntax
 
 open Interface.Signature
 
-type t = axiom
+(** ------------------------------------------ *)
+(** Some meta-functions to iterate on axiom    *)
+(** ------------------------------------------ *)
 
-(** ****************************************************** *)
+val sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd
+val var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t
+val iter_meta :
+   (param list * p_term * sort * name    -> signature -> p_term StrMap.t -> p_term * signature * p_term StrMap.t) ->
+   (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+
+(** --------------------------------------- *)
+(** Common functions to iterate on axiom    *)
+(** --------------------------------------- *)
+
+val iter_axiom : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+val iter_to_ident   : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+val iter_to_pattern : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
+
+(** ------------------------------------------------------ *)
 (** To translate exists-axioms (functional or subsort one) *)
-(** ****************************************************** *)
-
-val free_var : (string list) StrMap.t ref
+(** ------------------------------------------------------ *)
 
 val collect_subsort_data : axiom -> signature -> signature
 
-val curry : (string -> p_term) -> t -> signature -> p_term
-val curry_ident   : t -> signature -> p_term
-val curry_pattern : t -> signature -> p_term
-
-
-(** **************************************************** *)
+(** ---------------------------------------------------- *)
 (** To translate equals-axioms
     (Associative, Commutative, Unit and Idempotence one) *)
-(** **************************************************** *)
+(** ---------------------------------------------------- *)
 
-val of_equality_axiom : t -> p_rule
+val of_equality_axiom : axiom -> p_rule
 
-(** ****************************** *)
+(** ---------------------------------------------------- *)
+(** To translate or-axioms, bottom-axioms, not-axioms
+    (aka constructor one) *)
+(** ---------------------------------------------------- *)
+
+(** Currently, these axioms aren't used. *)
+
+(** ------------------------------ *)
 (** To translate implies-axioms    *)
-(** ****************************** *)
+(** ------------------------------ *)
 
 (** Type of extra data about a rule *) (* TODO add priority ? *)
 type extra_data_rule =
@@ -43,4 +58,4 @@ type ctrs_rule = p_rule * extra_data_rule * int
 
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by
     "\implies" to a rewriting rule. *)
-val of_implies_axiom : t -> ctrs_rule
+val of_implies_axiom : axiom -> ctrs_rule

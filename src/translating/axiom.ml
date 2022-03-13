@@ -11,33 +11,60 @@ open Interface.Signature
 
 open Mecanism.Axiom_iterator
 
-type t = axiom
+(** ------------------------------------------ *)
+(** Some meta-functions to iterate on axiom    *)
+(** ------------------------------------------ *)
 
-(* GENRALISATION
-let curry : ('a list -> 'b) -> ('b * 'a -> 'b) -> 'a list -> 'b = fun f g l ->
-  let rec aux : 'a list -> (('a list -> 'b) -> 'b) -> 'b = fun l acc ->
-    match l with
-    | []   -> f_acc f
-    | t::q -> aux q (fun x -> g((acc x), t) )
-  in
-  aux l (fun -> )
-  *)
-(* C'est juste un fold_left
-let curry : (axiom list -> p_term) -> axiom list -> p_term = fun f l ->
-  let rec aux : axiom list -> ((axiom list -> p_term) -> p_term) -> p_term =
-    fun l f_acc ->
-    match l with
-    | []   -> f_acc f
-    | t::q -> aux q (fun x -> P_Appl((f_acc x), t) )
-  in
-  aux l (fun -> )
- *)
-(*
-let rec map_append : 'a list -> ('a -> 'b) -> 'b list -> 'b list =
-  fun l1 f l2 -> match l1 with
-                 | [] -> l2
-                 | h::t -> (f h)::(map_append t f l2)
- *)
+let sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd =
+  fun (n, qv_l, a_l) sign data ->
+  let a_l = List.rev a_l in
+  (if n = _INJ then
+     let g p = match p with S x | Q x -> create_implicit_arg x in
+     let tmp = List.map g qv_l in
+     let res = List.fold_left create_appl p_INJ tmp in
+     List.fold_left create_appl res a_l
+   else
+     List.fold_left create_appl (create_ident n) a_l), sign, data
+
+(** [var_case f (n, _) s d] uses local data [d] to replace the variable [n] by a pattern. *)
+let var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t = fun f (n, _) s d ->
+    (if StrMap.mem n d then StrMap.find n d else f n), s, d
+
+let iter_meta :
+   (param list * 'r * sort * name    -> 's -> 'd -> 'r * 's * 'd) ->
+   (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t =
+  fun f_equals_dom_val f_var ax sign_init local_data_init ->
+  let f_predicate_sym = sym_case in
+  let f_predicate_var (n, p) s d = var_case f_var (n, p) s d in
+  let f_dom_val (_, name) s d = create_ident name, s, d in
+  let f_not _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.iter_meta] - Case not")    in
+  let f_not_in _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.iter_meta] - Case not-in") in
+  let f_equals _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.iter_meta] - Case equals") in
+  let f_and _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.iter_meta] - Case and")    in
+  let f_and_var (_, n, _, ax) s d = ax, s, StrMap.add n ax d in
+  let res, _, local_data_res =
+    axiom_iter_default_error [] ax f_var sign_init local_data_init
+      f_predicate_sym f_predicate_var f_dom_val
+      f_not f_not_in f_equals f_equals_dom_val f_and f_and_var
+  in res, local_data_res
+
+(** --------------------------------------- *)
+(** Common functions to iterate on axiom    *)
+(** --------------------------------------- *)
+
+let iter_axiom : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t =
+  fun f_var ax sign local_data ->
+  let f_equals_dom_val _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.iter_axiom] - Case equals-dom_val") in
+  iter_meta f_equals_dom_val f_var ax sign local_data
+
+let iter_to_ident   = iter_axiom create_ident
+let iter_to_pattern = iter_axiom create_pattern_var
+
 (** ------------------------------------------------------ *)
 (** To translate exists-axioms (functional or subsort one) *)
 (** ------------------------------------------------------ *)
@@ -60,58 +87,18 @@ let collect_subsort_data : axiom -> signature -> signature = fun ax sign ->
      { sign with subsort = add_update s1 s2 sign.subsort }
   | _ -> raise (InternalError "Need to update [Axiom.collect_subsort_data].")
 
-let free_var : (string list) StrMap.t ref = ref StrMap.empty (* TODO remove *)
-
-let curry : (string -> p_term) -> t -> signature -> p_term = fun f_var ax sign ->
-  let rec aux : t -> p_term = fun ax ->
-    let f_sym = fun (a:p_term) (b:t) : p_term -> create_appl a (aux b) in
-    match ax with
-    | Predicate p ->
-       begin
-        match p with
-        | Sym(n, qv_l, a_l) ->
-           if n = _INJ then
-             let g p = match p with S x | Q x -> create_implicit_arg x in
-             let tmp = List.map g qv_l in
-             let res = List.fold_left create_appl p_INJ tmp in
-             List.fold_left f_sym res a_l
-           else
-             List.fold_left f_sym (create_ident n) a_l
-        | Var(n, _) -> f_var n
-       end
-    | Dom_val(s, name) ->
-       if s = _SORT_ID then
-         free_var := add_update_without_dup _SORT_ID name !free_var ;
-       create_ident name
-    (*| In _ -> failwith "OK, guys"
-      | Equals _ -> failwith "EQUALS"
-      | Exists _ -> failwith "EXISTS"
-      | Or _ -> failwith "OR"
-      | Not _ -> failwith "NOT"
-      | Implies _ -> failwith "IMPLIES"
-      | Bottom _ -> failwith "BOTTOM"
-      | Top    _ -> failwith "TOP"
-      | Rewrites _ -> failwith "REWRITES" *)
-    | And (_, ax1, Predicate(Var(n,_))) -> aux ax1
-    | _ -> raise (NotYetImplemented "Need to update [Axiom.curry].")
-  in
-  aux ax
-
-let curry_ident = curry create_ident
-let curry_pattern = curry create_pattern_var
-
 (** ---------------------------------------------------- *)
 (** To translate equals-axioms
     (Associative, Commutative, Unit and Idempotence one) *)
 (** ---------------------------------------------------- *)
 
-let of_equality_axiom : t -> p_rule = fun ax -> (* TODO sign ?*)
+let of_equality_axiom : axiom -> p_rule = fun ax -> (* TODO sign ?*)
   match ax with
   | Equals(_, ax1, ax2) ->
      (try
-        create_rule
-          (curry_pattern ax1 empty_sign)
-          (curry_pattern ax2 empty_sign)
+        let lhs, ld = iter_to_pattern ax1 empty_sign StrMap.empty in
+        let rhs, ld = iter_to_pattern ax2 empty_sign ld in
+        create_rule lhs rhs
       with _ -> raise (InternalError "Need to update [Axiom.of_equality_axiom]."))
   | _ -> raise (InternalError "The current axiom isn't an equality one.\n
                 Please, raise an issue.")
@@ -160,21 +147,9 @@ type ctrs_rule = p_rule * extra_data_rule * int
 
  So, the rule is: false orBool VarB --> VarB *)
 
-let sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd =
-  fun (n, qv_l, a_l) sign data ->
-  let a_l = List.rev a_l in
-  (if n = _INJ then
-     let g p = match p with S x | Q x -> create_implicit_arg x in
-     let tmp = List.map g qv_l in
-     let res = List.fold_left create_appl p_INJ tmp in
-     List.fold_left create_appl res a_l
-   else
-     List.fold_left create_appl (create_ident n) a_l), sign, data
-
-let local_curry : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = fun f_var ax local_data ->
+let iter_implies : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = fun f_var ax local_data_init ->
   let f_predicate_sym = sym_case in
-  let f_predicate_var (n, _) s d =
-      (if StrMap.mem n local_data then StrMap.find n local_data else f_var n), s, d in
+  let f_predicate_var (n, p) s d = var_case f_var (n, p) s d in
   let f_dom_val (_, name) s d = create_ident name, s, d in
   let f_not_in (_, _, (v,_), a) s d =
     create_appl
@@ -186,53 +161,55 @@ let local_curry : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = fun
            rule ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 ♭ ↪
                 ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 (♭inj (LblnotBool'Unds' (inj (eq (inj $Var'Unds'0) (inj 0))))); *)
   let f_not _ _ _ =
-      raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case not")      in (* TODO different! *)
+      raise (NotYetImplemented "Need to update [Axiom.iter_implies] - Case not")      in (* TODO different! *)
   let f_equals _ _ _ =
-      raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case equals")   in
+    raise (NotYetImplemented "Need to update [Axiom.iter_implies] - Case equals")     in
+  let f_equals_dom _ _ _ =
+    raise (NotYetImplemented "Need to update [Axiom.iter_implies] - Case equals-dom") in
   let f_and _ _ _ =
-      raise (NotYetImplemented "Need to update [Axiom.local_curry] - Case and")      in (* TODO different! *)
+      raise (NotYetImplemented "Need to update [Axiom.iter_implies] - Case and")      in (* TODO different! *)
   let f_and_var (_, _, _, ax) s d = ax, s, d in
   let res, _, _ =
-    axiom_iter_default_error [] ax f_var StrMap.empty StrMap.empty
+    axiom_iter_default_error [] ax f_var StrMap.empty local_data_init
       f_predicate_sym f_predicate_var f_dom_val
-      f_not f_not_in f_equals f_and f_and_var
+      f_not f_not_in f_equals f_equals_dom f_and f_and_var
   in res
 
-let local_curry = local_curry create_pattern_var
+let iter_implies = iter_implies create_pattern_var
 
 (** [collect ax acc] *)
-let rec collect : t -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
+let rec collect : axiom -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
   match ax with
   | Top _ -> acc
   | In(_,(v1,_), And(_, Dom_val(x,"false"), Predicate(Var(v2, _))))
     | In(_,(v1,_), And(_, Predicate(Var(v2, _)), Dom_val(x,"false"))) ->
-     let tmp = StrMap.add v1 (local_curry (Dom_val(x,"false")) acc) acc in
-     StrMap.add v2 (local_curry (Dom_val(x,"false")) tmp) tmp
-  | In(_,(v,_),a) -> StrMap.add v (local_curry a acc) acc
+     let tmp = StrMap.add v1 (iter_implies (Dom_val(x,"false")) acc) acc in
+     StrMap.add v2 (iter_implies (Dom_val(x,"false")) tmp) tmp
+  | In(_,(v,_),a) -> StrMap.add v (iter_implies a acc) acc
   | And(_,Top _,ax) | And(_,ax,Top _) -> collect ax acc
   | And(_, ax1, ax2) -> collect ax2 (collect ax1 acc)
   | _ -> raise (NotYetImplemented "Need to update [Axiom.collect].")
 
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
     to a rewriting rule. *)
-let of_implies_axiom : t -> ctrs_rule = fun ax ->
+let of_implies_axiom : axiom -> ctrs_rule = fun ax ->
   let init_data = StrMap.empty in
   match ax with
   | Implies(_, And(_,Top _, a1), And(_, Equals(_,l,r), Top _)) ->
      (let data = collect a1 init_data in
-      try create_rule (local_curry l data) (local_curry r data), Uncond, 42
+      try create_rule (iter_implies l data) (iter_implies r data), Uncond, 42
       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 1"))
   | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), And(_, Equals(_,l,r), Top _)) ->
      (let data = collect a1 init_data in
-      try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
+      try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 2"))
   | Implies(_, Equals(_, c, Dom_val(_,"true")), And(_, Equals(_,l,r), Top _)) ->
-      (try create_rule (local_curry l init_data) (local_curry r init_data), Cond (local_curry c init_data), 42
+      (try create_rule (iter_implies l init_data) (iter_implies r init_data), Cond (iter_implies c init_data), 42 (* TODO iter_condition ? *)
        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 3"))
   | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), And(_, Equals(_,l,r), Top _)) ->
      (let c = Not(pNot, In(pIn,(v,t),a)) in
       let data = collect a1 init_data in
-      try create_rule (local_curry l data) (local_curry r data), Cond (local_curry c data), 42
+      try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4"))
 (* An example of the previous case:
   axiom{R} \implies{R} (
