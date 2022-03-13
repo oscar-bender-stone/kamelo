@@ -175,7 +175,6 @@ rule token = parse
   | "//"                 { comment lexbuf  }
   | "/*"                 { scomment lexbuf }
 
-<<<<<<< HEAD
   | "module"             { MODULE          }
   | "endmodule"          { ENDMODULE       }
   | "import"             { IMPORT          }
