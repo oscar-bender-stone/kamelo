@@ -106,7 +106,7 @@ preprocessing:
         #- cd kamelo
         #- ls
         #- ls tests/
-
+        - make
         - make test-lp
 
     cache:
