@@ -195,18 +195,18 @@ let rec collect : axiom -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
 let of_implies_axiom : axiom -> ctrs_rule = fun ax ->
   let init_data = StrMap.empty in
   match ax with
-  | Implies(_, And(_,Top _, a1), And(_, Equals(_,l, r), Top _)) ->
+  | Implies(_, And(_,Top _, a1), Equals(_,l, And(_, r, Top _))) ->
      (let data = collect a1 init_data in
       try create_rule (iter_implies l data) (iter_implies r data), Uncond, 42
       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 1"))
-  | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), And(_, Equals(_,l, r), Top _)) ->
+  | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), Equals(_,l, And(_, r, Top _))) ->
      (let data = collect a1 init_data in
       try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 2"))
-  | Implies(_, Equals(_, c, Dom_val(_,"true")), And(_, Equals(_,l, r), Top _)) ->
+  | Implies(_, Equals(_, c, Dom_val(_,"true")), Equals(_,l, And(_, r, Top _))) ->
       (try create_rule (iter_implies l init_data) (iter_implies r init_data), Cond (iter_implies c init_data), 42 (* TODO iter_condition ? *)
        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 3"))
-  | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), And(_, Equals(_,l, r), Top _)) ->
+  | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), Equals(_,l, And(_, r, Top _))) ->
      (let c = Not(pNot, In(pIn,(v,t),a)) in
       let data = collect a1 init_data in
       try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
