@@ -115,7 +115,9 @@ for d in $for_test; do
       echo "Translation of the program and its result:" $f
       new_name=${f%.*} # Suppression de l'extension (A faire avec la commande POSIX basename?)
       krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
+      cat ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
       krun           --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name-res.kore
+      cat ../../$curr_gen_folder/$curr_exec_folder/$new_name-res.kore
       # Fusion du programme et de son résultat, séparés par "\n@@@@@\n"
       cd ../..
       echo "\n@@@@@\n" > $curr_gen_folder/$curr_exec_folder/sep
