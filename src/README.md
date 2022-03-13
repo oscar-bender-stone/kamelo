@@ -39,12 +39,12 @@ The KaMeLo source file hierarchy
    │   └── display_console.ml: *To print the recap of the translation in the terminal*  
    └── translating/: *The translation of...*  
         ├── axiom.ml:                     *... the axioms*  
-        ├── eval_strategy.ml:           *... the evaluation strategies*  
-        ├── executable.ml:            *... the executables*  
+        ├── eval_strategy.ml:          *... the evaluation strategies*  
+        ├── executable.ml:             *... the executables*  
         ├── import.ml:                     *... file importation*  
         ├── prelude_interface.ml: *... the K prelude interface*  
-        ├── sort.ml:                        *... the sorts*  
-        ├── symbol.ml:                  *... the symbols*  
-        └── viry.ml:                           *... the conditional rewriting rules*  
+        ├── sort.ml:                          *... the sorts*  
+        ├── symbol.ml:                    *... the symbols*  
+        └── viry.ml:                          *... the conditional rewriting rules*  
 
 Note: The files "dune" are just here to compile the OCaml code.  
