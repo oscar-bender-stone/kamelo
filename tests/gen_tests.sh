@@ -121,7 +121,7 @@ for d in $for_test; do
       # Fusion du programme et de son résultat, séparés par "\n@@@@@\n"
       cd ../..
       echo " @@@@@ " > $curr_gen_folder/$curr_exec_folder/sep
-      cat $curr_gen_folder/$curr_exec_folder/$new_name.kore $curr_gen_folder/$curr_exec_folder/sep $curr_gen_folder/$curr_exec_folder/$new_name-res.kore > $curr_gen_folder/$curr_exec_folder/tmp.kore
+      cat $curr_gen_folder/$curr_exec_folder/$new_name.kore  $curr_gen_folder/$curr_exec_folder/$new_name-res.kore > $curr_gen_folder/$curr_exec_folder/tmp.kore
       cat $curr_gen_folder/$curr_exec_folder/tmp.kore
       mv $curr_gen_folder/$curr_exec_folder/tmp.kore $curr_gen_folder/$curr_exec_folder/$new_name.kore
       # Traduction vers Dedukti
