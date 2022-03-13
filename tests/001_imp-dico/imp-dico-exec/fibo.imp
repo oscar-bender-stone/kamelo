@@ -1,9 +1,0 @@
-decl var(0), var(1), var(2), var(3) ;
-var(1) = 1 ;
-var(2) = 10 ;
-while 0 < var(2) do {
-  var(3) = var(1) ;
-  var(1) = var(0) + var(1) ;
-  var(0) = var(3) ;
-  var(2) = var(2) - var(3) ;
-}
