@@ -124,4 +124,4 @@ type kmodule = name * import list * kommand list * attribute list
 
 type file =
  | F_sem  of attribute list * kmodule list
- | F_exec of axiom
+ | F_exec of axiom * axiom

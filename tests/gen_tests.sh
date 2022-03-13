@@ -80,7 +80,7 @@ for d in $for_test; do
    if [ $is_kompiled = false ]; then
       if [ $(echo $semName | cut -c-2) = "M_" ]
       then make ; semName=$(echo $semName | cut -c3-)
-      else echo "\nCompilation of the semantic" $semName.k ; kompile $semName.k
+      else echo "\nCompilation of the semantic:" $semName.k ; kompile $semName.k
       fi
    fi
 
@@ -95,7 +95,7 @@ for d in $for_test; do
    mkdir $curr_gen_folder
    mkdir $curr_gen_folder/$curr_exec_folder
    # Traduction de la sémantique
-   echo "Translation of the semantic" $semName.kore
+   echo "Translation of the semantic:" $semName.kore
    ./$kamelo_script -r $tests_folder/$d/$semName.kore
    # rm $tests_folder/$d/$semName.kore
    mv $semName.$extension $curr_gen_folder/
@@ -112,14 +112,22 @@ for d in $for_test; do
       # Traduction vers Kore
       # pour utiliser krun, il faut être dans le dossier où se trouve "semName-kompiled/"
       cd ..
-      echo "Translation of the program" $f
+      echo "Translation of the program and its result:" $f
       new_name=${f%.*} # Suppression de l'extension (A faire avec la commande POSIX basename?)
       krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
-      # Traduction vers Dedukti
+      krun           --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name-res.kore
+      # Fusion du programme et de son résultat, séparés par "\n@@@@@\n"
       cd ../..
+      echo "\n@@@@@\n" > $curr_gen_folder/$curr_exec_folder/sep
+      cat $curr_gen_folder/$curr_exec_folder/$new_name.kore $curr_gen_folder/$curr_exec_folder/sep $curr_gen_folder/$curr_exec_folder/$new_name-res.kore > $curr_gen_folder/$curr_exec_folder/tmp.kore
+      mv $curr_gen_folder/$curr_exec_folder/tmp.kore $curr_gen_folder/$curr_exec_folder/$new_name.kore
+      # Traduction vers Dedukti
       ./$kamelo_script -r --semantics $semName $curr_gen_folder/$curr_exec_folder/$new_name.kore
       python3 $python_script $curr_gen_folder/$curr_exec_folder/$new_name.$extension
+      # Suppression des fichiers générés
       rm $curr_gen_folder/$curr_exec_folder/$new_name.kore
+      rm $curr_gen_folder/$curr_exec_folder/$new_name-res.kore
+      rm $curr_gen_folder/$curr_exec_folder/sep
 
       cd $tests_folder/$d/$curr_exec_folder
    done
@@ -131,6 +139,18 @@ for d in $for_test; do
 
    cd $tests_folder
   fi
+done
+
+# Lambdapi check
+cd $gen_folder
+for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
+  cd $d
+  semName=$(echo $d | cut -c$nb_nomencla-)
+  cd $semName-exec
+
+  for pgm in $(find . -mindepth 1 -maxdepth 1 | sort -d) ; do
+    lambdapi check $pgm
+  done
 done
 
 cd ..

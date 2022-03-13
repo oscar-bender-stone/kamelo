@@ -329,8 +329,8 @@ let pp_p_assertion : p_assertion pp = fun ppf a ->
 
 let pp_query : p_query pp = fun ppf q ->
   match q.elt with
-  | P_query_assert(true, a) -> out ppf "assertnot %a" pp_p_assertion a
-  | P_query_assert(false,a) -> out ppf "assert %a" pp_p_assertion a
+  | P_query_assert(true, a) -> out ppf "assertnot ⊢ %a" pp_p_assertion a
+  | P_query_assert(false,a) -> out ppf "assert ⊢ %a" pp_p_assertion a
   | P_query_debug(true ,s) -> out ppf "set debug \"+%s\"" s
   | P_query_debug(false,s) -> out ppf "set debug \"-%s\"" s
   | P_query_flag(s, b) ->

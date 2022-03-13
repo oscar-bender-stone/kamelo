@@ -14,13 +14,13 @@ let () =
   let file = Parsing.Kparser.file Parsing.Klexer.token lexbuf in
   (* STEP C: Translate the semantic or the executable *)
   match file with
-  | F_exec(exec) ->
+  | F_exec(exec, result) ->
      (* STEP 1: Create the new file *)
      let name = !Terminal.Cmd_line.filename_exec in
      let filename = Terminal.Cmd_line.create_filename name in (* TODO *)
      let f  = open_out filename in
      let ff = Format.formatter_of_out_channel f in
-     (* STEP 2: Add the import of the semantic *)
+     (* STEP 2: Print the import of the semantic *)
      let cd = Mecanism.Count_data.reset_count_data 0 in
      let path = ["sem_root"] in
      let i = (!Terminal.Cmd_line.semantics_file, []) in
@@ -31,7 +31,7 @@ let () =
      LP.LP_printer.pp_command ff import_trans ;
      (* STEP 3: Translate the executable *)
      let p_exec, free_var_data = Translating.Executable.iter_exec exec empty_sign in
-     (* STEP 4: Add free variables *)
+     (* STEP 4: Print free variables *)
      let f_pp : string -> string list -> unit = fun key var_l ->
        let var_type =
          Interface.LP_p_term.create_appl
@@ -45,10 +45,22 @@ let () =
        List.iter (fun name -> comm name) var_l
      in
      StrMap.iter f_pp free_var_data ;
-     (* STEP 5: Printing *)
+     (* STEP 5: Translate the result of the executable *)
+     let p_res, _ = Translating.Executable.iter_exec result empty_sign in
+     (* STEP 6: Print the symbol s_e which represents the executable *)
      LP.LP_printer.pp_command ff
-       (Interface.LP_p_term.create_compute_command p_exec);
-     (* STEP 6: Close the new file *)
+       (Interface.LP_p_term.create_LP_symbol
+          (Interface.LP_p_term.create_symbol_with_body "PGM" p_exec)) ;
+     (* STEP 7: Print the symbol s_r which represents the result *)
+     LP.LP_printer.pp_command ff
+       (Interface.LP_p_term.create_LP_symbol
+          (Interface.LP_p_term.create_symbol_with_body "RES" p_res)) ;
+     (* STEP 8: Print the assert command to check s_e == s_r *)
+     let s_e = Interface.LP_p_term.create_ident "PGM" in
+     let s_r = Interface.LP_p_term.create_ident "RES" in
+     LP.LP_printer.pp_command ff
+       (Interface.LP_p_term.create_assert_command s_e s_r) ;
+     (* STEP 9: Close the new file *)
      Format.pp_print_flush ff ();
      close_out f ;
      flush stdout

@@ -97,6 +97,11 @@ let create_p_symbol (mod_l : p_modifier list) (name : string) (param_l : p_param
 let create_symbol : string -> p_term -> p_symbol =
   fun name typ -> create_p_symbol [] name [] (Some typ) None
 
+(** [create_symbol name body] creates a symbol named [name]
+    with the body [body]. *)
+let create_symbol_with_body : string -> p_term -> p_symbol =
+  fun name body -> create_p_symbol [] name [] None (Some body)
+
 (** [create_LP_symbol sym] creates a symbol without position. *)
 let create_LP_symbol : p_symbol -> p_command = fun sym ->
    no_pos (P_symbol sym)
@@ -129,6 +134,10 @@ let create_LP_inductive :
 (** [create_compute_command p] creates a command to compute the p_term [p]. *)
 let create_compute_command : p_term -> p_command = fun p ->
   no_pos (P_query (no_pos (P_query_normalize (p, {strategy=NONE ; steps=None}))))
+
+(** [create_assert_command t1 t2] creates a command to check that [t1] == [t2]. *)
+let create_assert_command : p_term -> p_term -> p_command = fun t1 t2 ->
+  no_pos (P_query (no_pos (P_query_assert(false, P_assert_conv(t1, t2)))))
 
 (** [create_builtin_command opt sym] creates a builtin command,
     i.e. builtin [opt] := [sym]. *)

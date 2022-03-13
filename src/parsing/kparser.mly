@@ -128,6 +128,7 @@
 
 %token <string> IDENT       // Identifiant
 %token <string> STRING
+%token SEP_EXEC
 %token EOF                  // End of file
 
 %start file
@@ -353,6 +354,6 @@ attributes:
   | L_SQUARE_BRA core_attributes R_SQUARE_BRA { $2 }
 
 file:
-  | axiom               EOF { F_exec($1)    }
-  | attributes kmodules EOF { F_sem($1, $2) }
-  | EOF                     { F_sem([], []) }
+  | axiom SEP_EXEC axiom EOF { F_exec($1, $3) }
+  | attributes kmodules  EOF { F_sem ($1, $2) }
+  | EOF                      { F_sem ([], []) }
