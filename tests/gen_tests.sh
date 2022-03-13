@@ -142,10 +142,10 @@ for d in $for_test; do
 done
 
 # Lambdapi check
-cd $gen_folder
+cd ../$gen_folder
 for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
   cd $d
-  semName=$(echo $d | cut -c$nb_nomencla-)
+  semName=$(echo ${d%-lp} | cut -c$nb_nomencla-) # To delete "-lp"
   cd $semName-exec
 
   for pgm in $(find . -mindepth 1 -maxdepth 1 | sort -d) ; do
@@ -153,4 +153,4 @@ for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
   done
 done
 
-cd ..
+cd ../..
