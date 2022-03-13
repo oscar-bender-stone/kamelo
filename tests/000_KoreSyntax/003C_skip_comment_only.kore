@@ -1,8 +1,0 @@
-[topCellInitializer{}(LblinitGeneratedTopCell{}())]
-
-module KSEQ
-  import BASIC-K []
-
-  // TODO: Provide constructor and functional axioms for `kseq` and `dotk`.
-  sort SortList {} []
-endmodule []

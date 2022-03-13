@@ -1,1 +1,0 @@
-var c; if 3 < 4 then c = 1 ; else c = 2;

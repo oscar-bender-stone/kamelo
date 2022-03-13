@@ -1,9 +1,0 @@
-[topCellInitializer{}(LblinitGeneratedTopCell{}())]
-
-module A
-
-// generated axioms
-  axiom{R}\equals{SortMap{}, R} (Lbl'Unds'Map'Unds'{}(K:SortMap{},Lbl'Stop'Map{}()),K:SortMap{}) [unit{}()] // right unit
-
-// priority groups
-endmodule [org'Stop'kframework'Stop'attributes'Stop'Location{}("Location(166,1,170,9)"), org'Stop'kframework'Stop'attributes'Stop'Source{}("Source(/home/camel/Bureau/These/K/KTests/a/./b.k)")]

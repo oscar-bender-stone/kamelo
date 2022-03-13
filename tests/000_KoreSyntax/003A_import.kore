@@ -1,5 +1,0 @@
-[topCellInitializer{}(LblinitGeneratedTopCell{}())]
-
-module KSEQ
-  import BASIC-K []
-endmodule []
