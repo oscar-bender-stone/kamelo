@@ -85,9 +85,9 @@ preprocessing:
 #    script:
         - echo "--- Installation of Lambdapi"
         #- git clone https://github.com/Deducteam/lambdapi.git
-        - opam install --yes dune bindlib.5.0.1 timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc # lambdapi
+        - opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc lambdapi
         #- eval $(opam env)
-        #- why3 config detect
+        - why3 config detect
         #- cd lambdapi
         #- make
         #- make install
@@ -108,15 +108,15 @@ preprocessing:
 
 
 
-        #- wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_"$K_VERSION"_amd64_bionic.deb
-        #- sudo apt install -y ./kframework_"$K_VERSION"_amd64_bionic.deb
+        - wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_"$K_VERSION"_amd64_bionic.deb
+        - sudo apt install -y ./kframework_"$K_VERSION"_amd64_bionic.deb
 
 #job:kamelo:
 #    stage: installation
 #    script:
         - echo "--- Installation of KaMeLo"
-        #- make
-        #- make test-lp
+        - make
+        - make test-lp
 
     cache:
          paths:
