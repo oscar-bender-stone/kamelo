@@ -95,8 +95,7 @@ preprocessing:
         #- opam pin add -n -k path lambdapi .
         #- sudo apt --yes install libsigsegv2
         #- opam install --yes --deps-only -d -t lambdapi
-        #- eval $(opam env)
-        #- why3 config detect
+
 
 
         #- echo "--- Installation of K"
