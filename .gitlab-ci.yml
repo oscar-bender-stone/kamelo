@@ -29,7 +29,7 @@ preprocessing:
 
     variables:
         FF_USE_FASTZIP: "true"
-        K_VERSION: "5.2.82" # "5.0.1" # "5.2.95"
+        K_VERSION: "5.2.103" # "5.0.1" # "5.2.82"
 
     script:
         # Obtain and install opam locally.
@@ -89,9 +89,10 @@ preprocessing:
 #    stage: installation
 #    script:
         - echo "--- Installation of Lambdapi"
-        - opam pin add -n -k path lambdapi .
-        - sudo apt --yes install libsigsegv2
-        - opam install --yes --deps-only -d -t lambdapi
+        - opam install lambdapi
+        #- opam pin add -n -k path lambdapi .
+        #- sudo apt --yes install libsigsegv2
+        #- opam install --yes --deps-only -d -t lambdapi
         - eval $(opam env)
         - why3 config detect
 
