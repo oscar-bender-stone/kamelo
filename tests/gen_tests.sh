@@ -101,7 +101,7 @@ for d in $for_test; do
    if [ $is_kompiled = false ]; then
       if [ $(echo $semName | cut -c-2) = "M_" ]
       then make ; semName=$(echo $semName | cut -c3-)
-      else echo "" ; echo "${cyanfonce}Compilation of the semantic:${neutre}" $semName.k ; kompile $semName.k
+      else echo -ne "\n${cyanfonce}Compilation of the semantic:${neutre}" $semName.k ; kompile $semName.k
       fi
    fi
 
@@ -116,7 +116,7 @@ for d in $for_test; do
    mkdir $curr_gen_folder
    mkdir $curr_gen_folder/$curr_exec_folder
    # Traduction de la sémantique
-   echo "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
+   echo -e "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
    ./$kamelo_script -r $tests_folder/$d/$semName.kore
    # rm $tests_folder/$d/$semName.kore
    mv $semName.$extension $curr_gen_folder/
@@ -135,7 +135,7 @@ for d in $for_test; do
       # Traduction vers Kore
       # pour utiliser krun, il faut être dans le dossier où se trouve "semName-kompiled/"
       cd ..
-      echo "${cyanfonce}Translation of the program and its result:${neutre}" $f
+      echo -e "${cyanfonce}Translation of the program and its result:${neutre}" $f
       new_name=${f%.*} # Suppression de l'extension (A faire avec la commande POSIX basename?)
       krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
       #cat ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
@@ -160,7 +160,7 @@ for d in $for_test; do
    mv $curr_gen_folder -t $gen_folder
 
    # Lambdapi check
-   echo "${cyanfonce}Beginning of Lambdapi check..."
+   echo -e "${cyanfonce}Beginning of Lambdapi check..."
    cd $gen_folder
    for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
      cd $d
@@ -171,7 +171,7 @@ for d in $for_test; do
        lambdapi check --no-warnings -v 0 $pgm
      done
    done
-   echo "${cyanfonce}...ending of Lambdapi check."
+   echo -e "${cyanfonce}...ending of Lambdapi check."
    cd ../../../$tests_folder
   fi
 done
