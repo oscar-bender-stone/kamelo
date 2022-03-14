@@ -40,6 +40,7 @@ preprocessing:
         - sudo apt update
         - sudo apt install wget
 
+        - eval $(opam env)
 
 
         #- sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
@@ -95,7 +96,8 @@ preprocessing:
         - echo "--- Installation of Lambdapi"
         - git clone https://github.com/Deducteam/lambdapi.git
         - opam install dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc
-        #- why3 config detect
+        - eval $(opam env)
+        - why3 config detect
         - cd lambdapi
         - make
         - make install
