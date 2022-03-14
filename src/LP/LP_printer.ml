@@ -244,9 +244,9 @@ let rec pp_p_term : p_term pp = fun ppf t ->
 and pp_p_params : p_params pp = fun ppf (ids,ao,b) ->
   match (ao,b) with
   | (None   , false) -> out ppf "%a" pp_p_param_ids ids
-  | (None   , true ) -> out ppf "{%a}" pp_p_param_ids ids
+  | (None   , true ) -> out ppf "[%a]" pp_p_param_ids ids
   | (Some(a), false) -> out ppf "(%a : %a)" pp_p_param_ids ids pp_p_term a
-  | (Some(a), true ) -> out ppf "{%a : %a}" pp_p_param_ids ids pp_p_term a
+  | (Some(a), true ) -> out ppf "[%a : %a]" pp_p_param_ids ids pp_p_term a
 
 (* starts with a space if the list is not empty *)
 and pp_p_params_list : p_params list pp = fun ppf ->

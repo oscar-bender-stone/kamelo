@@ -70,9 +70,9 @@ def delete_implicit_arg(line_list):
             if to_skip:
                 to_skip = False
                 continue
-            if c == '{':
+            if c == '[':
                 to_delete = True
-            if c == '}':
+            if c == ']':
                 to_delete = False
                 to_skip = True # Pour supprimer un espace
             else:
