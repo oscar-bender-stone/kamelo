@@ -1,7 +1,6 @@
 {
   type token =
   | EOF
-  | SEP_EXEC
   | IDENT of string
   | STRING of string
 
@@ -167,7 +166,6 @@ let production = "org"['a'-'z' 'A'-'Z' '_' '-' '\'' '0'-'9']+ ("Production")
 
 rule token = parse
   | eof                  { EOF             }
-  | "@@@@@"              { SEP_EXEC        }
   | [' ' '\t' '\n']      { token lexbuf    }    (* skip blanks *)
   | "//"                 { comment lexbuf  }
   | "/*"                 { scomment lexbuf }
