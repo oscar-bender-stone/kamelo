@@ -313,9 +313,9 @@ let semantic_rule () =
   ; (create_ident _ADD_INT_, [create_one_arg "succ" "m" ; create_pattern_var "n"]),
     (create_ident "succ", [create_appl (create_appl (create_ident _ADD_INT_) (create_pattern_var "m")) (create_pattern_var "n")])
   ; (create_ident _ADD_INT_, [create_ident "0" ; create_pattern_var "n"]), (create_pattern_var "n", [])
-  (* rule _*Int_ (succ $m) $n ↪ (_+Int_ $m (_*Int_ $m $n));
+  (* rule _*Int_ (succ $m) $n ↪ (_+Int_ $n (_*Int_ $m $n));
      rule _*Int_ 0 $n ↪ 0; *)
   ; (create_ident _MULT_INT_, [create_one_arg "succ" "m" ; create_pattern_var "n"]),
-    (create_ident _ADD_INT_,  [create_pattern_var "m" ; create_appl (create_appl (create_ident _MULT_INT_) (create_pattern_var "m")) (create_pattern_var "n")])
+    (create_ident _ADD_INT_,  [create_pattern_var "n" ; create_appl (create_appl (create_ident _MULT_INT_) (create_pattern_var "m")) (create_pattern_var "n")])
   ; (create_ident _MULT_INT_, [create_ident "0" ; create_pattern_var "n"]), (create_ident "0", [])
   ]
