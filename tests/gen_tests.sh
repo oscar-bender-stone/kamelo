@@ -9,6 +9,7 @@ sem_root=sem_root # Racine par défaut utilisée pour tous les sous-dossiers
                   # d'import de la traduction
 extension=$1 #$(if [ $# = 1 ]; then echo $1 ; else echo "lp" ;fi)
 
+# Some colors
 noir='\e[0;30m'
 gris='\e[1;30m'
 rougefonce='\e[0;31m'
@@ -25,10 +26,9 @@ cyanfonce='\e[0;36m'
 cyanclair='\e[1;36m'
 grisclair='\e[0;37m'
 blanc='\e[1;37m'
-
 neutre='\e[0;m'
 
-# echo -e "${rougefonce}Bonjour${neutre} ${jaune}les gens${neutre}"
+# echo -e "${rougefonce}Hello${neutre} ${jaune}world${neutre}!"
 
   #######################################################################
   #    usage: ./gen_tests dk [one-test] ou ./gen_tests lp [one-test]    #
@@ -88,7 +88,7 @@ for d in $for_test; do
   if [ $(echo $d | cut -c-4) = "000_" ]
   then continue
   else
-   cd $d
+   cd $d ; echo ""
 
    # Récupération du nom du dossier sans les chiffres
    semName=$(echo $d | cut -c$nb_nomencla-)
@@ -101,7 +101,7 @@ for d in $for_test; do
    if [ $is_kompiled = false ]; then
       if [ $(echo $semName | cut -c-2) = "M_" ]
       then make ; semName=$(echo $semName | cut -c3-)
-      else echo -ne "\n${cyanfonce}Compilation of the semantic:${neutre}" $semName.k ; kompile $semName.k
+      else echo -e "${cyanfonce}Compilation of the semantic:${neutre}" $semName.k ; kompile $semName.k
       fi
    fi
 
@@ -118,9 +118,8 @@ for d in $for_test; do
    # Traduction de la sémantique
    echo -e "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
    ./$kamelo_script -r $tests_folder/$d/$semName.kore
-   # rm $tests_folder/$d/$semName.kore
+   rm $tests_folder/$d/$semName.kore
    mv $semName.$extension $curr_gen_folder/
-   #mv $tests_folder/$d/$semName.kore $curr_gen_folder/
 
    # Création du fichier de management de fichiers pour LP, si besoin
    LPpkg=lambdapi.pkg
@@ -138,7 +137,6 @@ for d in $for_test; do
       echo -e "${cyanfonce}Translation of the program and its result:${neutre}" $f
       new_name=${f%.*} # Suppression de l'extension (A faire avec la commande POSIX basename?)
       krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
-      #cat ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
       krun           --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name-res.kore
       # Fusion du programme et de son résultat
       cd ../..
