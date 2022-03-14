@@ -91,7 +91,7 @@ else:
 # STEP B : Récupération et modification du fichier
 ##################
 res = []
-with open(filename(), 'r') as fichier:
+with open(filename(), 'r', encoding="utf-8") as fichier:
     # Récupération du contenu du fichier dans une liste
     # Une ligne = un élément de la liste
     contenu = fichier.readlines()
@@ -107,7 +107,7 @@ with open(filename(), 'r') as fichier:
 ##################
 # STEP C : Ecrasement de l'ancien fichier
 ##################
-with open(filename(), "w") as fichier:
+with open(filename(), "w", encoding="utf-8") as fichier:
     s = ""
     for item in res:
         s += item
