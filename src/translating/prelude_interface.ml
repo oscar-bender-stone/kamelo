@@ -243,13 +243,14 @@ let hooked_symbol =
    (create_appl (create_ident sym) (create_pattern v2)) *)
 
 let semantic_rule () =
-  let _LT_INT_  = Interface.Output.pp "Lbl'Unds-LT-'Int'Unds'" in
-  let _GE_INT_  = Interface.Output.pp "Lbl'Unds-GT-Eqls'Int'Unds'" in
-  let _GT_INT_  = Interface.Output.pp "Lbl'Unds-GT-'Int'Unds'" in
-  let _LE_INT_  = Interface.Output.pp "Lbl'Unds-LT-Eqls'Int'Unds'" in
-  let _EQ_INT_  = Interface.Output.pp "Lbl'UndsEqlsEqls'Int'Unds'" in
-  let _SUB_INT_ = Interface.Output.pp "Lbl'Unds'-Int'Unds'" in
-  let _ADD_INT_ = Interface.Output.pp "Lbl'UndsPlus'Int'Unds'" in
+  let _LT_INT_   = Interface.Output.pp "Lbl'Unds-LT-'Int'Unds'"     in
+  let _GE_INT_   = Interface.Output.pp "Lbl'Unds-GT-Eqls'Int'Unds'" in
+  let _GT_INT_   = Interface.Output.pp "Lbl'Unds-GT-'Int'Unds'"     in
+  let _LE_INT_   = Interface.Output.pp "Lbl'Unds-LT-Eqls'Int'Unds'" in
+  let _EQ_INT_   = Interface.Output.pp "Lbl'UndsEqlsEqls'Int'Unds'" in
+  let _SUB_INT_  = Interface.Output.pp "Lbl'Unds'-Int'Unds'"        in
+  let _ADD_INT_  = Interface.Output.pp "Lbl'UndsPlus'Int'Unds'"     in
+  let _MULT_INT_ = Interface.Output.pp "Lbl'UndsStar'Int'Unds'"     in
   (* //symbol Lbl'Unds-LT-'Int'Unds' : δ SortInt → δ SortInt → δ SortBool;
         rule Lbl'Unds-LT-'Int'Unds'      0         0     ↪ false
         with Lbl'Unds-LT-'Int'Unds'      0     (succ _)  ↪ true
@@ -307,9 +308,14 @@ let semantic_rule () =
   ; (create_ident _SUB_INT_, [create_one_arg "succ" "m" ; create_one_arg "succ" "n"]),
     (create_ident _SUB_INT_, [create_pattern_var "m" ; create_pattern_var "n"])
   ; (create_ident _SUB_INT_, [create_one_arg "succ" "n" ; create_ident "0"]), (create_one_arg "succ" "n", [])
-  (* rule _PlusInt_ (succ $m) $n ↪ succ (_PlusInt_ $m $n);
-     rule _PlusInt_ 0 $n ↪ $n; *)
+  (* rule _+Int_ (succ $m) $n ↪ succ (_+Int_ $m $n);
+     rule _+Int_ 0         $n ↪ $n; *)
   ; (create_ident _ADD_INT_, [create_one_arg "succ" "m" ; create_pattern_var "n"]),
     (create_ident "succ", [create_appl (create_appl (create_ident _ADD_INT_) (create_pattern_var "m")) (create_pattern_var "n")])
   ; (create_ident _ADD_INT_, [create_ident "0" ; create_pattern_var "n"]), (create_pattern_var "n", [])
+  (* rule _*Int_ (succ $m) $n ↪ (_+Int_ $m (_*Int_ $m $n));
+     rule _*Int_ 0 $n ↪ 0; *)
+  ; (create_ident _MULT_INT_, [create_one_arg "succ" "m" ; create_pattern_var "n"]),
+    (create_ident _ADD_INT_,  [create_pattern_var "m" ; create_appl (create_appl (create_ident _MULT_INT_) (create_pattern_var "m")) (create_pattern_var "n")])
+  ; (create_ident _MULT_INT_, [create_ident "0" ; create_pattern_var "n"]), (create_ident "0", [])
   ]
