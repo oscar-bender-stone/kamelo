@@ -53,12 +53,6 @@ preprocessing:
 #job:k:
 #    stage: installation
 #    script:
-        #- git clone https://github.com/runtimeverification/k.git
-        #- cd k/
-        #- sudo sh install-k
-        - wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_"$K_VERSION"_amd64_bionic.deb
-        - sudo apt install -y ./kframework_"$K_VERSION"_amd64_bionic.deb
-
 
         #- echo "--- Installation of K"
         #- wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
@@ -91,7 +85,7 @@ preprocessing:
 #    script:
         - echo "--- Installation of Lambdapi"
         #- git clone https://github.com/Deducteam/lambdapi.git
-        - opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc lambdapi
+        - opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner.1.0.4 why3 alcotest alt-ergo odoc # lambdapi
         #- eval $(opam env)
         - why3 config detect
         #- cd lambdapi
@@ -108,6 +102,11 @@ preprocessing:
         #- echo "--- Installation of K"
         #- wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
         #- sudo apt-get install --yes ./kframework_5.2.81_amd64_bullseye.deb
+        #- git clone https://github.com/runtimeverification/k.git
+        #- cd k/
+        #- sudo sh install-k
+        - wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_"$K_VERSION"_amd64_bionic.deb
+        - sudo apt install -y ./kframework_"$K_VERSION"_amd64_bionic.deb
 
 #job:kamelo:
 #    stage: installation
