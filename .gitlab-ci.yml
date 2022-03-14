@@ -33,14 +33,8 @@ preprocessing:
 
     script:
         # Obtain and install opam locally.
-        - ls _opam
-        - ls _opam/bin
-        - ls _opam/lib
-        - ls _opam/sbin
         - sudo apt update
         - sudo apt install wget
-
-        - eval $(opam env)
 
 
         #- sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
@@ -53,6 +47,8 @@ preprocessing:
         #- opam update
         - if [ ! -d _opam ]; then echo "no local switch in the CI cache, we setup a new switch"; opam switch create --yes --no-install . $OCAML_VERSION; fi
         #- opam switch create "$OCAML_VERSION"
+
+        - eval $(opam env)
 
 #job:k:
 #    stage: installation
@@ -68,11 +64,11 @@ preprocessing:
         #- wget https://github.com/runtimeverification/k/releases/download/v5.2.81/kframework_5.2.81_amd64_bullseye.deb
         #- sudo apt-get install -y ./kframework_5.2.81_amd64_bullseye.deb
 
-        - echo "--- Installation of Dedukti"
-        - opam pin add -n -k path dedukti .
-        - opam install --yes --deps-only -d -t dedukti
-        - opam install --yes ocamlformat
-        - opam install --yes tezt --no-checksums --keep-build-dir
+        #- echo "--- Installation of Dedukti"
+        #- opam pin add -n -k path dedukti .
+        #- opam install --yes --deps-only -d -t dedukti
+        #- opam install --yes ocamlformat
+        #- opam install --yes tezt --no-checksums --keep-build-dir
         #- cd _opam/.opam-switch/sources/tezt.1.0.0/tezt
         #- ls -a
         #- opam install --yes ./_opam/.opam-switch/sources/tezt.1.0.0/tezt/lib
@@ -86,27 +82,27 @@ preprocessing:
 #job:altergo:
 #    stage: installation
 #    script:
-        - echo "--- Installation of Alt-ergo"
+        #- echo "--- Installation of Alt-ergo"
         - sudo apt install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
-        - opam install --yes alt-ergo.2.3.0
+        #- opam install --yes alt-ergo.2.3.0
 
 #job:lambdapi:
 #    stage: installation
 #    script:
         - echo "--- Installation of Lambdapi"
-        - git clone https://github.com/Deducteam/lambdapi.git
-        - opam install dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc
-        - eval $(opam env)
+        #- git clone https://github.com/Deducteam/lambdapi.git
+        - opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc lambdapi
+        #- eval $(opam env)
         - why3 config detect
-        - cd lambdapi
-        - make
-        - make install
+        #- cd lambdapi
+        #- make
+        #- make install
         #- opam install lambdapi
         #- opam pin add -n -k path lambdapi .
         #- sudo apt --yes install libsigsegv2
         #- opam install --yes --deps-only -d -t lambdapi
-        - eval $(opam env)
-        - why3 config detect
+        #- eval $(opam env)
+        #- why3 config detect
 
 
         #- echo "--- Installation of K"
