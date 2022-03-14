@@ -87,7 +87,7 @@ preprocessing:
         #- git clone https://github.com/Deducteam/lambdapi.git
         - opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner.1.0.4 why3 alcotest alt-ergo odoc # lambdapi
         #- eval $(opam env)
-        - why3 config detect
+           #- why3 config detect
         #- cd lambdapi
         #- make
         #- make install
@@ -112,12 +112,8 @@ preprocessing:
 #    stage: installation
 #    script:
         - echo "--- Installation of KaMeLo"
-        #- git clone https://gitlab.com/semantiko/kamelo.git
-        #- cd kamelo
-        #- ls
-        #- ls tests/
-        - make
-        - make test-lp
+        #- make
+        #- make test-lp
 
     cache:
          paths:
