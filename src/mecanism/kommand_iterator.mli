@@ -9,7 +9,8 @@ type ('a, 's) meta_axiom = attribute list -> 'a -> 's -> quant_var list * axiom 
       (f_rewrites_ax_heating, f_rewrites_ax_cooling, f_rewrites_ax_semantic)     as f_rewrites
       f_ax_default
       (f_exists_ax_subsort, f_exists_ax_functional)                              as f_exists
-      (f_equals_ax_assoc, f_equals_ax_comm, f_equals_ax_idem, f_equals_ax_unit)  as f_equals
+      (f_equals_ax_assoc, f_equals_ax_comm,
+       f_equals_ax_idem, f_equals_ax_unit, f_equals_ax_default)                  as f_equals
       f_or_bottom_ax_constructor                                                 as f_or_bottom
       f_not_ax_constructor                                                       as f_not
       (f_implies_ax_constructor, f_implies_ax_initializer,
@@ -30,7 +31,7 @@ val kommand_iter_without_alias :
   -> (('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom
-     * ('a, 's) meta_axiom * ('a, 's) meta_axiom)
+     * ('a, 's) meta_axiom * ('a, 's) meta_axiom * ('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom
@@ -54,7 +55,7 @@ val kommand_iter_with_alias :
   -> (('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom
-     * ('a, 's) meta_axiom * ('a, 's) meta_axiom)
+     * ('a, 's) meta_axiom * ('a, 's) meta_axiom * ('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom

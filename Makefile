@@ -7,7 +7,7 @@ all:
 #	dune runtest
 
 test-lp:
-	sh tests/gen_tests.sh lp
+	bash -e tests/gen_tests.sh lp
 
 #test-dk:
 #	sh tests/gen_tests.sh dk

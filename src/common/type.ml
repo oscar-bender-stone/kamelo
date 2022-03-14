@@ -26,6 +26,7 @@ type attribute =
 
  | Left         of data_attr
  | Right        of data_attr
+ | Priority     of data_attr
  | Priorities   of data_attr
 
  | Constructor  of data_attr
@@ -44,6 +45,8 @@ type attribute =
 
 
  (* USELESS attributes
+ | Private      of data_attr
+
  | Topcellinit  of data_attr
  | Topcell      of data_attr
  | Cell         of data_attr
