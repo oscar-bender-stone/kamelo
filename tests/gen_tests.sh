@@ -103,7 +103,9 @@ for d in $for_test; do
 
    # Création du fichier de management de fichiers pour LP, si besoin
    LPpkg=lambdapi.pkg
-   if [ $extension = "lp" ]; then echo -n "package_name = $sem_root\nroot_path    = $sem_root" > $LPpkg ;fi
+   if [ $extension = "lp" ]; then
+       echo "package_name = $sem_root" >  $LPpkg ;
+       echo "root_path    = $sem_root" >> $LPpkg ;fi
    mv $LPpkg $curr_gen_folder/
 
    # Traduction des programmes se trouvant dans "curr_exec_folder"
@@ -115,14 +117,14 @@ for d in $for_test; do
       echo "Translation of the program and its result:" $f
       new_name=${f%.*} # Suppression de l'extension (A faire avec la commande POSIX basename?)
       krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
-      cat ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
+      #cat ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
       krun           --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name-res.kore
-      cat ../../$curr_gen_folder/$curr_exec_folder/$new_name-res.kore
+      #cat ../../$curr_gen_folder/$curr_exec_folder/$new_name-res.kore
       # Fusion du programme et de son résultat, séparés par "\n@@@@@\n"
       cd ../..
       echo " @@@@@ " > $curr_gen_folder/$curr_exec_folder/sep
       cat $curr_gen_folder/$curr_exec_folder/$new_name.kore  $curr_gen_folder/$curr_exec_folder/$new_name-res.kore > $curr_gen_folder/$curr_exec_folder/tmp.kore
-      cat $curr_gen_folder/$curr_exec_folder/tmp.kore
+      #cat $curr_gen_folder/$curr_exec_folder/tmp.kore
       mv $curr_gen_folder/$curr_exec_folder/tmp.kore $curr_gen_folder/$curr_exec_folder/$new_name.kore
       # Traduction vers Dedukti
       ./$kamelo_script -r --semantics $semName $curr_gen_folder/$curr_exec_folder/$new_name.kore
