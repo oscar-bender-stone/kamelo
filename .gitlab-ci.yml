@@ -36,6 +36,7 @@ preprocessing:
         - ls _opam
         - ls _opam/bin
         - ls _opam/lib
+        - ls _opam/sbin
         - sudo apt update
         - sudo apt install wget
 
@@ -92,7 +93,11 @@ preprocessing:
 #    stage: installation
 #    script:
         - echo "--- Installation of Lambdapi"
-        - opam install lambdapi
+        - git clone https://github.com/Deducteam/lambdapi.git
+        - cd lambdapi
+        - make
+        - make install
+        #- opam install lambdapi
         #- opam pin add -n -k path lambdapi .
         #- sudo apt --yes install libsigsegv2
         #- opam install --yes --deps-only -d -t lambdapi
