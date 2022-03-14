@@ -116,7 +116,7 @@ preprocessing:
 #    script:
         - echo "--- Installation of KaMeLo"
         - make
-        - make test-lp
+        #- make test-lp
 
     cache:
          paths:
