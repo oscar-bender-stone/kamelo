@@ -9,6 +9,7 @@ sem_root=sem_root # Racine par défaut utilisée pour tous les sous-dossiers
                   # d'import de la traduction
 extension=$1 #$(if [ $# = 1 ]; then echo $1 ; else echo "lp" ;fi)
 
+# Some colors
 noir='\e[0;30m'
 gris='\e[1;30m'
 rougefonce='\e[0;31m'
@@ -25,10 +26,9 @@ cyanfonce='\e[0;36m'
 cyanclair='\e[1;36m'
 grisclair='\e[0;37m'
 blanc='\e[1;37m'
-
 neutre='\e[0;m'
 
-# echo -e "${rougefonce}Bonjour${neutre} ${jaune}les gens${neutre}"
+# echo -e "${rougefonce}Hello${neutre} ${jaune}world${neutre}!"
 
   #######################################################################
   #    usage: ./gen_tests dk [one-test] ou ./gen_tests lp [one-test]    #
@@ -88,7 +88,7 @@ for d in $for_test; do
   if [ $(echo $d | cut -c-4) = "000_" ]
   then continue
   else
-   cd $d
+   cd $d ; echo ""
 
    # Récupération du nom du dossier sans les chiffres
    semName=$(echo $d | cut -c$nb_nomencla-)
@@ -101,7 +101,7 @@ for d in $for_test; do
    if [ $is_kompiled = false ]; then
       if [ $(echo $semName | cut -c-2) = "M_" ]
       then make ; semName=$(echo $semName | cut -c3-)
-      else echo "" ; echo "${cyanfonce}Compilation of the semantic:${neutre}" $semName.k ; kompile $semName.k
+      else echo -e "${cyanfonce}Compilation of the semantic:${neutre}" $semName.k ; kompile $semName.k
       fi
    fi
 
@@ -116,17 +116,16 @@ for d in $for_test; do
    mkdir $curr_gen_folder
    mkdir $curr_gen_folder/$curr_exec_folder
    # Traduction de la sémantique
-   echo "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
+   echo -e "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
    ./$kamelo_script -r $tests_folder/$d/$semName.kore
-   # rm $tests_folder/$d/$semName.kore
+   rm $tests_folder/$d/$semName.kore
    mv $semName.$extension $curr_gen_folder/
-   #mv $tests_folder/$d/$semName.kore $curr_gen_folder/
 
    # Création du fichier de management de fichiers pour LP, si besoin
    LPpkg=lambdapi.pkg
    if [ $extension = "lp" ]; then
-      echo "package_name = $sem_root" > $LPpkg  ;
-      echo "root_path    = $sem_root" >> $LPpkg ; fi
+     echo "package_name = $sem_root" >  $LPpkg ;
+     echo "root_path    = $sem_root" >> $LPpkg ;fi
    mv $LPpkg $curr_gen_folder/
 
    # Traduction des programmes se trouvant dans "curr_exec_folder"
@@ -135,7 +134,7 @@ for d in $for_test; do
       # Traduction vers Kore
       # pour utiliser krun, il faut être dans le dossier où se trouve "semName-kompiled/"
       cd ..
-      echo "${cyanfonce}Translation of the program and its result:${neutre}" $f
+      echo -e "${cyanfonce}Translation of the program and its result:${neutre}" $f
       new_name=${f%.*} # Suppression de l'extension (A faire avec la commande POSIX basename?)
       krun --depth 0 --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name.kore
       krun           --output kore $curr_exec_folder/$f > ../../$curr_gen_folder/$curr_exec_folder/$new_name-res.kore
@@ -159,7 +158,7 @@ for d in $for_test; do
    mv $curr_gen_folder -t $gen_folder
 
    # Lambdapi check
-   echo "${cyanfonce}Beginning of Lambdapi check..."
+   echo -e "${cyanfonce}Beginning of Lambdapi check..."
    cd $gen_folder
    for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
      cd $d
@@ -170,7 +169,7 @@ for d in $for_test; do
        lambdapi check --no-warnings -v 0 $pgm
      done
    done
-   echo "${cyanfonce}...ending of Lambdapi check."
+   echo -e "${cyanfonce}...ending of Lambdapi check."
    cd ../../../$tests_folder
   fi
 done

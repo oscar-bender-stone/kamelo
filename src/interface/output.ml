@@ -19,7 +19,7 @@ let skip_sign s = "_\\([A-Z-]*\\)" ^ s ^ "\\([A-Za-z_-]+\\)"
     This list is useful to replace the first component of a pair by the second one. *)
 let string_symbol_isomorphism =
   [ ("Lbl", "") ; ("Var", "") ; (* ("Sort", "") ; ("Stop", ".") ; *) ("Unds", "_") ; ("'", "") ;  ("-LT-", "<") ; ("-GT-", ">") ;
-   (* ("Pipe", "|") ; *) ("Eqls", "=") ; (* ("Slsh", "/") ; *) ("Hash", "#") ; ("Tild", "~") ; ("Perc", "%") ; ("Star", "*") ; ("Quot", "") ;
+    (* ("Pipe", "|") ; *) ("Eqls", "=") ; (* ("Slsh", "/") ; *) ("Hash", "#") ; ("Tild", "~") ; ("Perc", "%") ; ("Star", "*") ; ("Quot", "") ;
     ("projectColn", "proj_") (*; ("project", "π") ; ("Plus", "+")
     ; ("LPar", "(") ; ("RPar", ")") ; ("LSqB", "[") ; ("RSqB", "]") ; ("LBra", "{") ; ("RBra", "}") ;
     ("Comm", ",") ; ("Coln", ":") ; ("SCln", ";") *) ; ("LPar_\\([Comm_]*\\)RPar", "")

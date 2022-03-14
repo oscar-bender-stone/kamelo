@@ -1,0 +1,89 @@
+
+### Configuration stage
+stages:
+  - build
+# - installation
+  - test
+
+#image: ocaml/opam:debian-11-ocaml-4.12
+#image: debian:stable # ocaml/opam:debian-testing-opam
+image: ocaml/opam:ubuntu-18.04-opam
+
+### Configuration section
+
+.build-matrix:
+    only: [pushes]
+    parallel:
+        matrix:
+            #- OCAML_VERSION: "4.07.1"
+            #- OCAML_VERSION: "4.08.1"
+            #- OCAML_VERSION: "4.09.1"
+            #- OCAML_VERSION: "4.10.2"
+            #- OCAML_VERSION: "4.11.1"
+            - OCAML_VERSION: "4.13.1"
+
+preprocessing:
+    extends: .build-matrix
+    stage: build
+    only: [pushes]
+
+    variables:
+        FF_USE_FASTZIP: "true"
+        K_VERSION: "5.2.103" # "5.0.1" # "5.2.82"
+
+    script:
+        - echo "--- Pre-processing"
+        - sudo apt update
+        - sudo apt install wget
+
+        - echo "--- Pre-processing for OPAM"
+        - if [ ! -d _opam ]; then echo "no local switch in the CI cache, we setup a new switch"; opam switch create --yes --no-install . $OCAML_VERSION; fi
+        # How manage it?
+        #- opam update
+        - eval $(opam env)
+
+        #- echo "--- Installation of Dedukti"
+        #- opam pin add -n -k path dedukti .
+        #- opam install --yes --deps-only -d -t dedukti
+        #- opam install --yes ocamlformat
+        #- opam install --yes tezt --no-checksums --keep-build-dir
+        #- cd _opam/.opam-switch/sources/tezt.1.0.0/tezt
+        #- opam install --yes ./_opam/.opam-switch/sources/tezt.1.0.0/tezt/lib
+
+
+        #- echo "--- Installation of Z3"
+        #- sudo apt install --yes libgmp-dev
+        #- sudo apt install --yes python3
+        #- opam install --yes z3
+
+#job:altergo:
+#    stage: installation
+#    script:
+        - echo "--- Installation of Alt-ergo dependencies"
+        - sudo apt install --yes libgmp-dev m4 pkg-config autoconf zlib1g-dev
+
+#job:lambdapi:
+#    stage: installation
+#    script:
+        - echo "--- Installation of Lambdapi"
+        - opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc lambdapi
+        - why3 config detect
+
+#job:k:
+#    stage: installation
+#    script:
+        - echo "--- Installation of K"
+        - wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_"$K_VERSION"_amd64_bionic.deb
+        - sudo apt install -y ./kframework_"$K_VERSION"_amd64_bionic.deb
+
+#job:kamelo:
+#    stage: installation
+#    script:
+        - echo "--- Generate the KaMeLo executable"
+        - make
+        - echo "--- Running tests"
+        - make test-lp
+
+    cache:
+         paths:
+             - _opam
