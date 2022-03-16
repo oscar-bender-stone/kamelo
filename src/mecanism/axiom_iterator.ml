@@ -3,7 +3,7 @@ open Common.Type
 open Common.Error
 
 (** [axiom_iter qv_l ax f_var init_sign init_local_data
-    f_predicate_sym f_predicate_var f_dom_val
+    f_predicate_sym f_predicate_var f_dom_val f_ceil
     f_bottom f_top f_in f_exists f_not f_equals f_equals_dom
     f_or f_and f_and_var f_implies f_rewrites]
     to iterate over an axiom [ax]. *)
@@ -13,6 +13,7 @@ let axiom_iter
   (f_predicate_sym : name * param list * 'r list -> 's -> 'd -> 'r * 's * 'd) (* 'r or 'r list ? *)
   (f_predicate_var : name * param                -> 's -> 'd -> 'r * 's * 'd)
   (f_dom_val    : sort * name                      -> 's -> 'd -> 'r * 's * 'd)
+  (f_ceil       : param list * 'r                  -> 's -> 'd -> 'r * 's * 'd)
   (f_bottom     : param list                       -> 's -> 'd -> 'r * 's * 'd)
   (f_top        : param list                       -> 's -> 'd -> 'r * 's * 'd)
   (f_in         : param list * (name * param) * 'r -> 's -> 'd -> 'r * 's * 'd)
@@ -36,6 +37,8 @@ let axiom_iter
        f_predicate_sym (n, qv_l, r) s d
     | Predicate(Var(n, p))         -> f_predicate_var (n, p) sign local_data
     | Dom_val(s, name)             -> f_dom_val    (s, name) sign local_data
+    | Ceil(p_l, ax)                ->
+       let r, s, d = aux ax sign local_data in f_ceil   (p_l, r) s d
     | Bottom p_l                   -> f_bottom     p_l       sign local_data
     | Top p_l                      -> f_top        p_l       sign local_data
     | In(p_l, (v,p), ax)           ->
@@ -81,6 +84,8 @@ let axiom_iter_default_error
   (f_equals_dom : param list * 'r * sort * name    -> 's -> 'd -> 'r * 's * 'd)
   (f_and        : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
   (f_and_var    : param list * name * param * 'r   -> 's -> 'd -> 'r * 's * 'd) : 'r * 's * 'd =
+  let f_ceil_err _ _ _ =
+      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case ceil") in
   let f_bottom_err _ _ _ =
       raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case bottom") in
   let f_top_err _ _ _ =
@@ -97,7 +102,7 @@ let axiom_iter_default_error
       raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case rewrites") in
   axiom_iter qv_l ax f_var init_sign init_local_data
     f_predicate_sym f_predicate_var f_dom_val
-    f_bottom_err f_top_err f_in_err f_exists_err
+    f_ceil_err f_bottom_err f_top_err f_in_err f_exists_err
     f_not f_not_in
     f_equals f_equals_dom
     f_or_err

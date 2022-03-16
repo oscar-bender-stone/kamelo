@@ -28,6 +28,7 @@ let cleaning : kommand list -> kommand list = fun k_l ->
     | Rewrites(p_l, ax1, ax2)    -> Rewrites(p_l, aux_ax ax1, aux_ax ax2)
     | In(p_l, (n, p), ax)        -> In(p_l, (n, p), aux_ax ax)
     | Dom_val(_, _)              -> ax (* TODO fix ? *)
+    | Ceil(_, _)                 -> ax (* TODO fix ? *)
     | Predicate(Sym(n,p_l,ax_l)) -> (if to_delete n then
                                        assert false
                                      else

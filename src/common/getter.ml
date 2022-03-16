@@ -63,6 +63,7 @@ let rec is_predicate : axiom -> bool = fun a ->
   | Rewrites _  -> false (* users' rule *)
   | In(_,_,a)        -> is_predicate a
   | Dom_val  _  -> false
+  | Ceil(_,a)        -> is_predicate a
   | Predicate p -> match p with
                    | Sym(n, _, _) -> (* @TODO (n,_,a_l) ? *)
                       begin

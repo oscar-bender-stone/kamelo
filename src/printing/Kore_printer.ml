@@ -140,6 +140,10 @@ let rec pp_kore_axiom ppc : int -> axiom -> unit = fun step ax ->
      prints "#IN(" ; tmp2 p_l n p step ax ; pp_paren ppc
   | Dom_val(sort, n) ->
      print ppc "#DOMAIN_VALUES{%s}(%s)" (pp sort) (pp n)
+  | Ceil(p_l, ax) ->
+     prints "#CEIL(" ; pp_kore_param_list ppc p_l ;
+     pp_endline ppc ; alignment ppc step ;
+     pp_kore_axiom ppc (step+1) ax ; pp_paren ppc
   | Predicate p -> if !verbose then pp_kore_predicat_verbose ppc step p
                    else pp_kore_predicat ppc step p
 and pp_kore_predicat_verbose ppc step p = match p with
