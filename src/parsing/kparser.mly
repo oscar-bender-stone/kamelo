@@ -36,6 +36,7 @@
 %token REWRITES
 %token IN
 %token DOM_VAL
+%token CEIL
 
 // USEFUL attributes
 %token ASSOC
@@ -215,8 +216,9 @@ axiom:
   | TOP      op_const { Top $2                                    }
   | REWRITES op_bin   { let a1,a2,a3 = $2 in Rewrites(a1, a2, a3) }
   | IN       op_quant { let pl, q, a = $2 in In (pl, q, a)        }
-  | DOM_VAL  L_CURLY_BRA sort R_CURLY_BRA
-             L_PAREN STRING R_PAREN { Dom_val ($3, $6)            }
+  | DOM_VAL  L_CURLY_BRA sort R_CURLY_BRA L_PAREN STRING R_PAREN
+                      { Dom_val ($3, $6)                          }
+  | CEIL     op_una   { let a1, a2   = $2 in Ceil(a1, a2)         }
   //| name L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, axiom) R_PAREN
   //   { Sym ($1, $3, $6) }
   //| name COLON param { Var ($1, $3) }

@@ -37,6 +37,7 @@
   | REWRITES
   | IN
   | DOM_VAL
+  | CEIL
 
   | ASSOC
   | COMM
@@ -206,6 +207,7 @@ rule token = parse
   | "\\rewrites"         { REWRITES        }
   | "\\in"               { IN              }
   | "\\dv"               { DOM_VAL         }
+  | "\\ceil"             { CEIL            }
 
   | "assoc"              { ASSOC           }
   | "comm"               { COMM            }
@@ -298,6 +300,7 @@ rule token = parse
 
   | "sortInjection"      { SORTINJECT      }
   | "hasDomainValues"    { HASDOMAINVAL    }
+
 
   | '"'             { quote (Buffer.create 200) lexbuf }
   | ident           { let yytext = Lexing.lexeme lexbuf in

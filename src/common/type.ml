@@ -105,6 +105,7 @@ and axiom =
  | Rewrites of param list * axiom * axiom
  | In of param list * (name * param) * axiom
  | Dom_val of sort * name
+ | Ceil of param list * axiom
  | Predicate of predicate
 
 type def = A of axiom | D of name * quant_var
