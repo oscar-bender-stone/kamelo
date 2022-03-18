@@ -1,7 +1,7 @@
 open Common.Type
 open Count_data
 
-type ('a, 's) meta_axiom = attribute list -> 'a -> 's -> quant_var list * axiom -> ('a * 's)
+type ('a, 's) meta_axiom = data -> 'a -> 's -> quant_var list * axiom -> ('a * 's)
 
 (** [kommand_iter_without_alias
       cd l neutral_el init_sign
@@ -20,14 +20,14 @@ type ('a, 's) meta_axiom = attribute list -> 'a -> 's -> quant_var list * axiom 
     allows iteration on a Kore file, where the alias (LHS) and the RHS of rewriting rules are merged. *)
 val kommand_iter_without_alias :
   count_data -> kommand list -> 'a -> 's
-  -> (attribute list -> 'a -> 's -> sort    -> 'a * 's)
-  -> (attribute list -> 'a -> 's -> sort    -> 'a * 's)
-  -> (attribute list -> 'a -> 's -> symbol  -> 'a * 's)
-  -> (attribute list -> 'a -> 's -> symbol  -> 'a * 's)
-  -> (attribute list -> 'a -> 's -> alias   -> 'a * 's)
-  -> ((attribute list -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's) *
-        (attribute list -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's) *
-          (attribute list -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's))
+  -> (data -> 'a -> 's -> sort    -> 'a * 's)
+  -> (data -> 'a -> 's -> sort    -> 'a * 's)
+  -> (data -> 'a -> 's -> symbol  -> 'a * 's)
+  -> (data -> 'a -> 's -> symbol  -> 'a * 's)
+  -> (data -> 'a -> 's -> alias   -> 'a * 's)
+  -> ((data -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's) *
+        (data -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's) *
+          (data -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's))
   -> (('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom
@@ -44,14 +44,14 @@ val kommand_iter_without_alias :
     This function has the same signature that [kommand_iter_without_alias]. *)
 val kommand_iter_with_alias :
   count_data -> kommand list -> 'a -> 's
-  -> (attribute list -> 'a -> 's -> sort    -> 'a * 's)
-  -> (attribute list -> 'a -> 's -> sort    -> 'a * 's)
-  -> (attribute list -> 'a -> 's -> symbol  -> 'a * 's)
-  -> (attribute list -> 'a -> 's -> symbol  -> 'a * 's)
-  -> (attribute list -> 'a -> 's -> alias   -> 'a * 's)
-  -> ((attribute list -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's) *
-        (attribute list -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's) *
-          (attribute list -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's))
+  -> (data -> 'a -> 's -> sort    -> 'a * 's)
+  -> (data -> 'a -> 's -> sort    -> 'a * 's)
+  -> (data -> 'a -> 's -> symbol  -> 'a * 's)
+  -> (data -> 'a -> 's -> symbol  -> 'a * 's)
+  -> (data -> 'a -> 's -> alias   -> 'a * 's)
+  -> ((data -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's) *
+        (data -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's) *
+          (data -> 'a -> 's -> alias -> quant_var list * axiom -> 'a * 's))
   -> (('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom)
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom

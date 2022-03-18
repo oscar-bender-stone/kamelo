@@ -1,6 +1,7 @@
 %{
     open Common.Type
     open Common.Error
+    open Count
 %}
 
 %token MODULE
@@ -225,13 +226,13 @@ axiom:
   | predicate         { Predicate $1                              }
 
 kommand:
-  | SORT     sort        attributes   { Sort $2, $3        }
-  | H_SORT   sort        attributes   { H_sort $2, $3      }
-  | SYMBOL   symbol      attributes   { Symbol $2, $3      }
-  | H_SYMBOL symbol      attributes   { H_symbol $2, $3    }
-  | ALIAS symbol WHERE def attributes { Alias ($2, $4), $5 }
+  | SORT     sort        attributes   { Sort     $2,    ($3, update_line()) }
+  | H_SORT   sort        attributes   { H_sort   $2,    ($3, update_line()) }
+  | SYMBOL   symbol      attributes   { Symbol   $2,    ($3, update_line()) }
+  | H_SYMBOL symbol      attributes   { H_symbol $2,    ($3, update_line()) }
+  | ALIAS symbol WHERE def attributes { Alias ($2, $4), ($5, update_line()) }
   | AXIOM L_CURLY_BRA quant_var_list R_CURLY_BRA axiom attributes
-      { Axiom ($3, $5), $6 }
+                                      { Axiom ($3, $5), ($6, update_line()) }
 
 import:
   | IMPORT name attributes { ($2, $3) }

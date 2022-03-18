@@ -1,4 +1,6 @@
 {
+  open Count
+
   type token =
   | EOF
   | IDENT of string
@@ -170,7 +172,9 @@ let production = "org"['a'-'z' 'A'-'Z' '_' '-' '\'' '0'-'9']+ ("Production")
 
 rule token = parse
   | eof                  { EOF             }
-  | [' ' '\t' '\n']      { token lexbuf    }    (* skip blanks *)
+  | [' ' '\t']           { token lexbuf    }  (* skip blanks *)
+  | ['\n']               { incr curr_line
+                           ; token lexbuf  }
   | "//"                 { comment lexbuf  }
   | "/*"                 { scomment lexbuf }
 

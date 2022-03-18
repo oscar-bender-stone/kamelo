@@ -190,10 +190,87 @@ let rec collect : axiom -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
   | And(_, ax1, ax2) -> collect ax2 (collect ax1 acc)
   | _ -> raise (NotYetImplemented "Need to update [Axiom.collect].")
 
+let rec has_exists_op : axiom -> bool = function
+  | Exists _ -> true
+  | Equals (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
+  | And (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
+  | Or  (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
+  | Not (_,ax) -> has_exists_op ax
+  | Implies (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
+  | Bottom _ -> false
+  | Top _ -> false
+  | Rewrites (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
+  | In (_,_,ax) -> has_exists_op ax
+  | Dom_val _ -> false
+  | Ceil (_,ax) -> has_exists_op ax
+  | Predicate _ -> false
+
+       
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
     to a rewriting rule. *)
 let of_implies_axiom : axiom -> ctrs_rule = fun ax ->
-  let init_data = StrMap.empty in
+  if has_exists_op ax
+  then create_rule p_TYPE p_TYPE, Uncond, 42
+  else
+    let init_data = StrMap.empty in
+
+(*
+    match ax with
+    | Implies(_, Top _, And(_, Equals(_, l, r), Top _)) ->
+       (try create_rule (iter_implies l init_data) (iter_implies r init_data), Uncond, 42
+        with _ -> failwith "Function [Axiom.of_implies_axiom] - Case 0")
+    | Implies(_, Top _, Equals(_, l, r)) ->
+       (try create_rule (iter_implies l init_data) (iter_implies r init_data), Uncond, 42
+        with _ -> failwith "Function [Axiom.of_implies_axiom] - Case 0")
+    | Implies(_, And(_,Top _, a1), And(_, Equals(_, l, r), Top _))  ->
+       (let data = collect a1 init_data in
+        try create_rule (iter_implies l data) (iter_implies r data), Uncond, 42
+        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 1"))
+    | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), And(_, Equals(_, l, r), Top _))  ->
+       (let data = collect a1 init_data in
+        try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
+        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 2"))
+    | Implies(_, Equals(_, c, Dom_val(_,"true")), And(_, Equals(_, l, r), Top _))  ->
+       (try create_rule (iter_implies l init_data) (iter_implies r init_data), Cond (iter_implies c init_data), 42 (* TODO iter_condition ? *)
+        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 3"))
+    | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), And(_, Equals(_, l, r), Top _)) ->
+       (let c = Not(pNot, In(pIn,(v,t),a)) in
+        let data = collect a1 init_data in
+        try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
+        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4"))
+(* An example of the previous case:
+  axiom{R} \implies{R} (
+    \and{R} (
+      \not{R} (
+        \or{R} (
+            \and{R} (
+              \top{R}(),
+              \and{R} (
+                \in{SortInt{}, R} (
+                  X0:SortInt{},
+                  \dv{SortInt{}}("0")
+                ),
+                \top{R} ()
+              )
+          ),
+          \bottom{R}()
+        )
+      ),
+      \and{R}(
+        \top{R}(),
+        \and{R} (
+          \in{SortInt{}, R} (
+            X0:SortInt{},
+            Var'Unds'0:SortInt{}
+          ),
+          \top{R} ()
+        )
+  ))
+ [...] *)
+    | _ -> raise (NotYetImplemented "Need to update [Axiom.of_implies_axiom].")
+
+
+ *)
   match ax with
   | Implies(_, Top _, Equals(_, l, And(_, r, Top _))) ->
      (try create_rule (iter_implies l init_data) (iter_implies r init_data), Uncond, 42

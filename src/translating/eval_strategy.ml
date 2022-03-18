@@ -111,7 +111,7 @@ let create_RHS : axiom -> signature -> p_term StrMap.t -> p_term = fun ax sign l
   match ax with
   | Rewrites(_,_,And(_,a1,a2)) ->
      if is_conditional_rule a1 then
-       raise (NotYetImplemented "KProver claim.")
+       p_TYPE (* raise (NotYetImplemented "KProver claim.") *)
      else
        let res, _ = Axiom.iter_to_pattern a2 sign local_data in res
   |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
@@ -144,8 +144,8 @@ let get_var_and_sort_inj : p_term -> signature -> string * string * string = fun
   in
   aux cond.elt
 
-let trans_heating_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
-  fun attr_l acc sign al (_, ax) ->
+let trans_heating_rule : data -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+  fun (attr_l, _) acc sign al (_, ax) ->
   (* To understand this algorithm, consider the following example:
           rule E1 ~> (freezer1_and E2) => E1 and E2 requires E1 ∈ KResult (règle H) *)
 
@@ -243,8 +243,8 @@ let is_subsort_KResult : signature -> string -> bool = fun sign s ->
   in
   List.mem _SORT_KRESULT subsort_l
 
-let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
-  fun attr_l acc sign al (_, ax) ->
+let trans_cooling_rule : data -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+  fun (attr_l, _) acc sign al (_, ax) ->
   (* To understand this algorithm, consider the following example:
         rule E1 and E2 => E1 ~> (freezer1_and E2) requires not(E1 ∈ KResult) (règle C) *)
 
@@ -297,8 +297,8 @@ let trans_cooling_rule : attribute list -> ctrs_rule list -> signature -> alias 
 (** To translate semantic rules  *)
 (** ---------------------------- *)
 
-let trans_semantic_rule : attribute list -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
-  fun attr_l acc sign al (_, ax) ->
+let trans_semantic_rule : data -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
+  fun (attr_l, _) acc sign al (_, ax) ->
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in

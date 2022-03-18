@@ -21,6 +21,11 @@ let wrn_1 ppc = fun msg arg -> print ppc (yel msg) arg ; print ppc "\n"
 let wrn_2 ppc = fun msg arg1 arg2 ->
   print ppc (yel msg) arg1 arg2 ; print ppc "\n"
 
+(** [wrn_no_translation ppc p1 p2] informs that the command, which begins line %i and
+    ends line %i, wasn't translated. *)
+let wrn_no_translation = fun (p1, p2) ->
+  wrn_2 _STDOUT "The command, which begins line %i and ends line %i, wasn't translated." p1 p2
+
 let blue_msg_1 ppc = fun msg arg -> print ppc (blu msg) arg ; print ppc "\n"
 
 let red_msg   ppc = fun msg -> print ppc (red msg) ; print ppc "\n"

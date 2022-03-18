@@ -40,13 +40,13 @@ let cleaning : kommand list -> kommand list = fun k_l ->
     | kommand::q ->
        (try
           (match kommand with
-           | Sort s                     ,_ -> if s = _SORT_ID then [] else [kommand]
-           | H_sort _                   ,_ -> [kommand]
-           | Symbol   (n,_,_,_)         ,_ -> if to_delete n then assert false else [kommand]
-           | H_symbol (n,_,_,_)         ,_ -> if to_delete n then assert false else [kommand]
-           | Alias (s,(n,qv_l,l, A ax)) ,a -> [(Alias (s,(n,qv_l,l, A (aux_ax ax))), a)]
-           | Alias (_,(_,_,_, D (n,_))) ,_ -> if to_delete n then assert false else [kommand]
-           | Axiom(qv_l, ax)            ,a -> [(Axiom(qv_l, aux_ax ax), a)])@(aux q)
+           | Sort s                     , (_,_) -> if s = _SORT_ID then [] else [kommand]
+           | H_sort _                   , (_,_) -> [kommand]
+           | Symbol   (n,_,_,_)         , (_,_) -> if to_delete n then assert false else [kommand]
+           | H_symbol (n,_,_,_)         , (_,_) -> if to_delete n then assert false else [kommand]
+           | Alias (s,(n,qv_l,l, A ax)) , (a,p) -> [(Alias (s,(n,qv_l,l, A (aux_ax ax))), (a, p))]
+           | Alias (_,(_,_,_, D (n,_))) , (_,_) -> if to_delete n then assert false else [kommand]
+           | Axiom(qv_l, ax)            , (a,p) -> [(Axiom(qv_l, aux_ax ax), (a, p))])@(aux q)
         with _ -> aux q)
   in
   aux k_l

@@ -120,7 +120,8 @@ type kommand_aux =
  | Alias    of alias
  | Axiom    of quant_var list * axiom
 
-type kommand = kommand_aux * attribute list
+type data = attribute list * (int * int)
+type kommand = kommand_aux * data
 
 type import = name * attribute list
 

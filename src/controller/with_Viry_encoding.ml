@@ -25,7 +25,7 @@ let main cd : (* TODO fix heterogenous signature *)
     let new_s = sort_to_p_symbol (pp s) in
     let sort_l, sym_l, ctrs_l = acc in (new_s::sort_l, sym_l, ctrs_l), sign
   in
-  let f_symbol attr_l acc sign s =
+  let f_symbol (attr_l,_) acc sign s =
     let sign = match is_constructor s attr_l with
       | Some sort ->
          { sign with inductive = add_update_induc sort s sign.inductive }
@@ -40,7 +40,7 @@ let main cd : (* TODO fix heterogenous signature *)
   in
   let propagation = fun _ acc sign _ -> (acc, sign) in
   let f_subsort :
-        attribute list -> p_command list * p_command list * ctrs_rule list ->
+        data -> p_command list * p_command list * ctrs_rule list ->
         signature -> quant_var list * axiom ->
         (p_command list * p_command list * ctrs_rule list) * signature =
     fun _ acc sign (_, ax) -> (acc, collect_subsort_data ax sign)
@@ -53,12 +53,12 @@ let main cd : (* TODO fix heterogenous signature *)
   let (sort_l, sym_l, ctrs_r_l), sign =
     kommand_iter_without_alias cd kommand_l ([], [], []) init_sign
     f_sort propagation f_symbol propagation propagation
-    ((fun attr_l (sort_l, sym_l, r_l) sign al ax  ->
-      (sort_l, sym_l, trans_cooling_rule  attr_l r_l sign al ax), sign),
-     (fun attr_l (sort_l, sym_l, r_l) sign al ax  ->
-      (sort_l, sym_l, trans_heating_rule  attr_l r_l sign al ax), sign),
-     (fun attr_l (sort_l, sym_l, r_l) sign al ax  ->
-      (sort_l, sym_l, trans_semantic_rule attr_l r_l sign al ax), sign))
+    ((fun data (sort_l, sym_l, r_l) sign al ax  ->
+      (sort_l, sym_l, trans_cooling_rule  data r_l sign al ax), sign),
+     (fun data (sort_l, sym_l, r_l) sign al ax  ->
+      (sort_l, sym_l, trans_heating_rule  data r_l sign al ax), sign),
+     (fun data (sort_l, sym_l, r_l) sign al ax  ->
+      (sort_l, sym_l, trans_semantic_rule data r_l sign al ax), sign))
     propagation (f_subsort, propagation)
     (propagation, propagation, propagation, propagation, propagation)
     propagation propagation

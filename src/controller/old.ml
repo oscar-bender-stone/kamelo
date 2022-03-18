@@ -142,7 +142,7 @@ let preprocessing :
   let rec aux l ((sort_l, induc_m, sym_l, alias_l, ax_l) as acc) =
     match l with
     | [] -> acc
-    | (c, attr_l)::q ->
+    | (c, (attr_l, _))::q ->
        match c with
        | Sort   s ->
           incr_k_sort cd ; print_new_attribute s attr_l ;
@@ -152,7 +152,7 @@ let preprocessing :
           begin
             let name,_,_,_ = s in
             print_new_attribute name attr_l ;
-            if not(!check_induc) then (incr_k_symbol cd ; aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
+            if not(!check_induc) then (incr_k_symbol cd ; aux q (sort_l, induc_m, (s, attr_l)::sym_l, alias_l, ax_l))
             else
               (match is_constructor s attr_l with
                | Some sort ->
@@ -160,7 +160,7 @@ let preprocessing :
                   let induc_m = Induc.update sort (f s) induc_m in
                   aux q (remove sort sort_l, induc_m, sym_l, alias_l, ax_l)
                | None ->
-                  aux q (sort_l, induc_m, (s,attr_l)::sym_l, alias_l, ax_l))
+                  aux q (sort_l, induc_m, (s, attr_l)::sym_l, alias_l, ax_l))
           end
        | H_symbol _ -> incr_k_hooked_symbol cd ; aux q acc
        | Alias al->
@@ -168,7 +168,7 @@ let preprocessing :
            | [] -> incr_k_alias cd ; aux q (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l)
            | h::tl ->
               (match h with
-               | Axiom(qv,a), attr_l ->
+               | Axiom(qv,a), (attr_l, _) ->
                   if is_rule a
                   then
                     (incr_k_rewriting_ax cd ;
