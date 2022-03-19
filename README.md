@@ -21,6 +21,7 @@ The files' hierarchy of KaMeLo
 ├── main.ml: *The main algorithm to translate a semantic or an executable*  
 ├── Makefile  
 ├── README.md: *This file*  
+├── example: *Examples of K semantic translation*  
 ├── src: *Source of KaMeLo. (See src/README.md)*  
 └── tests  
       ├── 001_imp-dico/: *The modified IMP semantic*   
