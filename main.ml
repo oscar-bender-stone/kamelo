@@ -13,8 +13,7 @@ let () =
   let lexbuf = Lexing.from_channel (!Terminal.Cmd_line.input) in
   let file =
     try Parsing.Kparser.file Parsing.Klexer.token lexbuf
-    with x -> wrn_1 _STDOUT "STOP at %i" !Parsing.Count.curr_line ;
-              raise x
+    with e -> red_msg_1 _STDOUT "Parsing fails line %i" !Parsing.Count_line.curr_line ; raise e
   in
   (* STEP C: Translate the semantic or the executable *)
   match file with

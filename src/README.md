@@ -28,8 +28,9 @@ The KaMeLo source file hierarchy
    │   ├── count_data.ml: *Data structure to recap the translation in the terminal*  
    │   └── kommand_iterator.ml: *To iterate over Kore commands*  
    ├── parsing/: *To parse Kore file*  
-   │   ├── klexer.mll  
-   │   └── kparser.mly  
+   │   ├── count_line: *To find out which command fails (useful for debugging)*  
+   │   ├── klexer.mll: *The Kore lexer*  
+   │   └── kparser.mly: *The Kore parser*  
    ├── printing/  
    │   ├── Kore_printer.ml: *To print into a simplified Kore syntax*  
    │   ├── meta_printer.ml: *Meta-printers to print the resulting translation*  

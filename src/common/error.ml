@@ -45,14 +45,14 @@ let green_msg_2 ppc = fun msg arg1 arg2 ->
 
 type kameloTypeError = InternalError | NotYetImplemented
 
-(** type error * file name * function name * specific message *)
+(** A KaMeLo error has the following information:
+      type error * file name * function name * specific message to specify the error *)
 exception KaMeLoError of kameloTypeError * string * string * string
 
-(* exception InternalError of string
-exception NotYetImplemented of string *)
+(** Message if translation fails *)
 
 (** [wrn_no_translation ppc p1 p2] informs that the command, which begins line %i and
-    ends line %i, wasn't translated. *)
+    ends line %i, wasn't translated, and the reason. *)
 let wrn_no_translation = fun (typeError, fileName, functionName, msg) (p1, p2) ->
   match typeError with
   | InternalError ->

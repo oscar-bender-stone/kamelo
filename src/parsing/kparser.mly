@@ -1,7 +1,7 @@
 %{
     open Common.Type
     open Common.Error
-    open Count
+    open Count_line
 %}
 
 %token MODULE
