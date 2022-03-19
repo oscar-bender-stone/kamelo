@@ -4,6 +4,7 @@ open LP.Syntax
 open Common.Type
 open Common.Error
 open Common.Xlib_OCaml
+open Common.Getter
 
 open Interface.LP_p_term
 open Interface.K_prelude
@@ -27,8 +28,8 @@ let sym_case : name * param list * p_term list -> 's -> 'd -> p_term * 's * 'd =
      List.fold_left create_appl (create_ident n) a_l), sign, data
 
 (** [var_case f (n, _) s d] uses local data [d] to replace the variable [n] by a pattern. *)
-let var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t = fun f (n, _) s d ->
-    (if StrMap.mem n d then StrMap.find n d else f n), s, d
+let var_case : (name -> p_term) -> name * param -> 's -> p_term StrMap.t -> p_term * 's * p_term StrMap.t =
+  fun f (n, _) s d -> (if StrMap.mem n d then StrMap.find n d else f n), s, d
 
 let iter_meta :
    (param list * 'r * sort * name    -> 's -> 'd -> 'r * 's * 'd) ->
@@ -38,13 +39,13 @@ let iter_meta :
   let f_predicate_var (n, p) s d = var_case f_var (n, p) s d in
   let f_dom_val (_, name) s d = create_ident name, s, d in
   let f_not _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_meta] - Case not")    in
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_meta", "Case not"))    in
   let f_not_in _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_meta] - Case not-in") in
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_meta", "Case not-in")) in
   let f_equals _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_meta] - Case equals") in
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_meta", "Case equals")) in
   let f_and _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_meta] - Case and")    in
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_meta", "Case and"))    in
   let f_and_var (_, n, _, ax) s d = ax, s, StrMap.add n ax d in
   let res, _, local_data_res =
     axiom_iter_default_error [] ax f_var sign_init local_data_init
@@ -59,7 +60,7 @@ let iter_meta :
 let iter_axiom : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t =
   fun f_var ax sign local_data ->
   let f_equals_dom_val _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_axiom] - Case equals-dom_val") in
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_axiom", "Case equals-dom_val")) in
   iter_meta f_equals_dom_val f_var ax sign local_data
 
 let iter_to_ident   = iter_axiom create_ident
@@ -85,7 +86,7 @@ let collect_subsort_data : axiom -> signature -> signature = fun ax sign ->
   match ax with
   | Exists (_, _, Equals(_, _, Predicate(Sym(s, [S s1; S s2], _)))) when s = _INJ ->
      { sign with subsort = add_update s1 s2 sign.subsort }
-  | _ -> raise (InternalError "Need to update [Axiom.collect_subsort_data].")
+  | _ -> raise (KaMeLoError (NotYetImplemented, "Axiom", "collect_subsort_data", ""))
 
 (** ---------------------------------------------------- *)
 (** To translate equals-axioms
@@ -99,9 +100,9 @@ let of_equality_axiom : axiom -> p_rule = fun ax -> (* TODO sign ?*)
         let lhs, ld = iter_to_pattern ax1 empty_sign StrMap.empty in
         let rhs, ld = iter_to_pattern ax2 empty_sign ld in
         create_rule lhs rhs
-      with _ -> raise (InternalError "Need to update [Axiom.of_equality_axiom]."))
-  | _ -> raise (InternalError "The current axiom isn't an equality one.\n
-                Please, raise an issue.")
+      with _ -> raise (KaMeLoError (NotYetImplemented, "Axiom", "of_equality_axiom", "")))
+  | _ -> raise (KaMeLoError (InternalError, "Axiom", "of_equality_axiom", "The current axiom isn't an equality one.\n
+                Please, raise an issue."))
 
 (** ---------------------------------------------------- *)
 (** To translate or-axioms, bottom-axioms, not-axioms
@@ -161,13 +162,13 @@ let iter_implies : (string -> p_term) -> axiom -> p_term StrMap.t -> p_term = fu
            rule ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 ♭ ↪
                 ♭Lblf'UndsUnds'FALSE-SYNTAX'Unds'Bool'Unds'Int $Var'Unds'0 (♭inj (LblnotBool'Unds' (inj (eq (inj $Var'Unds'0) (inj 0))))); *)
   let f_not _ _ _ =
-      raise (NotYetImplemented "Need to update [Axiom.iter_implies] - Case not")      in (* TODO different! *)
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_implies", "Case Not"))        in (* TODO different! *)
   let f_equals _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_implies] - Case equals")     in
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_implies", "Case Equals"))     in
   let f_equals_dom _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_implies] - Case equals-dom") in
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_implies", "Case Equals-dom")) in
   let f_and _ _ _ =
-      raise (NotYetImplemented "Need to update [Axiom.iter_implies] - Case and")      in (* TODO different! *)
+    raise (KaMeLoError (NotYetImplemented, "Axiom", "iter_implies", "Case And"))        in (* TODO different! *)
   let f_and_var (_, _, _, ax) s d = ax, s, d in
   let res, _, _ =
     axiom_iter_default_error [] ax f_var StrMap.empty local_data_init
@@ -188,56 +189,43 @@ let rec collect : axiom -> p_term StrMap.t -> p_term StrMap.t = fun ax acc ->
   | In(_,(v,_),a) -> StrMap.add v (iter_implies a acc) acc
   | And(_,Top _,ax) | And(_,ax,Top _) -> collect ax acc
   | And(_, ax1, ax2) -> collect ax2 (collect ax1 acc)
-  | _ -> raise (NotYetImplemented "Need to update [Axiom.collect].")
+  | _ -> raise (KaMeLoError (NotYetImplemented, "Axiom", "collect", ""))
 
-let rec has_exists_op : axiom -> bool = function
-  | Exists _ -> true
-  | Equals (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
-  | And (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
-  | Or  (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
-  | Not (_,ax) -> has_exists_op ax
-  | Implies (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
-  | Bottom _ -> false
-  | Top _ -> false
-  | Rewrites (_, ax1, ax2) -> has_exists_op ax1 || has_exists_op ax2
-  | In (_,_,ax) -> has_exists_op ax
-  | Dom_val _ -> false
-  | Ceil (_,ax) -> has_exists_op ax
-  | Predicate _ -> false
-
-       
 (** [of_implies_axiom ax] translates the axiom [ax] which begins by "\implies"
     to a rewriting rule. *)
 let of_implies_axiom : axiom -> ctrs_rule = fun ax ->
-  if has_exists_op ax
-  then create_rule p_TYPE p_TYPE, Uncond, 42
+  if has_Exists_op ax
+  then raise (KaMeLoError (NotYetImplemented, "Axiom", "of_implies_axiom", "There is a Exists constructor in a Implies-axiom."))
   else
-    let init_data = StrMap.empty in
+    if has_Ceil_op ax
+    then raise (KaMeLoError (NotYetImplemented, "Axiom", "of_implies_axiom", "There is a Ceil constructor in a Implies-axiom."))
+    else
+      let init_data = StrMap.empty in
 
 (*
     match ax with
     | Implies(_, Top _, And(_, Equals(_, l, r), Top _)) ->
        (try create_rule (iter_implies l init_data) (iter_implies r init_data), Uncond, 42
-        with _ -> failwith "Function [Axiom.of_implies_axiom] - Case 0")
+        with _ -> raise (KaMeLoError (InternalError , "Axiom", "of_implies_axiom", "Case -1.")))
     | Implies(_, Top _, Equals(_, l, r)) ->
        (try create_rule (iter_implies l init_data) (iter_implies r init_data), Uncond, 42
-        with _ -> failwith "Function [Axiom.of_implies_axiom] - Case 0")
+        with _ -> raise (KaMeLoError (InternalError , "Axiom", "of_implies_axiom", "Case 0.")))
     | Implies(_, And(_,Top _, a1), And(_, Equals(_, l, r), Top _))  ->
        (let data = collect a1 init_data in
         try create_rule (iter_implies l data) (iter_implies r data), Uncond, 42
-        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 1"))
+        with _ -> raise (KaMeLoError (InternalError , "Axiom", "of_implies_axiom", "Case 1.")))
     | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), And(_, Equals(_, l, r), Top _))  ->
        (let data = collect a1 init_data in
         try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
-        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 2"))
+        with _ -> raise (KaMeLoError (InternalError , "Axiom", "of_implies_axiom", "Case 2.")))
     | Implies(_, Equals(_, c, Dom_val(_,"true")), And(_, Equals(_, l, r), Top _))  ->
        (try create_rule (iter_implies l init_data) (iter_implies r init_data), Cond (iter_implies c init_data), 42 (* TODO iter_condition ? *)
-        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 3"))
+        with _ -> raise (KaMeLoError (InternalError , "Axiom", "of_implies_axiom", "Case 3.")))
     | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), And(_, Equals(_, l, r), Top _)) ->
        (let c = Not(pNot, In(pIn,(v,t),a)) in
         let data = collect a1 init_data in
         try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
-        with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4"))
+        with _ -> raise (KaMeLoError (InternalError , "Axiom", "of_implies_axiom", "Case 4.")))
 (* An example of the previous case:
   axiom{R} \implies{R} (
     \and{R} (
@@ -267,30 +255,30 @@ let of_implies_axiom : axiom -> ctrs_rule = fun ax ->
         )
   ))
  [...] *)
-    | _ -> raise (NotYetImplemented "Need to update [Axiom.of_implies_axiom].")
+    | _ -> raise (KaMeLoError (NotYetImplemented, "Axiom", "of_implies_axiom", "Case root.")) *)
 
 
- *)
+
   match ax with
   | Implies(_, Top _, Equals(_, l, And(_, r, Top _))) ->
      (try create_rule (iter_implies l init_data) (iter_implies r init_data), Uncond, 42
-      with _ -> failwith "Function [Axiom.of_implies_axiom] - Case 0")
+      with _ -> raise (KaMeLoError (InternalError, "Axiom", "of_implies_axiom", "Case 0")))
   | Implies(_, And(_,Top _, a1), Equals(_, l, And(_, r, Top _))) ->
      (let data = collect a1 init_data in
       try create_rule (iter_implies l data) (iter_implies r data), Uncond, 42
-      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 1"))
+      with _ -> raise (KaMeLoError (InternalError, "Axiom", "of_implies_axiom", "Case 1")))
   | Implies(_, And(_, Equals(_, c, Dom_val(_,"true")), a1), Equals(_, l, And(_, r, Top _))) ->
      (let data = collect a1 init_data in
       try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
-      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 2"))
+      with _ -> raise (KaMeLoError (InternalError, "Axiom", "of_implies_axiom", "Case 2")))
   | Implies(_, Equals(_, c, Dom_val(_,"true")), Equals(_, l, And(_, r, Top _))) ->
       (try create_rule (iter_implies l init_data) (iter_implies r init_data), Cond (iter_implies c init_data), 42 (* TODO iter_condition ? *)
-       with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 3"))
+       with _ -> raise (KaMeLoError (InternalError, "Axiom", "of_implies_axiom", "Case 3")))
   | Implies (_, And(_, Not(pNot, Or(_, And(_, Top _, And(_, In(pIn,(v,t),a), Top _)), Bottom _)), a1), Equals(_, l, And(_, r, Top _))) ->
      (let c = Not(pNot, In(pIn,(v,t),a)) in
       let data = collect a1 init_data in
       try create_rule (iter_implies l data) (iter_implies r data), Cond (iter_implies c data), 42 (* TODO iter_condition ? *)
-      with _ -> raise (InternalError "Function [Axiom.of_implies_axiom] - Case 4"))
+      with _ -> raise (KaMeLoError (InternalError, "Axiom", "of_implies_axiom", "Case 4")))
 (* An example of the previous case:
   axiom{R} \implies{R} (
     \and{R} (
@@ -320,4 +308,4 @@ let of_implies_axiom : axiom -> ctrs_rule = fun ax ->
         )
   ))
  [...] *)
-  | _ -> raise (NotYetImplemented "Need to update [Axiom.of_implies_axiom].")
+  | _ -> raise (KaMeLoError (NotYetImplemented, "Axiom", "of_implies_axiom", "Case root."))

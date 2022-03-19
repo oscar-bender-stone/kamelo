@@ -4,14 +4,18 @@ open Interface.Signature
 open Terminal.Display_console
 
 open Controller.Prelude (* TODO delete *)
-
+open Common.Error
 
 let () =
   (* STEP A: Parse the command-line *)
   Terminal.Cmd_line.parse ();
   (* STEP B: Parse the Kore file   *)
   let lexbuf = Lexing.from_channel (!Terminal.Cmd_line.input) in
-  let file = Parsing.Kparser.file Parsing.Klexer.token lexbuf in
+  let file =
+    try Parsing.Kparser.file Parsing.Klexer.token lexbuf
+    with x -> wrn_1 _STDOUT "STOP at %i" !Parsing.Count.curr_line ;
+              raise x
+  in
   (* STEP C: Translate the semantic or the executable *)
   match file with
   | F_exec(exec, result) ->
@@ -70,7 +74,7 @@ let () =
      let semantics_module_name =
        match List.map (fun (name,_,_,_) -> name) file with
        | ["BASIC-K";"KSEQ";"INJ";"K";x] -> x
-       | _ -> failwith "WARNING: The prelude isn't the one expected."
+       | _ -> raise (KaMeLoError (InternalError, "Main", "semantics_module_name", "The prelude hasn't the expected shape."))
      in
      let filename =
        Terminal.Cmd_line.create_filename semantics_module_name (* TODO *)

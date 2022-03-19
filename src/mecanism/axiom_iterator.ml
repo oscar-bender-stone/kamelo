@@ -85,21 +85,21 @@ let axiom_iter_default_error
   (f_and        : param list * 'r * 'r             -> 's -> 'd -> 'r * 's * 'd)
   (f_and_var    : param list * name * param * 'r   -> 's -> 'd -> 'r * 's * 'd) : 'r * 's * 'd =
   let f_ceil_err _ _ _ =
-      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case ceil") in
+    raise (KaMeLoError(NotYetImplemented, "Axiom_iterator", "axiom_iter_default_error", "Case Ceil"))     in
   let f_bottom_err _ _ _ =
-      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case bottom") in
+    raise (KaMeLoError(NotYetImplemented, "Axiom_iterator", "axiom_iter_default_error", "Case Bottom"))   in
   let f_top_err _ _ _ =
-      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case top")    in
+    raise (KaMeLoError(NotYetImplemented, "Axiom_iterator", "axiom_iter_default_error", "Case Top"))      in
   let f_in_err _ _ _ =
-      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case in")     in
+    raise (KaMeLoError(NotYetImplemented, "Axiom_iterator", "axiom_iter_default_error", "Case In"))       in
   let f_exists_err _ _ _ =
-      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case exists") in
+    raise (KaMeLoError(NotYetImplemented, "Axiom_iterator", "axiom_iter_default_error", "Case Exists"))   in
   let f_or_err _ _ _ =
-      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case or")       in
+    raise (KaMeLoError(NotYetImplemented, "Axiom_iterator", "axiom_iter_default_error", "Case Or"))       in
   let f_implies_err _ _ _ =
-      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case implies")  in
+    raise (KaMeLoError(NotYetImplemented, "Axiom_iterator", "axiom_iter_default_error", "Case Implies"))  in
   let f_rewrites_err _ _ _ =
-      raise (NotYetImplemented "Need to update [axiom_iter_default_error] - Case rewrites") in
+    raise (KaMeLoError(NotYetImplemented, "Axiom_iterator", "axiom_iter_default_error", "Case Rewrites")) in
   axiom_iter qv_l ax f_var init_sign init_local_data
     f_predicate_sym f_predicate_var f_dom_val
     f_ceil_err f_bottom_err f_top_err f_in_err f_exists_err

@@ -21,7 +21,7 @@ let get_sort : symbol -> sort = fun s -> (* Fix TODO *)
   let p = get_param s in
   match p with
   | S s -> s
-  | Q _ -> raise (InternalError "Getting a sort isn't possible: no sort.")
+  | Q _ -> raise (KaMeLoError (InternalError, "Getter", "get_sort", "Getting a sort isn't possible: no sort."))
 
 (** [is_constructor s attr_l] returns:
       - None, if the attribut "constructor" is not in [attr_l]
@@ -96,3 +96,33 @@ let is_heating_rule : attribute list -> bool = fun l ->
     | _ -> false
   in
   List.fold_left (fun acc x -> f x || acc) false l
+
+let rec has_Exists_op : axiom -> bool = function
+  | Exists _ -> true
+  | Equals (_, ax1, ax2) -> has_Exists_op ax1 || has_Exists_op ax2
+  | And (_, ax1, ax2) -> has_Exists_op ax1 || has_Exists_op ax2
+  | Or  (_, ax1, ax2) -> has_Exists_op ax1 || has_Exists_op ax2
+  | Not (_,ax) -> has_Exists_op ax
+  | Implies (_, ax1, ax2) -> has_Exists_op ax1 || has_Exists_op ax2
+  | Bottom _ -> false
+  | Top _ -> false
+  | Rewrites (_, ax1, ax2) -> has_Exists_op ax1 || has_Exists_op ax2
+  | In (_,_,ax) -> has_Exists_op ax
+  | Dom_val _ -> false
+  | Ceil (_,ax) -> has_Exists_op ax
+  | Predicate _ -> false
+
+let rec has_Ceil_op : axiom -> bool = function
+  | Ceil _ -> true
+  | Equals (_, ax1, ax2) -> has_Ceil_op ax1 || has_Ceil_op ax2
+  | And (_, ax1, ax2) -> has_Ceil_op ax1 || has_Ceil_op ax2
+  | Or  (_, ax1, ax2) -> has_Ceil_op ax1 || has_Ceil_op ax2
+  | Not (_,ax) -> has_Ceil_op ax
+  | Implies (_, ax1, ax2) -> has_Ceil_op ax1 || has_Ceil_op ax2
+  | Bottom _ -> false
+  | Top _ -> false
+  | Rewrites (_, ax1, ax2) -> has_Ceil_op ax1 || has_Ceil_op ax2
+  | In (_,_,ax) -> has_Ceil_op ax
+  | Dom_val _ -> false
+  | Exists (_,_,ax) -> has_Ceil_op ax
+  | Predicate _ -> false

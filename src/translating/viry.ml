@@ -194,7 +194,8 @@ let get_head_symbol config =
        let n = snd name.elt in
        if is_to_keep n then None
        else (if is_cell n then None else Some n)
-    | _ -> raise (InternalError "The function [Viry.get_head_symbol] need to be fixed.")
+    | _ -> (* raise (InternalError "The function [Viry.get_head_symbol] need to be fixed.") *)
+       wrn_msg _STDOUT "FIXME" ; None
   in
   aux config
 
@@ -203,11 +204,18 @@ let get_head_symbol config =
     class [ec].  *)
 let find_equiv_class : equiv_class -> ctrs_rule -> equiv_class =
   fun ec (({elt=(lhs,_);_},_,_) as r) ->
+  match get_head_symbol lhs with
+  | None -> ec
+  | Some key -> add_update key r ec
+
+(*
   let key = match get_head_symbol lhs with
-    | None   -> raise (InternalError "The function [Viry.find_equiv_class] need to be fixed.")  (* raise  KCellNotFound *)
+    | None   -> raise (InternalError "The function [Viry.find_equiv_class] need to be fixed.")
+    (* raise  KCellNotFound *)
     | Some x -> x
   in
-  add_update key r ec
+  let f ec = try key with _ -> wrn_msg _STDOUT "FIXME" ; ec in
+  add_update f r ec *)
 
 (** [to_equiv_class rule_l] generates each equivalence class from
     a CTRS [rule_l], i.e. generates each C_σ. *)
@@ -238,7 +246,7 @@ let update_config : string -> p_term -> (p_term -> p_term) -> p_term =
         let r_is_head, x2 = aux is_head t2 in
         if r_is_head then
           (* (if l_is_head TODO Correcte ?
-           then failwith "Several head symbols..."
+           then raise (KaMeLoError (InternalError, "Viry", "update_config", "Several head symbols..."))
            else *) false, create_appl x1 (f x2)
         else l_is_head, create_appl x1 x2)
     | P_Patt _ | P_Expl _ -> false, t
@@ -246,7 +254,7 @@ let update_config : string -> p_term -> (p_term -> p_term) -> p_term =
        if n = head
        then true,  no_pos (P_Iden(({elt=(x1, safe_prefix ^ n);pos=y}), x2))
        else false, t
-    | _ -> raise (InternalError "The function [Viry.has_infered_configuration] need to be fixed.")
+    | _ -> raise (KaMeLoError (InternalError, "Viry", "has_infered_configuration", ""))
   in
   let res = snd(aux false config) in
   if has_infered_configuration config then res else f res
@@ -301,7 +309,7 @@ let create_most_general_LHS t =
             if is_head
             then is_in_k_cell, true,  is_head, no_pos t
             else is_in_k_cell, false, true,    no_pos t)
-    | _ -> raise (InternalError "The function [Viry.create_most_general_LHS] need to be fixed.")
+    | _ -> raise (KaMeLoError (InternalError, "Viry", "create_most_general_LHS", ""))
   in
   let _,_,_,res = aux t (not(has_infered_configuration t)) false in res
 
@@ -349,7 +357,7 @@ let extend_type typ nb =
       | P_Arro(t1, ({elt=P_Iden _;_} as t2)) -> List.rev (t1::acc), t2
       | P_Arro(t1, ({elt=P_Appl _;_} as t2)) -> List.rev (t1::acc), t2
       | P_Arro(t1, ({elt=P_Arro _;_} as t2)) -> aux t2 (t1::acc)
-      | _ -> raise (InternalError "Unexpected type which to be extended during Viry's transformation. Fix the function [Viry.extend_type].")
+      | _ -> raise (KaMeLoError (InternalError, "Viry", "extend_type", "Unexpected type which to be extended during Viry's transformation."))
     in
     aux typ []
   in
@@ -467,7 +475,7 @@ let viry_encoding : ctrs_rule list -> signature -> p_symbol list * p_rule list =
       let flat_head_type =
         try
           extend_type (StrMap.find head_name sign.typing) nb_cond
-        with Not_found -> raise (InternalError ("The symbol " ^ head_name ^ " wasn't defined."))
+        with Not_found -> raise (KaMeLoError (InternalError, "Viry", "viry_encoding", ("The symbol " ^ head_name ^ " wasn't defined.")))
       in
       let flat_head_sym =
         create_p_symbol [] flat_head_name [] (Some flat_head_type) None
@@ -507,4 +515,10 @@ let viry_encoding : ctrs_rule list -> signature -> p_symbol list * p_rule list =
       in
       new_acc_sym, aux_rule 0 [encap_r] l@acc_rule
   in
-  StrMap.fold aux_sigma equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], [])
+  let f head_name l (acc_sym, acc_rule) =
+    try aux_sigma head_name l (acc_sym, acc_rule)
+    with (* KaMeLoError(t, fileN, funcN, msg) -> (* TODO *)
+      wrn_no_translation (t, fileN, funcN, msg) pos *)
+        _ -> wrn_msg _STDOUT "FATAL VIRY" ; (acc_sym, acc_rule)
+  in
+  StrMap.fold f equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], [])

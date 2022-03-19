@@ -20,17 +20,17 @@ let iter_exec : (string -> p_term) -> axiom -> signature -> p_term * (string lis
   let f_dom_val (sort, name) s d =
     create_ident name, s, (if sort = _SORT_ID then add_update_without_dup _SORT_ID name d else d) in
   let f_not _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_exec] - Case not")            in
+    raise (KaMeLoError (NotYetImplemented, "Executable", "iter_exec", "Case Not"))            in
   let f_not_in _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_exec] - Case not-in")         in
+    raise (KaMeLoError (NotYetImplemented, "Executable", "iter_exec", "Case Not-in"))         in
   let f_equals _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_exec] - Case equals")         in
+    raise (KaMeLoError (NotYetImplemented, "Executable", "iter_exec", "Case Equals"))         in
   let f_equals_dom _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_exec] - Case equals-dom_val") in
+    raise (KaMeLoError (NotYetImplemented, "Executable", "iter_exec", "Case Equals-dom_val")) in
   let f_and _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_exec] - Case and")            in
+    raise (KaMeLoError (NotYetImplemented, "Executable", "iter_exec", "Case And"))            in
   let f_and_var _ _ _ =
-    raise (NotYetImplemented "Need to update [Axiom.iter_exec] - Case and-var")        in
+    raise (KaMeLoError (NotYetImplemented, "Executable", "iter_exec", "Case And-var"))        in
   let res, _, free_var_data =
     axiom_iter_default_error [] ax f_var sign_init StrMap.empty
       f_predicate_sym f_predicate_var f_dom_val

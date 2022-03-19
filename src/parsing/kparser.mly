@@ -245,6 +245,7 @@ kmodules:
 
 instance_symbol:
   | name L_CURLY_BRA R_CURLY_BRA L_PAREN R_PAREN { $1 }
+  | name COLON param                             { $1 }
   | STRING                                       { $1 }
   //|        { "" }
 

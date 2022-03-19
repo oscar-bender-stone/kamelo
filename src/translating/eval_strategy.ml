@@ -85,13 +85,13 @@ let iter_condition : (string -> p_term) -> axiom -> signature -> p_term StrMap.t
     (if dom = _TRUE then x
      else
        if dom = _FALSE then create_appl (create_ident _NOT_BOOL) x
-       else raise (NotYetImplemented "Need to update [Axiom.iter_condition] - Case equals-dom_val")), s, d
+       else raise (KaMeLoError (NotYetImplemented, "Eval_strategy", "iter_condition", "Case Equals-dom_val."))), s, d
   in
   fst (iter_meta f_equals_dom_val f_var ax sign local_data)
 
 let iter_condition = iter_condition create_pattern_var
 
-let create_LHS : alias -> signature -> p_term * p_term StrMap.t * p_term option = fun al sign ->
+let retrieve_LHS_eval_rule : alias -> signature -> p_term * p_term StrMap.t * p_term option = fun al sign ->
   let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
   let def = get_def al in
   match def with
@@ -100,21 +100,20 @@ let create_LHS : alias -> signature -> p_term * p_term StrMap.t * p_term option 
        match a with
        | And(_,a1,a2) ->
           (match a1 with
-           | Top _ -> let res, local_data = iter_to_pattern a2 sign StrMap.empty in
-                      res, local_data, None
+           | Top _ -> raise (KaMeLoError (InternalError, "Eval_strategy", "retrieve_LHS_eval_rule", "The heating/cooling rule has no condition."))
            | _     -> let res, local_data = iter_to_pattern a2 sign StrMap.empty in res, local_data, Some (iter_condition a1 sign local_data))
-       |  _ -> raise (InternalError "The heating/cooling rule has no condition")
+       |  _ -> raise (KaMeLoError (InternalError, "Eval_strategy", "retrieve_LHS_eval_rule", "Unexpected structure for a heating/cooling rule."))
      end
-  | D _ -> raise (NotYetImplemented "Alias (LHS) with a unique symbol as body.")
+  | D _ -> raise (KaMeLoError (NotYetImplemented, "Eval_strategy", "retrieve_LHS_eval_rule", "Alias (LHS) with a unique symbol as body."))
 
-let create_RHS : axiom -> signature -> p_term StrMap.t -> p_term = fun ax sign local_data ->
+let retrieve_RHS_eval_rule : axiom -> signature -> p_term StrMap.t -> p_term = fun ax sign local_data ->
   match ax with
   | Rewrites(_,_,And(_,a1,a2)) ->
      if is_conditional_rule a1 then
-       p_TYPE (* raise (NotYetImplemented "KProver claim.") *)
+       raise (KaMeLoError (InternalError, "Eval_strategy", "retrieve_RHS_eval_rule", "The heating/cooling rule has the shape of a KProver claim."))
      else
        let res, _ = Axiom.iter_to_pattern a2 sign local_data in res
-  |  _ -> raise (InternalError "The heating/cooling rule doesn't begin with \rewrites.")
+  |  _ -> raise (KaMeLoError (InternalError, "Eval_strategy", "retrieve_RHS_eval_rule", "The heating/cooling rule doesn't begin with a Rewrites constructor."))
 
 (** ---------------------------- *)
 (** To translate heating rules   *) (* For now, its a cooling rule... *)
@@ -153,10 +152,13 @@ let trans_heating_rule : data -> ctrs_rule list -> signature -> alias -> quant_v
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, local_data, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign local_data in
+  let lhs, local_data, cond = retrieve_LHS_eval_rule al sign in
+  let rhs = retrieve_RHS_eval_rule ax sign local_data in
 
-  let cond = match cond with | None -> raise (InternalError "No condition for a heating rule.") | Some x -> x in
+  let cond = match cond with
+    | None ->
+       raise (KaMeLoError (InternalError, "Eval_strategy", "trans_heating_rule", "No condition for a heating rule."))
+    | Some x -> x in
 
   (* STEP 1: Get the variable in the condition with its type (here "E1" and "BExp")  *)
   let var_name, sort_input, sort_output = get_var_and_sort_inj cond sign in
@@ -219,9 +221,12 @@ let get_cond_data_in_cooling_rule : p_term option -> string * string = fun cond 
             && s_kresult = pp _IS_KRESULT && s_kseq = pp _KSEQ
             && s_inj = pp _INJ && s_dotk = pp _DOTK
          then n, s1 (* for example: VarHOLE, SortAExp *)
-         else raise (NotYetImplemented "Unexpected shape for the condition.")
-  | Some _ -> raise (NotYetImplemented "Unexpected shape for the condition.")
-  | None   -> raise (InternalError "No condition for a cooling rule.")
+         else raise (KaMeLoError (NotYetImplemented, "Eval_strategy", "get_cond_data_in_cooling_rule",
+                                  "Unexpected shape for the condition."))
+  | Some _ -> raise (KaMeLoError (NotYetImplemented, "Eval_strategy", "get_cond_data_in_cooling_rule",
+                                  "Unexpected shape for the condition."))
+  | None   -> raise (KaMeLoError (InternalError, "Eval_strategy", "get_cond_data_in_cooling_rule",
+                                  "No condition for a cooling rule."))
 
 (** [gen_new_pattern sym] generates the new pattern, as $\flat1 and $\flat2 *) (* TODO *)
 let gen_new_pattern : symbol -> p_term = fun sym ->
@@ -239,7 +244,7 @@ let is_subsort_KResult : signature -> string -> bool = fun sign s ->
   let subsort_l =
     try
       StrMap.find s sign.subsort
-    with Not_found -> raise (InternalError ("No sort " ^ s))
+    with Not_found -> raise (KaMeLoError (InternalError, "Eval_strategy", "is_subsort_KResult", ("No sort " ^ s)))
   in
   List.mem _SORT_KRESULT subsort_l
 
@@ -250,12 +255,11 @@ let trans_cooling_rule : data -> ctrs_rule list -> signature -> alias -> quant_v
 
   (* STEP 0: Translate Kore pattern into Dedukti term *)
   let default_prio = 42 in
-  let lhs, local_data, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign local_data in
+  let lhs, local_data, cond = retrieve_LHS_eval_rule al sign in
+  let rhs = retrieve_RHS_eval_rule ax sign local_data in
 
   (* STEP 1: Get the variable to destruct with its type (here "E1" and "BExp") *)
   let new_v, sort_v = get_cond_data_in_cooling_rule cond in
-
 
   (* STEP 2: Generate a rule for each constructor of [sort_v] *)
 
@@ -263,7 +267,8 @@ let trans_cooling_rule : data -> ctrs_rule list -> signature -> alias -> quant_v
   let constructor_l =
     try
       Induc.find sort_v sign.inductive
-    with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
+    with Not_found -> raise (KaMeLoError (InternalError, "Eval_strategy", "trans_cooling_rule",
+                                          ("No constructor symbol for the sort " ^ sort_v)))
   in
 
   (* B. Generate the new pattern, as ($X1 and $X2), ($X1 < $X2) and (not $X1) *)
@@ -283,7 +288,8 @@ let trans_cooling_rule : data -> ctrs_rule list -> signature -> alias -> quant_v
     let f key s_l l = if List.mem sort_v s_l && not(is_subsort_KResult sign key) then key::l else l in
     try
       StrMap.fold f sign.subsort []
-    with Not_found -> raise (InternalError ("No constructor symbol for the sort " ^ sort_v))
+    with Not_found -> raise (KaMeLoError (InternalError, "Eval_strategy", "trans_cooling_rule",
+                                          ("No constructor symbol for the sort " ^ sort_v)))
   in
   (* B. Generate the new pattern, as _INJ {SortIden} {s2} E1 *)
   let iter_pattern s1 = create_inj_var s1 sort_v new_v in
@@ -297,13 +303,46 @@ let trans_cooling_rule : data -> ctrs_rule list -> signature -> alias -> quant_v
 (** To translate semantic rules  *)
 (** ---------------------------- *)
 
+let retrieve_LHS_sem_rule : alias -> signature -> p_term * p_term StrMap.t * p_term option = fun al sign ->
+  let get_def : alias -> def = fun (_,(_,_,_,def)) -> def in
+  let def = get_def al in
+  match def with
+  | A a ->
+     begin
+       match a with
+       | And(_,a1,a2) ->
+          (match a1 with
+           | Top _ -> let res, local_data = iter_to_pattern a2 sign StrMap.empty in
+                      res, local_data, None
+           | _     -> let res, local_data = iter_to_pattern a2 sign StrMap.empty in
+                      res, local_data, Some (iter_condition a1 sign local_data))
+       |  _ -> raise (KaMeLoError (InternalError, "Eval_strategy", "retrieve_LHS_sem_rule", "Unexpected structure for a semantic rule."))
+     end
+  | D _ -> raise (KaMeLoError (NotYetImplemented, "Eval_strategy", "retrieve_LHS_sem_rule", "Alias (LHS) with a unique symbol as body."))
+
+let retrieve_RHS_sem_rule : axiom -> signature -> p_term StrMap.t -> p_term = fun ax sign local_data ->
+  if has_Exists_op ax
+  then raise (KaMeLoError (NotYetImplemented, "Eval_strategy", "retrieve_RHS_sem_rule", "There is a Exists constructor in a semantic rule."))
+  else
+    if has_Ceil_op ax
+    then raise (KaMeLoError (NotYetImplemented, "Eval_strategy", "retrieve_RHS_sem_rule", "There is a Ceil constructor in a semantic rule."))
+    else
+      match ax with
+      | Rewrites(_,_,And(_,a1,a2)) ->
+         if is_conditional_rule a1 then
+           raise (KaMeLoError (InternalError, "Eval_strategy", "retrieve_RHS_sem_rule", "The semantic rule has the shape of a KProver claim."))
+         else
+           let res, _ = Axiom.iter_to_pattern a2 sign local_data in res
+      |  _ -> raise (KaMeLoError (InternalError, "Eval_strategy", "retrieve_RHS_sem_rule", "The semantic rule doesn't begin with a Rewrites constructor."))
+
+
 let trans_semantic_rule : data -> ctrs_rule list -> signature -> alias -> quant_var list * axiom -> ctrs_rule list =
   fun (attr_l, _) acc sign al (_, ax) ->
   (* Be careful: the order of the computation is important
      because of references *)
   let default_prio = 42 in
-  let lhs, local_data, cond = create_LHS al sign in
-  let rhs = create_RHS ax sign local_data in
+  let lhs, local_data, cond = retrieve_LHS_sem_rule al sign in
+  let rhs = retrieve_RHS_sem_rule ax sign local_data in
   let attr_l =
     List.map (fun attr -> match attr with
                           | Owise _ -> true
@@ -314,4 +353,4 @@ let trans_semantic_rule : data -> ctrs_rule list -> signature -> alias -> quant_
   | false, None   -> (create_rule lhs rhs, Uncond,     default_prio)::acc
   | false, Some x -> (create_rule lhs rhs, Cond x,     default_prio)::acc
   | true,  None   -> (create_rule lhs rhs, OwiseRule,  default_prio)::acc
-  | true,  Some _ -> raise (InternalError "Case not possible in [trans_semantic_rule].")
+  | true,  Some _ -> raise (KaMeLoError (InternalError, "Eval_strategy", "trans_semantic_rule", ""))

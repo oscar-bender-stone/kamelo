@@ -33,7 +33,8 @@ let create_type_atomic : string -> p_term = fun s ->
 let create_type_arrow : string * string list -> p_term =
   fun (name, type_l) ->
   let rec split_last_value l acc = match l with
-    | []  -> raise (InternalError ("The symbol " ^ name ^ " has no type."))
+    | []  ->
+       raise (KaMeLoError (InternalError, "Getter_term", "create_type_arrow", ("The symbol " ^ name ^ " has no type.")))
     | [t]  -> List.rev acc, t
     | t::q -> split_last_value q (t::acc)
   in

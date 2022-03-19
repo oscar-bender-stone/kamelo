@@ -15,3 +15,5 @@ val is_rule      : axiom -> bool
 val is_conditional_rule : axiom -> bool
 val is_cooling_rule : attribute list -> bool
 val is_heating_rule : attribute list -> bool
+val has_Exists_op : axiom -> bool
+val has_Ceil_op   : axiom -> bool

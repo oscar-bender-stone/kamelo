@@ -312,13 +312,13 @@ rule token = parse
   | _ as c          { unexpected_char lexbuf c  }
 
 and comment = parse
-  | '\n' { token   lexbuf                                          }
+  | '\n' { incr curr_line ; token   lexbuf                         }
   | _    { comment lexbuf                                          }
   | eof  { raise (EOFError "Unexpected end of file in comment.")   }
 
 and scomment = parse
   | "*/" { token    lexbuf                                         }
-  | '\n' { scomment lexbuf                                         }
+  | '\n' { incr curr_line ; scomment lexbuf                        }
   | _    { scomment lexbuf                                         }
   | eof  { raise (EOFError "Unexpected end of file in comment.")   }
 

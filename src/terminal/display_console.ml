@@ -12,12 +12,12 @@ let print_info : int * int * string * string -> unit =
   let text =  if nb >= 2 then several else one in
   if nb <= 0 then ()
   else
-    (let nb = string_of_int nb in
-     match cran with
-     | 0 -> msg_2       _STDOUT "  %s %s" nb text
-     | 1 -> cyan_msg_2  _STDOUT "    * %s %s" nb text
-     | 2 -> green_msg_2 _STDOUT "       - %s %s" nb text
-     | _ -> raise (InternalError "Need to update [print_info]"))
+    let nb = string_of_int nb in
+    match cran with
+    | 0 -> msg_2       _STDOUT "  %s %s" nb text
+    | 1 -> cyan_msg_2  _STDOUT "    * %s %s" nb text
+    | 2 -> green_msg_2 _STDOUT "       - %s %s" nb text
+    | _ -> raise (KaMeLoError (InternalError, "Display_console", "print_info", ""))
 
 let print_count_data : count_data -> unit = fun cd ->
   red_msg _STDOUT "Before translating..." ;

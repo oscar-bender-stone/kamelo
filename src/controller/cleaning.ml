@@ -9,10 +9,11 @@ let trash =
     "LblfindChar'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String'Unds'String'Unds'Int" ;
     "LblfreshId'LParUndsRParUnds'ID-COMMON'Unds'Id'Unds'Int" ;
     "LblrfindChar'LParUndsCommUndsCommUndsRParUnds'STRING-COMMON'Unds'Int'Unds'String'Unds'String'Unds'Int" ;
+    "Lbl'UndsEqlsEqls'String'UndsUnds'STRING-COMMON'Unds'Bool'Unds'String'Unds'String" ;
     "LblinitKCell" ]
 
-let to_delete x =
-  List.fold_left (fun acc v_test -> acc || (x = v_test)) false trash
+let to_delete x = (* TODO Need to be more efficient thanks trie or hash *)
+  List.fold_left (fun acc v_test -> acc || (String.equal x v_test)) false trash
 
 (** [cleaning k_l] deletes unused symbols listed in the list [trash]. *)
 let cleaning : kommand list -> kommand list = fun k_l ->

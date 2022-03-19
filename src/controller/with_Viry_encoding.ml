@@ -1,6 +1,7 @@
 
 open LP.Syntax
 open Common.Type
+open Common.Error
 open Common.Getter
 open Common.Xlib_OCaml
 
@@ -46,9 +47,10 @@ let main cd : (* TODO fix heterogenous signature *)
     fun _ acc sign (_, ax) -> (acc, collect_subsort_data ax sign)
   in
   let trans_implies =
-    fun _ acc sign (_, ax) ->
+    fun (_, pos) acc sign (_, ax) ->
     let sort_l, sym_l, ctrs_l = acc in
-    (sort_l, sym_l, (of_implies_axiom ax)::ctrs_l), sign
+    try ((sort_l, sym_l, (of_implies_axiom ax)::ctrs_l), sign)
+    with KaMeLoError(t, fileN, funcN, msg) -> wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign)
   in
   let (sort_l, sym_l, ctrs_r_l), sign =
     kommand_iter_without_alias cd kommand_l ([], [], []) init_sign
