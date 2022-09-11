@@ -217,8 +217,11 @@ let meta_kommand_iter
                       (try f_implies_ax_predicate_true data acc sign (qv_l, ax) (* TODO Fix? *)
                        with KaMeLoError(t, fileN, funcN, msg) ->
                          wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign)))
-             else (axiom_cases cd data None acc sign qv_l ax f_exists f_equals f_or_bottom f_not f_implies)) (* f_ax_default attr_l acc (qv_l, ax)) *)
-    | [attr], _ -> axiom_cases cd data (Some attr) acc sign qv_l ax f_exists f_equals f_or_bottom f_not f_implies
+                else (try (axiom_cases cd data None acc sign qv_l ax f_exists f_equals f_or_bottom f_not f_implies)
+                      with KaMeLoError(t, fileN, funcN, msg) ->
+                        wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))) (* f_ax_default attr_l acc (qv_l, ax)) *)
+    | [attr], _ -> (try axiom_cases cd data (Some attr) acc sign qv_l ax f_exists f_equals f_or_bottom f_not f_implies
+                    with KaMeLoError(t, fileN, funcN, msg) -> wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
     | _, _ ->
        (incr_k_ax_several_attr cd ;
         (* wrn_msg "There is an axiom with more than one attribute." ;

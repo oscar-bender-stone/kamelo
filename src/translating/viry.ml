@@ -519,6 +519,6 @@ let viry_encoding : ctrs_rule list -> signature -> p_symbol list * p_rule list =
     try aux_sigma head_name l (acc_sym, acc_rule)
     with (* KaMeLoError(t, fileN, funcN, msg) -> (* TODO *)
       wrn_no_translation (t, fileN, funcN, msg) pos *)
-        _ -> wrn_msg _STDOUT "FATAL VIRY" ; (acc_sym, acc_rule)
+        _ -> wrn_1 _STDOUT "The Viry encoding needs to be fixed (See symbol %s)." head_name ; (acc_sym, acc_rule)
   in
   StrMap.fold f equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], [])
