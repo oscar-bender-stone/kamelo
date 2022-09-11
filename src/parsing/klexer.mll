@@ -56,6 +56,8 @@
 
   | SIMPLIFICATION
 
+  | LEFT_ASSOC
+
   | LEFT
   | RIGHT
   | PRIORITY
@@ -212,6 +214,8 @@ rule token = parse
   | "\\in"               { IN              }
   | "\\dv"               { DOM_VAL         }
   | "\\ceil"             { CEIL            }
+
+  | "\\left-assoc"       { LEFT_ASSOC      }
 
   | "assoc"              { ASSOC           }
   | "comm"               { COMM            }
