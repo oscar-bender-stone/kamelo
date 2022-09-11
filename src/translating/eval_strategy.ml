@@ -133,13 +133,13 @@ let get_var_and_sort_inj : p_term -> signature -> string * string * string = fun
             ; pos=x10},
             {elt=P_Expl({elt=P_Iden ({elt=(x11,s2) ;pos=x12}, x13); pos=x14}) ; pos=x15} )
         ; pos=x16},
-        {elt=P_Patt(Some {elt=("HOLE" as n) ;pos=x17}, x18) ; pos=x19} ) when s = _INJ -> n, s1, s2 (* TODO remove HOLE *)
+        {elt=P_Patt(Some {elt=n ;pos=x17}, x18) ; pos=x19} ) when s = _INJ && (n = "HOLE" || n = "VarHOLE") -> n, s1, s2 (* TODO remove HOLE *)
 
     | P_Appl(({elt=t1;pos=x1}), ({elt=t2 ;pos=x2})) ->
        (try aux t1
         with Not_In -> aux t2)
     | P_Iden _ | P_Expl _ -> raise Not_In
-    | t -> aux t
+    | t -> raise (KaMeLoError (NotYetImplemented, "Eval_strategy", "get_var_and_sort_inj", "Unexpected structure for a condition."))
   in
   aux cond.elt
 
