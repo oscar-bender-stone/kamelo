@@ -115,6 +115,8 @@ for d in $for_test; do
    curr_exec_folder=$semName-exec # max-exec par exemple
    mkdir $curr_gen_folder
    mkdir $curr_gen_folder/$curr_exec_folder
+   # Création de l'exécutable du traducteur s'il n'existe pas
+   if [ ! -f $kamelo_script ]; then make; fi
    # Traduction de la sémantique
    echo -e "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
    ./$kamelo_script -r $tests_folder/$d/$semName.kore
@@ -127,6 +129,11 @@ for d in $for_test; do
      echo "package_name = $sem_root" >  $LPpkg ;
      echo "root_path    = $sem_root" >> $LPpkg ;fi
    mv $LPpkg $curr_gen_folder/
+
+   #
+   echo -e "${cyanfonce}Lambdapi checking of the semantics..."
+   lambdapi check --no-warnings -v 0 $d-lp/$semName.lp
+   echo -e "${cyanfonce}Done"
 
    # Traduction des programmes se trouvant dans "curr_exec_folder"
    cd $tests_folder/$d/$curr_exec_folder
