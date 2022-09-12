@@ -172,16 +172,11 @@ let is_cell : string -> bool = fun s ->
       && String.sub s ((String.length s)-6) 6 = "'-GT-'"
   with _ -> false
 
-(** [is_to_keep s] returns true if a string [s] is [dotk], [kseq] or [inj]. *)
-let is_to_keep : string -> bool = fun s ->
-  s = _KSEQ || s = _DOTK || s = _INJ
-
-(** [get_head_symbol config] is the function head_<k>, i.e. returns:
+(** [get_head_symbol f config] is the function head_<k>, i.e. returns:
       - None    if no configuration
       - Some h  otherwise, where h is the heading symbol of the cell <k>.
-    The symbols [dotk], [kseq] and [inj] are not considered to be
-    a heading symbol. *)
-let get_head_symbol config =
+    Some symbols can be not considered as a heading symbol thanks to the function [f]. *)
+let get_head_symbol f config =
   let rec aux : p_term -> string option = fun t ->
     match t.elt with
     | P_Appl(t1, t2) ->
@@ -192,30 +187,42 @@ let get_head_symbol config =
     | P_Expl _ -> None
     | P_Iden (name, _) ->
        let n = snd name.elt in
-       if is_to_keep n then None
+       if f n then None
        else (if is_cell n then None else Some n)
     | _ -> (* raise (InternalError "The function [Viry.get_head_symbol] need to be fixed.") *)
        wrn_msg _STDOUT "FIXME" ; None
   in
   aux config
 
+(** [get_head_symbol_no_kseq_no_dotk config] is the function head_<k>, i.e. returns:
+      - None    if no configuration
+      - Some h  otherwise, where h is the heading symbol of the cell <k>.
+    The symbols [dotk] and [kseq] are not considered to be a heading symbol. *)
+let get_head_symbol_no_kseq_no_dotk config =
+  let f n = n = _KSEQ || n = _DOTK in
+  get_head_symbol f config
+
+(** [is_to_keep s] returns true if a string [s] is [dotk], [kseq] or [inj]. *)
+let is_to_keep : string -> bool = fun s ->
+  s = _KSEQ || s = _DOTK || s = _INJ
+
+(** [get_head_symbol_no_kseq_no_dotk_no_inj config] is the function head_<k>, i.e. returns:
+      - None    if no configuration
+      - Some h  otherwise, where h is the heading symbol of the cell <k>.
+    The symbols [dotk], [kseq] and [inj] are not considered to be
+    a heading symbol. *)
+let get_head_symbol_no_kseq_no_dotk_no_inj config = get_head_symbol is_to_keep config
+
 (* TODO used it?   exception KCellNotFound   exception KCellNotFoundHere *)
 (** [find_equiv_class ec r] adds the condition rule [r] into the equivalence
     class [ec].  *)
 let find_equiv_class : equiv_class -> ctrs_rule -> equiv_class =
   fun ec (({elt=(lhs,_);_},_,_) as r) ->
-  match get_head_symbol lhs with
-  | None -> ec
+  match get_head_symbol_no_kseq_no_dotk_no_inj lhs with
+  | None -> (match get_head_symbol_no_kseq_no_dotk lhs with
+      | None -> raise (KaMeLoError (InternalError, "Viry", "find_equiv_class", "No heading symbol found."))
+      | Some key -> add_update key r ec)
   | Some key -> add_update key r ec
-
-(*
-  let key = match get_head_symbol lhs with
-    | None   -> raise (InternalError "The function [Viry.find_equiv_class] need to be fixed.")
-    (* raise  KCellNotFound *)
-    | Some x -> x
-  in
-  let f ec = try key with _ -> wrn_msg _STDOUT "FIXME" ; ec in
-  add_update f r ec *)
 
 (** [to_equiv_class rule_l] generates each equivalence class from
     a CTRS [rule_l], i.e. generates each C_σ. *)

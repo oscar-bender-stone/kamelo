@@ -56,11 +56,11 @@ let main cd : (* TODO fix heterogenous signature *)
     kommand_iter_without_alias cd kommand_l ([], [], []) init_sign
     f_sort propagation f_symbol propagation propagation
     ((fun data (sort_l, sym_l, r_l) sign al ax  ->
-      (sort_l, sym_l, trans_cooling_rule  data r_l sign al ax), sign),
+        (sort_l, sym_l, trans_cooling_rule  data r_l sign al ax), sign),
      (fun data (sort_l, sym_l, r_l) sign al ax  ->
-      (sort_l, sym_l, trans_heating_rule  data r_l sign al ax), sign),
+        (sort_l, sym_l, trans_heating_rule  data r_l sign al ax), sign),
      (fun data (sort_l, sym_l, r_l) sign al ax  ->
-      (sort_l, sym_l, trans_semantic_rule data r_l sign al ax), sign))
+        (sort_l, sym_l, trans_semantic_rule data r_l sign al ax), sign))
     propagation (f_subsort, propagation)
     (propagation, propagation, propagation, propagation, propagation)
     propagation propagation
@@ -70,4 +70,6 @@ let main cd : (* TODO fix heterogenous signature *)
   in
   (* STEP 2: From CTRS rules to TRS rules and symbols. *)
   let sym_add_l, r_l = viry_encoding ctrs_r_l sign in
-  (sort_l, sym_l, sym_add_l, r_l), sign
+  if List.length ctrs_r_l > List.length r_l
+  then raise (KaMeLoError (InternalError, "With_Viry_encoding", "main", "Some rewriting rules disappear."))
+  else (sort_l, sym_l, sym_add_l, r_l), sign
