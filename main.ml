@@ -69,18 +69,17 @@ let () =
      flush stdout
   | F_sem (_, file) ->
      (* STEP 1: Pre-processing *)
-        (* a. Create the new file *)
-     let semantics_module_name =
-       match List.map (fun (name,_,_,_) -> name) file with
-       | ["BASIC-K";"KSEQ";"INJ";"K";x] -> x
-       | _ -> raise (KaMeLoError (InternalError, "Main", "semantics_module_name", "The prelude hasn't the expected shape."))
-     in
-     let filename =
-       Terminal.Cmd_line.create_filename semantics_module_name (* TODO *)
-     in
+        (* a. Split the file and get main informations *)
+    let filename, kseq_module, semantics_module =
+      match file with
+      | [("BASIC-K",_,_,_);(("KSEQ",_,_,_) as m2);("INJ",_,_,_);("K",_,_,_);((x,_,_,_) as m5)] -> x, m2, m5
+      | _ -> raise (KaMeLoError (InternalError, "Main", "semantics_module_name", "The prelude hasn't the expected shape."))
+    in
+        (* b. Create the new file *)
+    let filename = Terminal.Cmd_line.create_filename filename in (* TODO *)
      let f  = open_out filename in
      let ff = Format.formatter_of_out_channel f in
-        (* b. Printing management *)
+        (* c. Printing management *)
      let printing = match !Terminal.Cmd_line.output with
        | O_LP      -> LP.LP_printer.pp_command
        | O_Dedukti -> fun _ _ -> () (* @TODO *)
@@ -130,18 +129,31 @@ let () =
      in
 
      (* STEP 3: Run the main translation *)
-        (* a. Translation of BASIC-K module *)
-     print_header_kamelo ();
-     let sign_g = module_to_file empty_sign (List.hd file) in
+     print_header_kamelo () ;
+     if !Printing.Meta_printer.lib
+     then
+       ((* a. The K standard library *)
+         let flib  = open_in "lib.lp" in
+         (try
+            while true; do
+              print ff "%s\n" (input_line flib)
+            done ;
+          with End_of_file -> close_in flib) ;
+        (* b. Translation of KSEQ and K modules, and the semanctics *)
+         let _ = List.fold_left module_to_file empty_sign [kseq_module;semantics_module] in () )
+     else
+       ((* a. Translation of BASIC-K module *)
+         let sign_g = module_to_file empty_sign (List.hd file) in
         (* b. Printing of the K prelude interface *)
-     print_comment ff "PRELUDE";
-     let sign_res =
-       Controller.Prelude.create_prelude ff printing sign_g "prelude"
-     in
-        (* c. Translation of KSEQ, INJ, K modules, and the semantic *)
-     let _ = List.fold_left module_to_file sign_res (List.tl file) in
+         print_comment ff "PRELUDE";
+         let sign_res =
+           Controller.Prelude.create_prelude ff printing sign_g "prelude"
+         in
+        (* c. Translation of KSEQ, INJ, K modules, and the semantics *)
+         let _ = List.fold_left module_to_file sign_res (List.tl file) in () ) ;
+
      print_footer_kamelo ();
 
      (* STEP 4: Close the new file *)
-     close_out f;
+     close_out f ;
      flush stdout;;

@@ -2,6 +2,7 @@ open Arg
 
 open Common.Color
 open Printing.Kore_printer
+open Printing.Meta_printer
 open Interface.Output (* TODO remove thanks to DiaLeKTo *)
 
 open Controller.Old
@@ -75,7 +76,7 @@ let parse : unit -> unit = fun () ->
   let usage_msg =
     "usage: ./KaMeLo [--semantics (.lp|.dk)]
      [--mimic (K|Kore|Dedukti)] [--output (.dk|.lp|.mykore)]
-     [--inductive] [--old] [-v] [--readable] [--no-color] kore_file"
+     [--inductive] [--old] [--lib] [-v] [--readable] [--no-color] kore_file"
   in
   parse
     [("--semantics",  String (fun o -> set_semantics o),
@@ -100,6 +101,9 @@ let parse : unit -> unit = fun () ->
 
      ("--old",  Unit (fun () -> old:=true),
       "Use the old preprocessing algorithm");
+
+     ("--lib",  Unit (fun () -> lib:=true),
+      "Generate a unique file that contains the K standard library");
 
      ("--readable", Unit (fun () -> readable:=true),
       "Generate identifiers more readable");

@@ -18,7 +18,7 @@ open Translating.Viry
 
 let main cd : (* TODO fix heterogenous signature *)
       kommand list -> signature ->
-      (p_command list * p_command list * p_symbol list * p_rule list) *
+      (p_command list * p_command list * p_symbol list * p_symbol list * p_rule list) *
         signature =
   fun kommand_l init_sign ->
   (* STEP 1: From K commands to CTRS rules. *)
@@ -69,7 +69,7 @@ let main cd : (* TODO fix heterogenous signature *)
     (fun () -> ())
   in
   (* STEP 2: From CTRS rules to TRS rules and symbols. *)
-  let sym_add_l, r_l = viry_encoding ctrs_r_l sign in
+  let flat_sym_add_l, (sym_add_l, r_l) = viry_encoding ctrs_r_l sign in
   if List.length ctrs_r_l > List.length r_l
   then raise (KaMeLoError (InternalError, "With_Viry_encoding", "main", "Some rewriting rules disappear."))
-  else (sort_l, sym_l, sym_add_l, r_l), sign
+  else (sort_l, sym_l, flat_sym_add_l, sym_add_l, r_l), sign

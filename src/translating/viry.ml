@@ -452,7 +452,7 @@ let create_otherwise_rule tracker nb rhs : p_rule =
 (** The main algorithm *)
 (** ------------------ *)
 
-let viry_encoding : ctrs_rule list -> signature -> p_symbol list * p_rule list = fun l sign ->
+let viry_encoding : ctrs_rule list -> signature -> p_symbol list * (p_symbol list * p_rule list) = fun l sign ->
   (* [0.] Create the initial data (♭Bool, ♭, ♭inj, and each C_σ). *)
      (* [a.] Create the symbol ♭Bool. *)
   let flat_bool_sym = create_p_symbol [] _flatBool [] (Some p_SORTK) None in
@@ -528,4 +528,4 @@ let viry_encoding : ctrs_rule list -> signature -> p_symbol list * p_rule list =
       wrn_no_translation (t, fileN, funcN, msg) pos *)
         _ -> wrn_1 _STDOUT "The Viry encoding needs to be fixed (See symbol %s)." head_name ; (acc_sym, acc_rule)
   in
-  StrMap.fold f equiv_class ([flat_inj_sym;flat_sym;flat_bool_sym], [])
+  [flat_bool_sym;flat_sym;flat_inj_sym], StrMap.fold f equiv_class ([], [])
