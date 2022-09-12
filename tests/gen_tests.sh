@@ -85,7 +85,7 @@ for_test=$(if [ "$#" = 2 ];
 
 # Itération sur chaque dossier présent dans "tests_folder"
 for d in $for_test; do
-  if [ $(echo $d | cut -c-4) = "000_" ]
+  if [ $(echo $d | cut -c-4) = "002_" ]
   then continue
   else
    cd $d ; echo ""
@@ -116,7 +116,12 @@ for d in $for_test; do
    mkdir $curr_gen_folder
    mkdir $curr_gen_folder/$curr_exec_folder
    # Création de l'exécutable du traducteur s'il n'existe pas
-   if [ ! -f $kamelo_script ]; then make; fi
+   if [ ! -f $kamelo_script ]; then
+     echo -e "${cyanfonce}Compilation of KaMeLo:${neutre}"
+     make
+     echo -e "${cyanfonce}Done${neutre}"
+     echo ""
+   fi
    # Traduction de la sémantique
    echo -e "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
    ./$kamelo_script -r $tests_folder/$d/$semName.kore
@@ -167,14 +172,13 @@ for d in $for_test; do
    # Lambdapi check
    echo -e "${cyanfonce}Beginning of Lambdapi check..."
    cd $gen_folder
-   for d in $(find . -mindepth 1 -maxdepth 1 -type d | sort -d | cut -c3-); do
-     cd $d
-     semName=$(echo ${d%-lp} | cut -c$nb_nomencla-) # To delete "-lp"
-     cd $semName-exec
 
-     for pgm in $(find . -mindepth 1 -maxdepth 1 | sort -d) ; do
-       lambdapi check --no-warnings -v 0 $pgm
-     done
+   cd $d-lp
+   semName=$(echo ${d%-lp} | cut -c$nb_nomencla-) # To delete "-lp"
+   cd $semName-exec
+
+   for pgm in $(find . -mindepth 1 -maxdepth 1 | sort -d) ; do
+     lambdapi check --no-warnings -v 0 $pgm
    done
    echo -e "${cyanfonce}...ending of Lambdapi check."
    cd ../../../$tests_folder

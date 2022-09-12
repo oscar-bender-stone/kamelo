@@ -1,0 +1,6 @@
+decl x, y;
+x = 10 ;
+while not( (y <= x) and (x <= y) ) do {
+  x = x + 2 ;
+  y = y + 3 ;
+}

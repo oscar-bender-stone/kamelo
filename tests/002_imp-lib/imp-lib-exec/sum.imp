@@ -1,0 +1,7 @@
+decl x, y;
+x = 10 ;
+y = 0 ;
+while 0 < x do {
+  y = y + x ;
+  x = x - 1 ;
+}

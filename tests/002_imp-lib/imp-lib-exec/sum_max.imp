@@ -1,0 +1,16 @@
+decl x, y, z, a ;
+a = 20 ;
+z = 6  ;
+
+if (z < 0)
+then z = 0 - z ;
+else { }
+
+while (y < z) and (x <= a) do {
+   y = y + 1 ;
+   x = x + y ;
+}
+
+if (a < x)
+then x = 0 ;
+else {  }
