@@ -2,6 +2,8 @@ The KaMeLo source file hierarchy
 ================================  
  
    src/  
+   ├── main.ml: *The main algorithm to translate a semantics or an executable*  
+   ├── lib.lp: *A partial manual translation of the K standard library*  
    ├── common/  
    │   ├── color.ml: *Some colors for printing in the terminal*  
    │   ├── error.ml: *Some error messages and execeptions*  
