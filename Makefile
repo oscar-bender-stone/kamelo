@@ -1,7 +1,7 @@
 all:
 	ocamllex -ml src/parsing/klexer.mll
-	dune build main.exe
-	cp _build/default/main.exe KaMeLo
+	dune build src/main.exe
+	cp _build/default/src/main.exe KaMeLo
 
 #test:
 #	dune runtest
