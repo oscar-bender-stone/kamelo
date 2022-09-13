@@ -101,7 +101,7 @@ for d in $for_test; do
    if [ $is_kompiled = false ]; then
       if [ $(echo $semName | cut -c-2) = "M_" ]
       then make ; semName=$(echo $semName | cut -c3-)
-      else echo -e "${cyanfonce}Compilation of the semantic:${neutre}" $semName.k ; kompile $semName.k
+      else echo -e "${cyanfonce}Compilation of the semantics:${neutre}" $semName.k ; kompile $semName.k
       fi
    fi
 
@@ -123,7 +123,7 @@ for d in $for_test; do
      echo ""
    fi
    # Traduction de la sémantique
-   echo -e "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
+   echo -e "${cyanfonce}Translation of the semantics:${neutre}" $semName.kore
    ./$kamelo_script --lib -r $tests_folder/$d/$semName.kore
    rm $tests_folder/$d/$semName.kore
    mv $semName.$extension $curr_gen_folder/
