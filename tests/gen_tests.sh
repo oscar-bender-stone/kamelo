@@ -85,7 +85,7 @@ for_test=$(if [ "$#" = 2 ];
 
 # Itération sur chaque dossier présent dans "tests_folder"
 for d in $for_test; do
-  if [ $(echo $d | cut -c-4) = "002_" ]
+  if [ $(echo $d | cut -c-4) = "000_" ]
   then continue
   else
    cd $d ; echo ""
@@ -124,7 +124,7 @@ for d in $for_test; do
    fi
    # Traduction de la sémantique
    echo -e "${cyanfonce}Translation of the semantic:${neutre}" $semName.kore
-   ./$kamelo_script -r $tests_folder/$d/$semName.kore
+   ./$kamelo_script --lib -r $tests_folder/$d/$semName.kore
    rm $tests_folder/$d/$semName.kore
    mv $semName.$extension $curr_gen_folder/
 

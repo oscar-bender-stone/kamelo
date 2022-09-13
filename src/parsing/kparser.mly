@@ -2,6 +2,20 @@
     open Common.Type
     open Common.Error
     open Count_line
+
+    let expand_binary_left_assoc : axiom -> axiom = fun p ->
+      let rec aux = function
+        | Predicate(Sym(name, p_l, arg_l)) ->
+           (match arg_l with
+            | [] -> failwith "TODO1"
+            | [v] -> v
+            | [_;_] -> Predicate(Sym(name, p_l, arg_l))
+            | v1::v2::v3::q ->
+               Predicate(Sym(name, p_l,
+                  [v1;(aux (Predicate(Sym(name, p_l, (v2::v3::q)))))])))
+        | _ -> failwith "TODO2"
+      in
+      aux p
 %}
 
 %token MODULE
@@ -222,7 +236,7 @@ axiom:
   | DOM_VAL  L_CURLY_BRA sort R_CURLY_BRA L_PAREN STRING R_PAREN
                       { Dom_val ($3, $6)                          }
   | LEFT_ASSOC L_CURLY_BRA R_CURLY_BRA L_PAREN predicate R_PAREN
-                      { Predicate $5                              }
+                      { expand_binary_left_assoc (Predicate $5)          }
   | CEIL     op_una   { let a1, a2   = $2 in Ceil(a1, a2)         }
   //| name L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, axiom) R_PAREN
   //   { Sym ($1, $3, $6) }

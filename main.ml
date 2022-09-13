@@ -1,5 +1,5 @@
 open Common.Type
-open Common.Xlib_OCaml
+(* open Common.Xlib_OCaml *)
 open Interface.Signature
 open Terminal.Display_console
 
@@ -33,9 +33,9 @@ let () =
      Mecanism.Count_data.incr_real_import cd ;
      LP.LP_printer.pp_command ff import_trans ;
      (* STEP 3: Translate the executable *)
-     let p_exec, free_var_data = Translating.Executable.iter_exec exec empty_sign in
+     let p_exec, _ (* free_var_data *) = Translating.Executable.iter_exec exec empty_sign in
      (* STEP 4: Print free variables *)
-     let f_pp : string -> string list -> unit = fun key var_l ->
+     (* let f_pp : string -> string list -> unit = fun key var_l ->
        let var_type =
          Interface.LP_p_term.create_appl
            Interface.K_prelude.p_INJD
@@ -47,7 +47,7 @@ let () =
        in
        List.iter (fun name -> comm name) var_l
      in
-     StrMap.iter f_pp free_var_data ;
+        StrMap.iter f_pp free_var_data ; TODO not useful, right? *)
      (* STEP 5: Translate the result of the executable *)
      let p_res, _ = Translating.Executable.iter_exec result empty_sign in
      (* STEP 6: Print the symbol s_e which represents the executable *)
