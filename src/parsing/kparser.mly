@@ -7,13 +7,14 @@
       let rec aux = function
         | Predicate(Sym(name, p_l, arg_l)) ->
            (match arg_l with
-            | [] -> failwith "TODO1"
+            | [] -> raise (KaMeLoError (InternalError, "Kparser", "expand_binary_left_assoc", "This function needs to be fixed."))
             | [v] -> v
             | [_;_] -> Predicate(Sym(name, p_l, arg_l))
             | v1::v2::v3::q ->
                Predicate(Sym(name, p_l,
                   [v1;(aux (Predicate(Sym(name, p_l, (v2::v3::q)))))])))
-        | _ -> failwith "TODO2"
+        | _ -> raise (KaMeLoError (InternalError, "Kparser", "expand_binary_left_assoc", "This function needs to be fixed."))
+
       in
       aux p
 %}
