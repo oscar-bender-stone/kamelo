@@ -522,10 +522,5 @@ let viry_encoding : ctrs_rule list -> signature -> p_symbol list * (p_symbol lis
       in
       new_acc_sym, aux_rule 0 [encap_r] l@acc_rule
   in
-  let f head_name l (acc_sym, acc_rule) =
-    try aux_sigma head_name l (acc_sym, acc_rule)
-    with (* KaMeLoError(t, fileN, funcN, msg) -> (* TODO *)
-      wrn_no_translation (t, fileN, funcN, msg) pos *)
-        _ -> wrn_1 _STDOUT "The Viry encoding needs to be fixed (See symbol %s)." head_name ; (acc_sym, acc_rule)
-  in
+  let f head_name l (acc_sym, acc_rule) = aux_sigma head_name l (acc_sym, acc_rule) in
   [flat_bool_sym;flat_sym;flat_inj_sym], StrMap.fold f equiv_class ([], [])

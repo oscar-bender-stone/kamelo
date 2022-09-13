@@ -109,7 +109,9 @@ let () =
          else
            begin
              let res, new_sign =
-               Controller.With_Viry_encoding.main cd kommand_l sign
+               if !Printing.Meta_printer.lib
+               then Controller.With_Viry_encoding.main_with_lib cd kommand_l sign
+               else Controller.With_Viry_encoding.main_without_lib cd kommand_l sign
              in
              (match !Terminal.Cmd_line.mimic with
               | M_Kore    ->

@@ -22,7 +22,7 @@ let prt_Viry ppc cd prt :
        (flat_sym_add_l)) ;
   List.iter
     (fun x -> incr_additional_symbol cd ; prt ppc (create_LP_symbol x))
-    (List.rev sym_add_l) ;
+    sym_add_l ;
   List.iter
     (fun x -> incr_real_rule cd ; prt ppc (create_multi_rule [x]))
     (List.rev r_l)
