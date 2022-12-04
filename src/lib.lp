@@ -420,26 +420,34 @@ rule ♭lookup_Map $X (_Map_ (_Pipe->_ $Y $_0) $M) $y1 ♭
 
 
 symbol MapColnupdate : δ SortMap → δ SortKItem → δ SortKItem → δ SortMap;
-symbol ♭update_ : δ SortKItem → δ SortKItem → δ SortMap → δ ♭Bool → δ ♭Bool → δ SortMap;
-rule MapColnupdate $x1 $x2 $x6 ↪ ♭update_ $x2 $x6 $x1 ♭ ♭;
+//symbol ♭update_tmp : δ SortKItem → δ SortKItem → δ SortMap → δ ♭Bool → δ ♭Bool → δ SortKItem → δ SortBool → δ SortMap;
+symbol ♭update_ : δ SortKItem → δ SortKItem → δ SortMap → δ ♭Bool → δ SortMap;
+rule MapColnupdate StopMap $X $V ↪ (_Pipe->_ $X $V);
+rule MapColnupdate (_Pipe->_ $Y $W) $X $V ↪ ♭update_ $X $V (_Pipe->_ $Y $W) ♭;
+rule MapColnupdate (_Map_ (_Pipe->_ $Y $W) $M) $X $V ↪ // ♭update_tmp $X $V (_Map_ (_Pipe->_ $Y $W) $M) ♭ ♭ $Y (_==KItem_ $X $Y);
+  ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) ♭;
+//rule ♭update_tmp $X $V (_Map_ (_Pipe->_ $Y $W) $M) ♭ ♭ $Y true  ↪ (_Map_ (_Pipe->_ $Y $V) $M);
+//rule ♭update_tmp $X $V (_Map_ (_Pipe->_ $Y $W) $M) ♭ ♭ $Y false ↪ (_Map_ (_Pipe->_ $Y $W) (♭update_ $X $V $M ♭ ♭ $Y);
 
 // Singleton map
-rule ♭update_ $X $V (_Pipe->_ $Y $W) (♭inj true) _ ↪ (_Pipe->_ $Y $W);
-rule ♭update_ $X $V (_Pipe->_ $Y $W)  ♭ $y0
- ↪  ♭update_ $X $V (_Pipe->_ $Y $W) (♭inj (notBool_ (_==KItem_ $X $Y))) $y0;
+//rule ♭update_ $X $V (_Pipe->_ $Y $W) (♭inj true) _ ↪ (_Pipe->_ $Y $W);
+//rule ♭update_ $X $V (_Pipe->_ $Y $W)  ♭ $y0
+// ↪  ♭update_ $X $V (_Pipe->_ $Y $W) (♭inj (notBool_ (_==KItem_ $X $Y))) $y0;
 
-rule ♭update_ $X $V (_Pipe->_ $Y $_0) _ (♭inj true) ↪ _Pipe->_ $Y $V;
-rule ♭update_ $X $V (_Pipe->_ $Y $_0) $y1 ♭
- ↪  ♭update_ $X $V (_Pipe->_ $Y $_0) $y1 (♭inj (_==KItem_ $X $Y));
+rule ♭update_ $X $V (_Pipe->_ $Y $W) ♭
+ ↪  ♭update_ $X $V (_Pipe->_ $Y $W) (♭inj (_==KItem_ $X $Y));
+rule ♭update_ $X $V (_Pipe->_ $Y $W) (♭inj true)  ↪ (_Pipe->_ $X $V);
+rule ♭update_ $X $V (_Pipe->_ $Y $W) (♭inj false) ↪ _Map_ (_Pipe->_ $Y $W) (_Pipe->_ $X $V);
 
 // Map with at least 2 elements
-rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) (♭inj true) _ ↪ _Map_ (_Pipe->_ $Y $W) (MapColnupdate $M $X $V);
-rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) ♭ $y0
- ↪  ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) (♭inj (notBool_ (_==KItem_ $X $Y))) $y0;
+//rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) (♭inj true) _ ↪ _Map_ (_Pipe->_ $Y $W) (MapColnupdate $M $X $V);
+//rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) ♭ $y0
+// ↪  ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) (♭inj (notBool_ (_==KItem_ $X $Y))) $y0;
 
-rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $_0) $M) _ (♭inj true) ↪ _Map_ (_Pipe->_ $Y $V) $M;
-rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $_0) $M) $y1 ♭
- ↪  ♭update_ $X $V (_Map_ (_Pipe->_ $Y $_0) $M) $y1 (♭inj (_==KItem_ $X $Y));
+rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) ♭
+ ↪  ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) (♭inj (_==KItem_ $X $Y));
+rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) (♭inj true)  ↪ _Map_ (_Pipe->_ $X $V) $M;
+rule ♭update_ $X $V (_Map_ (_Pipe->_ $Y $W) $M) (♭inj false) ↪ _Map_ (_Pipe->_ $Y $W) (♭update_ $X $V $M ♭);
 
 symbol choice_MAP : δ SortMap → δ SortKItem; // TODO
 
