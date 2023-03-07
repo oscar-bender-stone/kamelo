@@ -18,6 +18,7 @@ val incr_k_alias           : count_data -> unit
 val incr_k_axiom           : count_data -> unit
 val incr_k_ax_without_attr : count_data -> unit
 val incr_k_ax_several_attr : count_data -> unit
+val incr_k_claim           : count_data -> unit
 
 (** Data about the K axioms *)
 

@@ -119,6 +119,7 @@ type kommand_aux =
  | H_symbol of symbol
  | Alias    of alias
  | Axiom    of quant_var list * axiom
+ | Claim    of quant_var list * axiom
 
 type data = attribute list * (int * int)
 type kommand = kommand_aux * data
@@ -128,5 +129,6 @@ type import = name * attribute list
 type kmodule = name * import list * kommand list * attribute list
 
 type file =
- | F_sem  of attribute list * kmodule list
- | F_exec of axiom * axiom
+  | F_sem      of attribute list * kmodule list
+  | F_spec_pgm of attribute list * kmodule list
+  | F_pgm      of axiom * axiom

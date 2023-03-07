@@ -16,6 +16,7 @@ type ('a, 's) meta_axiom = data -> 'a -> 's -> quant_var list * axiom -> ('a * '
       (f_implies_ax_constructor, f_implies_ax_initializer,
        f_implies_ax_projection,  f_implies_ax_predicate_true,
        f_implies_ax_predicate_false, f_implies_ax_owise, f_implies_ax_default)   as f_implies
+      f_claim
       f_each_end_iter]
     allows iteration on a Kore file, where the alias (LHS) and the RHS of rewriting rules are merged. *)
 val kommand_iter_without_alias :
@@ -37,6 +38,7 @@ val kommand_iter_without_alias :
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom
      * ('a, 's) meta_axiom * ('a, 's) meta_axiom
      * ('a, 's) meta_axiom * ('a, 's) meta_axiom * ('a, 's) meta_axiom)
+  -> ('a, 's) meta_axiom
   -> (unit -> unit) -> ('a * 's)
 
 (** [kommand_iter_with_alias] allows iteration on a Kore file, where the alias (LHS) and
@@ -61,4 +63,5 @@ val kommand_iter_with_alias :
   -> (('a, 's) meta_axiom * ('a, 's) meta_axiom
      * ('a, 's) meta_axiom * ('a, 's) meta_axiom
      * ('a, 's) meta_axiom * ('a, 's) meta_axiom * ('a, 's) meta_axiom)
+  -> ('a, 's) meta_axiom
   -> (unit -> unit) -> ('a * 's)

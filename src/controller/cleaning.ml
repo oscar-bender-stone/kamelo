@@ -47,7 +47,8 @@ let cleaning : kommand list -> kommand list = fun k_l ->
            | H_symbol (n,_,_,_)         , (_,_) -> if to_delete n then assert false else [kommand]
            | Alias (s,(n,qv_l,l, A ax)) , (a,p) -> [(Alias (s,(n,qv_l,l, A (aux_ax ax))), (a, p))]
            | Alias (_,(_,_,_, D (n,_))) , (_,_) -> if to_delete n then assert false else [kommand]
-           | Axiom(qv_l, ax)            , (a,p) -> [(Axiom(qv_l, aux_ax ax), (a, p))])@(aux q)
+           | Axiom(qv_l, ax)            , (a,p) -> [(Axiom(qv_l, aux_ax ax), (a, p))]
+           | Claim(qv_l, ax)            , (a,p) -> [(Claim(qv_l, aux_ax ax), (a, p))])@(aux q)
         with _ -> aux q)
   in
   aux k_l

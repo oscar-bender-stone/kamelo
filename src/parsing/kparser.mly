@@ -3,6 +3,8 @@
     open Common.Error
     open Count_line
 
+    let claim_used = ref false
+
     let expand_binary_left_assoc : axiom -> axiom = fun p ->
       let rec aux = function
         | Predicate(Sym(name, p_l, arg_l)) ->
@@ -30,6 +32,7 @@
 %token ALIAS
 %token WHERE
 %token AXIOM
+%token CLAIM
 
 %token L_CURLY_BRA          //      {
 %token R_CURLY_BRA          //      }
@@ -237,7 +240,7 @@ axiom:
   | DOM_VAL  L_CURLY_BRA sort R_CURLY_BRA L_PAREN STRING R_PAREN
                       { Dom_val ($3, $6)                          }
   | LEFT_ASSOC L_CURLY_BRA R_CURLY_BRA L_PAREN predicate R_PAREN
-                      { expand_binary_left_assoc (Predicate $5)          }
+                      { expand_binary_left_assoc (Predicate $5)   }
   | CEIL     op_una   { let a1, a2   = $2 in Ceil(a1, a2)         }
   //| name L_CURLY_BRA param_list R_CURLY_BRA L_PAREN separated_list(COMMA, axiom) R_PAREN
   //   { Sym ($1, $3, $6) }
@@ -252,6 +255,9 @@ kommand:
   | ALIAS symbol WHERE def attributes { Alias ($2, $4), ($5, update_line()) }
   | AXIOM L_CURLY_BRA quant_var_list R_CURLY_BRA axiom attributes
                                       { Axiom ($3, $5), ($6, update_line()) }
+  | CLAIM L_CURLY_BRA quant_var_list R_CURLY_BRA axiom attributes
+                                      { claim_used := true ;
+                                        Claim ($3, $5), ($6, update_line()) }
 
 import:
   | IMPORT name attributes { ($2, $3) }
@@ -260,7 +266,7 @@ kmodules:
   | MODULE name import* kommand* ENDMODULE attributes kmodules
       { ($2, $3, $4, $6) :: $7 }
   | EOF
-      {          []            }
+      {           []           }
 
 instance_symbol:
   | name L_CURLY_BRA R_CURLY_BRA L_PAREN R_PAREN { $1 }
@@ -382,6 +388,8 @@ attributes:
   | L_SQUARE_BRA core_attributes R_SQUARE_BRA { $2 }
 
 file:
-  | axiom axiom EOF          { F_exec($1, $2) }
-  | attributes kmodules  EOF { F_sem ($1, $2) }
-  | EOF                      { F_sem ([], []) }
+  | axiom axiom EOF          { F_pgm($1, $2)            }
+  | attributes kmodules  EOF { if !claim_used
+                               then F_spec_pgm($1, $2)
+                               else F_sem($1, $2)       }
+  | EOF                      { F_sem ([], [])           }

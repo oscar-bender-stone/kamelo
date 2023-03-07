@@ -62,8 +62,9 @@ type count_data_k =
       not_ax       : cd_not_ax       ;
       implies_ax   : cd_implies_ax   ;
       rewriting_ax : cd_rewriting_ax ;
-   ax_without_attr : int ref ;
-   ax_several_attr : int ref }
+      ax_without_attr : int ref ;
+      ax_several_attr : int ref ;
+    claim  : int ref }
 
 (** [reset_count_data_k i] returns a value of type "count_data_k"
     where all internal values are initialised at [i]. *)
@@ -75,7 +76,8 @@ let reset_count_data_k : int -> count_data_k = fun i ->
     or_ax = reset_cd_or_ax i ; bottom_ax = reset_cd_bottom_ax i ;
     not_ax = reset_cd_not_ax i ; implies_ax = reset_cd_implies_ax i ;
     rewriting_ax = reset_cd_rewriting_ax i ; ax_without_attr = ref i ;
-    ax_several_attr = ref i }
+    ax_several_attr = ref i ;
+    claim = ref i }
 
 type count_data_dk =
   { import : int ref ; symbol : int ref ; hooked_symbol : int ref ;
@@ -123,6 +125,9 @@ let incr_k_ax_without_attr cd = incr cd.k.ax_without_attr
 
 let get_k_ax_several_attr  cd = !(cd.k.ax_several_attr)
 let incr_k_ax_several_attr cd = incr cd.k.ax_several_attr
+
+let get_k_claim  cd = !(cd.k.claim)
+let incr_k_claim cd = incr cd.k.claim
 
 (** Data about the K axioms *)
 
@@ -286,7 +291,9 @@ let extract_info_before cd =
   ; (2, get_k_ax_semantic  cd,        "semantic rule", "semantic rules")
 
 
-  ; (1, get_k_ax_several_attr  cd,    "with several attributes", "with several attributes") ]
+  ; (1, get_k_ax_several_attr  cd,    "with several attributes", "with several attributes")
+
+  ; (0, get_k_claim cd,           "claim",           "claims") ]
 
 let extract_info_after cd =
   [ (0, get_real_import cd,          "import",            "imports")

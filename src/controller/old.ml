@@ -179,14 +179,15 @@ let preprocessing :
                | _ -> incr_k_alias cd ; aux q  (sort_l, induc_m, sym_l, (al, None)::alias_l, ax_l)))
        | Axiom(qv,a) ->
           incr_k_axiom cd ;
-          match attr_l with
-          | [] -> if is_predicate a
-                  then aux q acc
-                  else aux q (sort_l, induc_m, sym_l, alias_l, (qv,a,attr_l)::ax_l)
-          | [t] ->
-             let res = of_axiom (qv,a,attr_l) t ax_l in
-             aux q (sort_l, induc_m, sym_l, alias_l, res)
-          | _ -> aux q (sort_l, induc_m, sym_l, alias_l, (qv,a,attr_l)::ax_l)  (* failwith "Not yet implemented" *)
+          (match attr_l with
+           | [] -> if is_predicate a
+                   then aux q acc
+                   else aux q (sort_l, induc_m, sym_l, alias_l, (qv,a,attr_l)::ax_l)
+           | [t] ->
+              let res = of_axiom (qv,a,attr_l) t ax_l in
+              aux q (sort_l, induc_m, sym_l, alias_l, res)
+           | _ -> aux q (sort_l, induc_m, sym_l, alias_l, (qv,a,attr_l)::ax_l))
+       | Claim _ -> failwith "Not yet implemented"
   in
   let sort_l, induc_m, sym_l, alias_l, ax_l = aux c_l ([], Induc.empty, [], [], []) in
   (name, List.rev sort_l, induc_m, List.rev sym_l, List.rev alias_l, List.rev ax_l)

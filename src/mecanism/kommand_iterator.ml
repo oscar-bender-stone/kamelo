@@ -208,6 +208,7 @@ let meta_kommand_iter
        (f_implies_ax_predicate_false : ('a, 's) meta_axiom),
        (f_implies_ax_owise           : ('a, 's) meta_axiom),
        (f_implies_ax_default         : ('a, 's) meta_axiom) as f_implies)
+      (f_claim : ('a, 's) meta_axiom)
       (f_each_end_iter : unit -> unit)
     : ('a * 's) =
   let g_attr : ('a, 's) meta_axiom = fun ((_, pos) as data) acc sign (qv_l, ax) ->
@@ -252,6 +253,10 @@ let meta_kommand_iter
                             wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
          | Alias   al -> meta_f_alias q (attr_l, pos) acc sign al
          | Axiom(qv_l, ax) -> incr_k_axiom cd ; meta_f_axiom g_attr (attr_l, pos) acc sign (qv_l, ax)
+         | Claim(qv_l, ax) -> incr_k_claim cd ;
+                              (try f_claim (attr_l, pos) acc sign (qv_l, ax)
+                               with KaMeLoError(t, fileN, funcN, msg) ->
+                                 wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
        in
        f_each_end_iter () ; aux q res
   in aux l (neutral_el, init_sign)
@@ -283,6 +288,7 @@ let kommand_iter_without_alias
        (f_implies_ax_predicate_false : ('a, 's) meta_axiom),
        (f_implies_ax_owise           : ('a, 's) meta_axiom),
        (f_implies_ax_default         : ('a, 's) meta_axiom) as f_implies)
+      (f_claim : ('a, 's) meta_axiom)
       (f_each_end_iter : unit -> unit) : ('a * 's) =
   let meta_f_alias q data acc sign al =
     let pos = snd data in
@@ -312,7 +318,7 @@ let kommand_iter_without_alias
   in
   meta_kommand_iter meta_f_alias meta_f_axiom cd l neutral_el init_sign f_sort f_hooked_sort
     f_symbol f_hooked_symbol f_alias f_ax_default
-    f_exists f_equals f_or_bottom f_not f_implies f_each_end_iter
+    f_exists f_equals f_or_bottom f_not f_implies f_claim f_each_end_iter
 
 let kommand_iter_with_alias
       (cd : count_data) (l : kommand list) (neutral_el : 'a) (init_sign : 's)
@@ -341,6 +347,7 @@ let kommand_iter_with_alias
        (f_implies_ax_predicate_false : ('a, 's) meta_axiom),
        (f_implies_ax_owise           : ('a, 's) meta_axiom),
        (f_implies_ax_default         : ('a, 's) meta_axiom) as f_implies)
+      (f_claim : ('a, 's) meta_axiom)
       (f_each_end_iter : unit -> unit) : ('a * 's) =
   let meta_f_alias _ data acc sign al =
     incr_k_alias cd ;
@@ -355,4 +362,4 @@ let kommand_iter_with_alias
   in
   meta_kommand_iter meta_f_alias meta_f_axiom cd l neutral_el init_sign f_sort f_hooked_sort
     f_symbol f_hooked_symbol f_alias f_ax_default
-    f_exists f_equals f_or_bottom f_not f_implies f_each_end_iter
+    f_exists f_equals f_or_bottom f_not f_implies f_claim f_each_end_iter

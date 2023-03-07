@@ -17,6 +17,7 @@
   | ALIAS
   | WHERE
   | AXIOM
+  | CLAIM
 
   | L_CURLY_BRA
   | R_CURLY_BRA
@@ -191,6 +192,7 @@ rule token = parse
   | "alias"              { ALIAS           }
   | "where"              { WHERE           }
   | "axiom"              { AXIOM           }
+  | "claim"              { CLAIM           }
 
   | '{'                  { L_CURLY_BRA     }
   | '}'                  { R_CURLY_BRA     }

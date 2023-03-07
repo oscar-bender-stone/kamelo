@@ -7,17 +7,50 @@ open Controller.Prelude (* TODO delete *)
 open Common.Error
 
 let () =
-  (* STEP A: Parse the command-line *)
+  (* STEP A: Pre-processing *)
+  (*    STEP 1: Parsing the command-line    *)
   Terminal.Cmd_line.parse ();
-  (* STEP B: Parse the Kore file   *)
+  (*    STEP 2: Parsing the input Kore file *)
   let lexbuf = Lexing.from_channel (!Terminal.Cmd_line.input) in
   let file =
     try Parsing.Kparser.file Parsing.Klexer.token lexbuf
     with e -> red_msg_1 _STDOUT "Parsing fails line %i" !Parsing.Count_line.curr_line ; raise e
   in
+
+  (*
+
+  (*    STEP 3: Printing management *)
+  if !Terminal.Cmd_line.debug then
+
+  else
+
+    (** STEP B: Translate the input file *)
+  if !Terminal.Cmd_line.semantics_file = "" (* if input file = semantics *)
+  then
+    (* STEP 1: Parse the K semantics file *)
+
+    (* STEP 2: Pre-process the Kore file  *)
+
+    (* STEP 3: Translate the Kore file    *)
+    match !Terminal.Cmd_line.logic_used with
+    | Interpreted ->
+
+    | MSML ->
+
+  else
+    match !Terminal.Cmd_line.logic_used with
+    | Interpreted -> (* if input file = program *)
+
+    | MSML -> (* if input file = program specification *)
+
+
+      *)
+
+
+
   (* STEP C: Translate the semantic or the executable *)
   match file with
-  | F_exec(exec, result) ->
+  | F_pgm(exec, result) ->
      (* STEP 1: Create the new file *)
      let name = !Terminal.Cmd_line.filename_exec in
      let filename = Terminal.Cmd_line.create_filename name in (* TODO *)
@@ -67,6 +100,7 @@ let () =
      Format.pp_print_flush ff ();
      close_out f ;
      flush stdout
+  | F_spec_pgm _ -> failwith "TODO"
   | F_sem (_, file) ->
      (* STEP 1: Pre-processing *)
         (* a. Split the file and get main informations *)
@@ -83,7 +117,7 @@ let () =
      let printing = match !Terminal.Cmd_line.output with
        | O_LP      -> LP.LP_printer.pp_command
        | O_Dedukti -> fun _ _ -> () (* @TODO *)
-       | O_Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *)
+       (* | O_Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *) *)
      in
 
      (* STEP 2: The main function to translate one Kore module *)
@@ -118,8 +152,8 @@ let () =
                  (match !Terminal.Cmd_line.output with
                   | O_LP | O_Dedukti ->
                      Printing.Meta_printer.prt_Viry ff cd printing res
-                  | O_Kore ->
-                     Printing.Kore_printer.pp_kore_kommand ff cd kommand_l)
+                  (* | O_Kore ->
+                     Printing.Kore_printer.pp_kore_kommand ff cd kommand_l *) )
               | M_K       ->
                  Printing.Meta_printer.prt_Viry ff cd printing res
               | M_Dedukti -> ()) ; new_sign
@@ -135,7 +169,7 @@ let () =
      if !Printing.Meta_printer.lib
      then
        ((* a. The K standard library *)
-         let flib  = open_in "src/K_builtin/interpreted/lib.lp" in
+         let flib  = open_in "src/K_Builtin/interpreted/lib.lp" in
          (try
             while true; do
               print ff "%s\n" (input_line flib)

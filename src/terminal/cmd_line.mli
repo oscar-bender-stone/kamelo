@@ -1,14 +1,18 @@
 
 (** Some specific type for references *)
+type logic_option      = Interpreted | MSML
 type mimic_management  = M_K  | M_Kore | M_Dedukti
-type output_management = O_LP | O_Kore | O_Dedukti
-
+type output_management = O_LP | O_Dedukti
 
 (** References for managing the options *)
+val logic_used     : logic_option ref
 val mimic          : mimic_management ref
 val output         : output_management ref
-val filename_exec  : string ref
+val debug          : bool ref
 val semantics_file : string ref
+val filename_exec  : string ref
+val krun_result    : string ref
+val trace_file     : string ref
 val input          : in_channel ref
 val old            : bool ref
 
@@ -16,7 +20,7 @@ val old            : bool ref
 
 (** [create_filename name] creates a filename
     with name in lowercase the extension ".dk",
-    ".lp" or ".mykore" according to !output. *)
+    or ".lp" according to !output. *)
 val create_filename : string -> string
 
 (** [check_extension s] checks that the input file has the

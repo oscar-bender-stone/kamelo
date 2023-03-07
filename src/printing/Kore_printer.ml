@@ -200,6 +200,7 @@ let pp_kore_kommand ppc cd : kommand list -> unit = fun kommand_l ->
         -> unit * unit =
     fun data x _ _ (qv_l, ax) -> f_axiom data x () (qv_l, ax)
   in
+  let f_claim = f_axiom in
   let res = kommand_iter_with_alias cd kommand_l () ()
             f_sort f_sort (f_symbol "symbol") (f_symbol "hooked-symbol")
             (fun (attr_l, _) _ _ al -> pp_kore_alias ppc al attr_l, ())
@@ -207,6 +208,7 @@ let pp_kore_kommand ppc cd : kommand list -> unit = fun kommand_l ->
             f_axiom (f_axiom, f_axiom)
             (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom) f_axiom f_axiom
             (f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom, f_axiom)
+            f_claim
             (fun () -> pp_endline ppc)
   in
   fst res

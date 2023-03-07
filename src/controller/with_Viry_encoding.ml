@@ -66,12 +66,13 @@ let main_without_lib cd : (* TODO fix heterogenous signature *)
     propagation propagation
     (propagation, trans_implies, trans_implies, trans_implies,
      propagation, trans_implies, trans_implies)
+    (fun _ -> raise (KaMeLoError (InternalError, "With_Viry_encoding", "main_without_lib", "Claim in Viry.")) )
     (fun () -> ())
   in
   (* STEP 2: From CTRS rules to TRS rules and symbols. *)
   let flat_sym_add_l, (sym_add_l, r_l) = viry_encoding ctrs_r_l sign in
   if List.length ctrs_r_l > List.length r_l
-  then raise (KaMeLoError (InternalError, "With_Viry_encoding", "main", "Some rewriting rules disappear."))
+  then raise (KaMeLoError (InternalError, "With_Viry_encoding", "main_without_lib", "Some rewriting rules disappear."))
   else (sort_l, sym_l, flat_sym_add_l, sym_add_l, r_l), sign
 
 
@@ -127,7 +128,7 @@ let main_with_lib cd : (* TODO fix heterogenous signature *)
     | Implies(_, Equals(_, _, Dom_val(_,"true")),             Equals(_, Predicate(Sym(name,_,_)), And(_, _, Top _)))
     | Implies (_, And(_, Not(_, Or(_, And(_, Top _, And(_, In(_,(_,_),_), Top _)), Bottom _)), _), Equals(_, Predicate(Sym(name,_,_)), And(_, _, Top _))) ->
      name
-    | _ -> raise (KaMeLoError (NotYetImplemented, "Axiom", "of_implies_axiom", "Case root."))
+    | _ -> raise (KaMeLoError (NotYetImplemented, "Axiom", "main_with_lib", "Case root."))
     in
 
     if not (!Printing.Meta_printer.lib && List.mem name !tmp) then
@@ -149,10 +150,11 @@ let main_with_lib cd : (* TODO fix heterogenous signature *)
     propagation propagation
     (propagation, trans_implies, propagation, propagation,
      propagation, trans_implies_cleaning, trans_implies_cleaning)
+    (fun _ -> raise (KaMeLoError (InternalError, "With_Viry_encoding", "main_with_lib", "Claim in Viry.")) )
     (fun () -> ())
   in
   (* STEP 2: From CTRS rules to TRS rules and symbols. *)
   let flat_sym_add_l, (sym_add_l, r_l) = viry_encoding ctrs_r_l sign in
   if List.length ctrs_r_l > List.length r_l
-  then raise (KaMeLoError (InternalError, "With_Viry_encoding", "main", "Some rewriting rules disappear."))
+  then raise (KaMeLoError (InternalError, "With_Viry_encoding", "main_with_lib", "Some rewriting rules disappear."))
   else (sort_l, sym_l, flat_sym_add_l, sym_add_l, r_l), sign
