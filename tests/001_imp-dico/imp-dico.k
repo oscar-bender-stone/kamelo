@@ -6,8 +6,8 @@ module DICO
 
 // ### Dico unit
 
-  syntax Dico ::= ".Dico"                                [constructor, functional, symbol]
-  syntax Dico ::= "(" KItem "|-->" KItem ")" "," Dico    [constructor, functional, symbol]
+  syntax Dico ::= ".Dico"                                [constructor, symbol]
+  syntax Dico ::= "(" KItem "|-->" KItem ")" "," Dico    [constructor, symbol]
 
 
 // ### Dico lookup (assume X is in the dictonary)
@@ -28,7 +28,7 @@ module DICO
 
 // ### Dico key membership
 
-  syntax Bool ::= KItem "in_keys_dico" "(" Dico ")"       [function, functional]
+  syntax Bool ::= KItem "in_keys_dico" "(" Dico ")"       [function, total]
 
   rule X in_keys_dico ((Y |--> _) , D) => X in_keys_dico(D) requires notBool(X ==Dico Y)
   rule X in_keys_dico ((Y |--> _) , _) => true              requires X ==Dico Y // [owise]
@@ -42,7 +42,7 @@ module IMP-DICO-SYNTAX
 
     syntax Iden ::= "var" "(" Int ")"
 
-    syntax Bool ::= Iden "==Var" Iden [function, functional]
+    syntax Bool ::= Iden "==Var" Iden [function, total]
 
     syntax AExp ::= Iden | Int
                   | "(" AExp ")"      [bracket]

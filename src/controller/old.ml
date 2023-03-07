@@ -122,7 +122,7 @@ let of_axiom : quant_var list * axiom * attribute list -> attribute ->
   match attri with
   | Subsort     _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
   | Projection  _ -> ax_l (* Cet axiome n'est pas pris en compte. *)
-  | Functional  _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
+  | Total       _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
   | Constructor _ -> ax_l   (* Cet axiome n'est pas pris en compte. *)
   | Assoc _ -> (qv_l,ax,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)
   | Comm  _ -> (qv_l,ax,a_l)::ax_l (* @TODO Pour comparer avec LP : à enlever *)

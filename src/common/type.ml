@@ -33,7 +33,7 @@ type attribute =
  | Injective    of data_attr
  | Predicate    of data_attr
 
- | Functional   of data_attr
+ | Total        of data_attr
  | Function     of data_attr
 
  | Anywhere     of data_attr

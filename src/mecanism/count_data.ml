@@ -1,9 +1,9 @@
 
 type cd_exists_ax =
-  { total : int ref ; subsort : int ref ; functional : int ref }
+  { total : int ref ; subsort : int ref ; total_attribute : int ref }
 
 let reset_cd_exists_ax : int -> cd_exists_ax = fun i ->
-  { total = ref i ; subsort = ref i ; functional = ref i }
+  { total = ref i ; subsort = ref i ; total_attribute = ref i }
 
 type cd_equals_ax =
   { total : int ref ;
@@ -139,8 +139,8 @@ let incr_k_exists_ax cd = incr cd.k.exists_ax.total
 let get_k_ax_subsort  cd = !(cd.k.exists_ax.subsort)
 let incr_k_ax_subsort cd = incr cd.k.exists_ax.subsort
 
-let get_k_ax_functional  cd = !(cd.k.exists_ax.functional)
-let incr_k_ax_functional cd = incr cd.k.exists_ax.functional
+let get_k_ax_total  cd = !(cd.k.exists_ax.total_attribute)
+let incr_k_ax_total cd = incr cd.k.exists_ax.total_attribute
 
 (* Equals one *)
 
@@ -253,9 +253,9 @@ let extract_info_before cd =
   ; (0, get_k_alias cd,           "alias",           "alias")
   ; (0, get_k_axiom cd,           "axiom",           "axioms")
 
-  ; (1, get_k_exists_ax cd,           "exists-axiom",   "exists-axioms")
-  ; (2, get_k_ax_subsort cd,          "subsort one",    "subsort one")
-  ; (2, get_k_ax_functional cd,       "functional one", "functional one")
+  ; (1, get_k_exists_ax cd,           "exists-axiom", "exists-axioms")
+  ; (2, get_k_ax_subsort cd,          "subsort one",  "subsort one")
+  ; (2, get_k_ax_total cd,            "total one",    "total one")
 
   ; (1, get_k_equals_ax cd,           "equals-axiom",      "equals-axioms")
   ; (2, get_k_ax_assoc cd,            "associative one",   "associative one")

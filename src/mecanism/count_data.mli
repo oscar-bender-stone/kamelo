@@ -23,9 +23,9 @@ val incr_k_claim           : count_data -> unit
 (** Data about the K axioms *)
 
 (* Exists one *)
-val incr_k_exists_ax     : count_data -> unit
-val incr_k_ax_subsort    : count_data -> unit
-val incr_k_ax_functional : count_data -> unit
+val incr_k_exists_ax  : count_data -> unit
+val incr_k_ax_subsort : count_data -> unit
+val incr_k_ax_total   : count_data -> unit
 
 (* Equals one *)
 val incr_k_equals_ax : count_data -> unit

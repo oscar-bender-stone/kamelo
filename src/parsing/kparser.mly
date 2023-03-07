@@ -86,7 +86,7 @@
 %token INJECTIVE
 %token PREDICATE
 
-%token FUNCTIONAL
+%token TOTAL
 %token FUNCTION
 
 %token ANYWHERE
@@ -359,7 +359,7 @@ attribute:
   | INJECTIVE      attri_params { let a1,a2 = $2 in Injective(a1, a2)    }
   | PREDICATE      attri_params { let a1,a2 = $2 in Predicate(a1, a2)    }
 
-  | FUNCTIONAL     attri_params { let a1,a2 = $2 in Functional(a1, a2)   }
+  | TOTAL          attri_params { let a1,a2 = $2 in Total(a1, a2)   }
   | FUNCTION       attri_params { let a1,a2 = $2 in Function(a1, a2)     }
 
   | COOL           attri_params { let a1,a2 = $2 in Cool(a1, a2)         }

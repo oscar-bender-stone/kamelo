@@ -66,7 +66,7 @@ let pp_kore_attribute ppc : attribute -> unit = fun attr ->
   | Injective   _ -> print "INJECTIVE"
   | Predicate   _ -> print "PREDICATE"
 
-  | Functional  _ -> print "FUNCTIONAL"
+  | Total       _ -> print "TOTAL"
   | Function    _ -> print "FUNCTION"
 
   | Anywhere    _ -> print "ANYWHERE"

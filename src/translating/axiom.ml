@@ -66,12 +66,12 @@ let iter_axiom : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> 
 let iter_to_ident   = iter_axiom create_ident
 let iter_to_pattern = iter_axiom create_pattern_var
 
-(** ------------------------------------------------------ *)
-(** To translate exists-axioms (functional or subsort one) *)
-(** ------------------------------------------------------ *)
+(** ---------------------------------------------------- *)
+(** To translate exists-axioms (total or subsort one)    *)
+(** ---------------------------------------------------- *)
 
-(** Currently, functional axioms aren't used and
-    subsort axioms are just used to change some injections. *)
+(** Currently, total axioms aren't used and subsort axioms
+    are just used to change some injections. *)
 
 (** [collect_subsort_data ax sign] updates the relations of subsorts in the
     signature [sign].

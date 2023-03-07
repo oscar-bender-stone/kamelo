@@ -70,7 +70,7 @@
   | INJECTIVE
   | PREDICATE
 
-  | FUNCTIONAL
+  | TOTAL
   | FUNCTION
 
   | ANYWHERE
@@ -245,7 +245,8 @@ rule token = parse
   | "injective"          { INJECTIVE       }
   | "predicate"          { PREDICATE       }
 
-  | "functional"         { FUNCTIONAL      }
+  | "functional"         { TOTAL           } (* TODO fix *)
+  | "total"              { EXIT            } (* TODO fix *)
   | "function"           { FUNCTION        }
 
   | "anywhere"           { ANYWHERE        }

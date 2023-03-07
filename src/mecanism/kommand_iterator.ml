@@ -15,7 +15,7 @@ let axiom_cases
       (cd : count_data) (data : data) (curr_attr : attribute option)
       (acc : 'a) (sign : 's) (qv_l : quant_var list) (ax : axiom)
       ((f_exists_ax_subsort    : ('a, 's) meta_axiom),
-       (f_exists_ax_functional : ('a, 's) meta_axiom))
+       (f_exists_ax_total      : ('a, 's) meta_axiom))
       ((f_equals_ax_assoc   : ('a, 's) meta_axiom),
        (f_equals_ax_comm    : ('a, 's) meta_axiom),
        (f_equals_ax_idem    : ('a, 's) meta_axiom),
@@ -37,10 +37,10 @@ let axiom_cases
                             (try f_exists_ax_subsort data acc sign (qv_l, ax)
                              with KaMeLoError(t, fileN, funcN, msg) ->
                                wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
-      | Some (Functional  _) -> incr_k_ax_functional cd ;
-                                (try f_exists_ax_functional data acc sign (qv_l, ax)
-                                 with KaMeLoError(t, fileN, funcN, msg) ->
-                                   wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
+      | Some (Total  _) -> incr_k_ax_total cd ;
+                           (try f_exists_ax_total data acc sign (qv_l, ax)
+                            with KaMeLoError(t, fileN, funcN, msg) ->
+                              wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
       | _ -> raise (KaMeLoError (NotYetImplemented, "Kommand_iterator", "axiom_cases", "Case Exists.")))
   | Equals _ -> incr_k_equals_ax cd ;
      (match curr_attr with
@@ -193,7 +193,7 @@ let meta_kommand_iter
       (f_alias          : data -> 'a -> 's -> alias   -> ('a * 's))
       (f_ax_default     : ('a, 's) meta_axiom)
       ((f_exists_ax_subsort    : ('a, 's) meta_axiom),
-       (f_exists_ax_functional : ('a, 's) meta_axiom)       as f_exists)
+       (f_exists_ax_total      : ('a, 's) meta_axiom)       as f_exists)
       ((f_equals_ax_assoc   : ('a, 's) meta_axiom),
        (f_equals_ax_comm    : ('a, 's) meta_axiom),
        (f_equals_ax_idem    : ('a, 's) meta_axiom),
@@ -273,7 +273,7 @@ let kommand_iter_without_alias
        (f_rewrites_ax_semantic : data -> 'a -> 's -> alias -> quant_var list * axiom -> ('a * 's)) as f_rewrites)
       (f_ax_default     : ('a, 's) meta_axiom)
       ((f_exists_ax_subsort    : ('a, 's) meta_axiom),
-       (f_exists_ax_functional : ('a, 's) meta_axiom)       as f_exists)
+       (f_exists_ax_total      : ('a, 's) meta_axiom)       as f_exists)
       ((f_equals_ax_assoc   : ('a, 's) meta_axiom),
        (f_equals_ax_comm    : ('a, 's) meta_axiom),
        (f_equals_ax_idem    : ('a, 's) meta_axiom),
@@ -332,7 +332,7 @@ let kommand_iter_with_alias
        (f_rewrites_ax_semantic : data -> 'a -> 's -> alias -> quant_var list * axiom -> ('a * 's)) as f_rewrites)
       (f_ax_default     : ('a, 's) meta_axiom)
       ((f_exists_ax_subsort    : ('a, 's) meta_axiom),
-       (f_exists_ax_functional : ('a, 's) meta_axiom)       as f_exists)
+       (f_exists_ax_total      : ('a, 's) meta_axiom)       as f_exists)
       ((f_equals_ax_assoc   : ('a, 's) meta_axiom),
        (f_equals_ax_comm    : ('a, 's) meta_axiom),
        (f_equals_ax_idem    : ('a, 's) meta_axiom),

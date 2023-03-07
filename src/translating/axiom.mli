@@ -22,9 +22,9 @@ val iter_axiom : (string -> p_term) -> axiom -> signature -> p_term StrMap.t -> 
 val iter_to_ident   : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 val iter_to_pattern : axiom -> signature -> p_term StrMap.t -> p_term * p_term StrMap.t
 
-(** ------------------------------------------------------ *)
-(** To translate exists-axioms (functional or subsort one) *)
-(** ------------------------------------------------------ *)
+(** ---------------------------------------------------- *)
+(** To translate exists-axioms (total or subsort one)    *)
+(** ---------------------------------------------------- *)
 
 val collect_subsort_data : axiom -> signature -> signature
 

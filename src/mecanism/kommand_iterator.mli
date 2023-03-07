@@ -8,7 +8,7 @@ type ('a, 's) meta_axiom = data -> 'a -> 's -> quant_var list * axiom -> ('a * '
       f_sort f_hooked_sort f_symbol f_hooked_symbol f_alias
       (f_rewrites_ax_heating, f_rewrites_ax_cooling, f_rewrites_ax_semantic)     as f_rewrites
       f_ax_default
-      (f_exists_ax_subsort, f_exists_ax_functional)                              as f_exists
+      (f_exists_ax_subsort, f_exists_ax_total)                                   as f_exists
       (f_equals_ax_assoc, f_equals_ax_comm,
        f_equals_ax_idem, f_equals_ax_unit, f_equals_ax_default)                  as f_equals
       f_or_bottom_ax_constructor                                                 as f_or_bottom
