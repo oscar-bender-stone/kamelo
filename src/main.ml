@@ -135,7 +135,7 @@ let () =
      if !Printing.Meta_printer.lib
      then
        ((* a. The K standard library *)
-         let flib  = open_in "src/lib.lp" in
+         let flib  = open_in "src/K_builtin/interpreted/lib.lp" in
          (try
             while true; do
               print ff "%s\n" (input_line flib)
