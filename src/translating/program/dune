@@ -1,0 +1,5 @@
+(library
+  (name transPgm)
+  (flags (:standard -w -27))
+  (modules :standard)
+  (libraries common interface mecanism transSem))
