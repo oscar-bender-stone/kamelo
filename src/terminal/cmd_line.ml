@@ -17,10 +17,10 @@ let logic_used     = ref Interpreted
 let mimic          = ref M_Kore
 let output         = ref O_LP
 let debug          = ref false
-let semantics_file = ref ""
-let filename_exec  = ref ""
-let krun_result    = ref ""
-let trace_file     = ref ""
+let input_filename = ref ""
+let semantics_file = ref ""      (* given by --semantics *)
+let krun_result    = ref ""      (* given by --result    *)
+let trace_file     = ref ""      (* given by --trace     *)
 let input          = ref stdin
 let old            = ref false
 
@@ -158,6 +158,6 @@ let parse : unit -> unit = fun () ->
       "Print #Var and #Sym in Kore output mode.\n")]
     (fun s ->
       check_extension s;
-      filename_exec := String.sub s 0 ((String.length s)-5);
+      input_filename := String.sub s 0 ((String.length s)-5);
       input := open_in s)
     ("  -- DOCUMENTATION OF KAMELO'S COMMAND-LINE OPTIONS --\n" ^ usage_msg)

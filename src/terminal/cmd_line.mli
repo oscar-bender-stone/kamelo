@@ -9,10 +9,10 @@ val logic_used     : logic_option ref
 val mimic          : mimic_management ref
 val output         : output_management ref
 val debug          : bool ref
-val semantics_file : string ref
-val filename_exec  : string ref
-val krun_result    : string ref
-val trace_file     : string ref
+val input_filename : string ref
+val semantics_file : string ref (* given by --semantics *)
+val krun_result    : string ref (* given by --result    *)
+val trace_file     : string ref (* given by --trace     *)
 val input          : in_channel ref
 val old            : bool ref
 

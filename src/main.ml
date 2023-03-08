@@ -6,6 +6,39 @@ open Terminal.Display_console
 open Controller.Prelude (* TODO delete *)
 open Common.Error
 
+let create_file name =
+  (* Add the correct extension (.dk or .lp) *)
+  let filename = Terminal.Cmd_line.create_filename name in (* TODO *)
+  (* Create the file *)
+  let f  = open_out filename in
+  let ff = Format.formatter_of_out_channel f in (f, ff)
+
+let close_file f ff =
+  Format.pp_print_flush ff ();
+  close_out f ;
+  flush stdout
+
+(** [print_file ff path] prints via [ff] the content of the file located at [path]. *)
+let print_file ff (path : string) =
+  let flib  = open_in path in
+  try
+    while true; do
+      print ff "%s\n" (input_line flib)
+    done ;
+  with End_of_file -> close_in flib
+
+(** [print_root_import cd ff name] prints via [ff] an import declaration
+    assuming the file named [name] is inside "sem_root".
+    The counter [cd] is also updated. *)
+    let print_root_import cd ff name =
+      let path = ["sem_root"] in
+      let i = (name, []) in
+      let import_trans =
+        Translating.Import.import_to_require_open path i
+      in
+      Mecanism.Count_data.incr_real_import cd ;
+      LP.LP_printer.pp_command ff import_trans
+
 let () =
   (* STEP A: Pre-processing *)
   (*    STEP 1: Parsing the command-line    *)
@@ -16,7 +49,21 @@ let () =
     try Parsing.Kparser.file Parsing.Klexer.token lexbuf
     with e -> red_msg_1 _STDOUT "Parsing fails line %i" !Parsing.Count_line.curr_line ; raise e
   in
+  if !Terminal.Cmd_line.debug then
+    (* let  =  in
+    if !Terminal.Cmd_line.no_cleaning then
+      List.map file
+      Printing.Kore_printer.pp_kore_kommand ff cd kommand_l (* TODO *)
+       else *)
+    ()
 
+  else
+    (* c. Printing management *)
+    let printing = match !Terminal.Cmd_line.output with
+      | O_LP      -> LP.LP_printer.pp_command
+      | O_Dedukti -> fun _ _ -> () (* @TODO *)
+      (* | O_Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *) *)
+    in
   (*
 
   (*    STEP 3: Printing management *)
@@ -51,20 +98,12 @@ let () =
   (* STEP C: Translate the semantic or the executable *)
   match file with
   | F_pgm(exec, result) ->
-     (* STEP 1: Create the new file *)
-     let name = !Terminal.Cmd_line.filename_exec in
-     let filename = Terminal.Cmd_line.create_filename name in (* TODO *)
-     let f  = open_out filename in
-     let ff = Format.formatter_of_out_channel f in
-     (* STEP 2: Print the import of the semantic *)
-     let cd = Mecanism.Count_data.reset_count_data 0 in
-     let path = ["sem_root"] in
-     let i = (!Terminal.Cmd_line.semantics_file, []) in
-     let import_trans =
-       Translating.Import.import_to_require_open path i
-     in
-     Mecanism.Count_data.incr_real_import cd ;
-     LP.LP_printer.pp_command ff import_trans ;
+    let cd = Mecanism.Count_data.reset_count_data 0 in
+    (* STEP 1: Create the new file *)
+    let f, ff = create_file !Terminal.Cmd_line.input_filename in
+    (* STEP 2: Print the import of the semantic *)
+    print_root_import cd ff (!Terminal.Cmd_line.semantics_file) ;
+
      (* STEP 3: Translate the executable *)
      let p_exec, _ (* free_var_data *) = Translating.Executable.iter_exec exec empty_sign in
      (* STEP 4: Print free variables *)
@@ -97,9 +136,7 @@ let () =
      LP.LP_printer.pp_command ff
        (Interface.LP_p_term.create_assert_command s_e s_r) ;
      (* STEP 9: Close the new file *)
-     Format.pp_print_flush ff ();
-     close_out f ;
-     flush stdout
+     close_file f ff
   | F_spec_pgm _ -> failwith "TODO"
   | F_sem (_, file) ->
      (* STEP 1: Pre-processing *)
@@ -110,15 +147,11 @@ let () =
       | _ -> raise (KaMeLoError (InternalError, "Main", "semantics_module_name", "The prelude hasn't the expected shape."))
     in
         (* b. Create the new file *)
-    let filename = Terminal.Cmd_line.create_filename filename in (* TODO *)
-     let f  = open_out filename in
-     let ff = Format.formatter_of_out_channel f in
-        (* c. Printing management *)
-     let printing = match !Terminal.Cmd_line.output with
-       | O_LP      -> LP.LP_printer.pp_command
-       | O_Dedukti -> fun _ _ -> () (* @TODO *)
-       (* | O_Kore    -> fun _ _ -> () (* Printer.pp_kore_kommand ff cd *) *)
-     in
+    let f, ff = create_file filename in
+
+
+
+
 
      (* STEP 2: The main function to translate one Kore module *)
      let module_to_file : signature -> kmodule -> signature =
@@ -169,13 +202,11 @@ let () =
      if !Printing.Meta_printer.lib
      then
        ((* a. The K standard library *)
-         let flib  = open_in "src/K_Builtin/interpreted/lib.lp" in
-         (try
-            while true; do
-              print ff "%s\n" (input_line flib)
-            done ;
-          with End_of_file -> close_in flib) ;
-        (* b. Translation of KSEQ and K modules, and the semanctics *)
+
+
+
+         print_file ff "src/K_Builtin/interpreted/lib.lp" ;
+         (* b. Translation of KSEQ and K modules, and the semanctics *)
          let _ = List.fold_left module_to_file empty_sign [kseq_module;semantics_module] in () )
      else
        ((* a. Translation of BASIC-K module *)
