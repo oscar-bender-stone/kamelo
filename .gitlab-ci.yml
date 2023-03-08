@@ -7,7 +7,7 @@ stages:
 
 #image: ocaml/opam:debian-11-ocaml-4.12
 #image: debian:stable # ocaml/opam:debian-testing-opam
-image: ocaml/opam:ubuntu-18.04-opam
+image: ocaml/opam:ubuntu-22.04-opam
 
 ### Configuration section
 
@@ -29,17 +29,18 @@ preprocessing:
 
     variables:
         FF_USE_FASTZIP: "true"
-        K_VERSION: "5.2.103" # "5.0.1" # "5.2.82"
+        K_VERSION: "5.5.53" # "5.5.137" # "5.2.103" # "5.0.1" # "5.2.82"
 
     script:
         - echo "--- Pre-processing"
         - sudo apt update
+        - sudo apt upgrade --yes
         - sudo apt install wget
 
         - echo "--- Pre-processing for OPAM"
         - if [ ! -d _opam ]; then echo "no local switch in the CI cache, we setup a new switch"; opam switch create --yes --no-install . $OCAML_VERSION; fi
         # How manage it?
-        #- opam update
+        - opam update
         - eval $(opam env)
 
         #- echo "--- Installation of Dedukti"
@@ -66,15 +67,24 @@ preprocessing:
 #    stage: installation
 #    script:
         - echo "--- Installation of Lambdapi"
-        - opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc lambdapi
+        - eval $(opam env)
+        #- opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc lambdapi
+        - opam install --yes dune bindlib timed sedlex menhir pratter yojson cmdliner why3 alcotest alt-ergo odoc
+        - eval $(opam env)
         - why3 config detect
+        - eval $(opam env)
+        - opam install --yes lambdapi.2.2.1
 
 #job:k:
 #    stage: installation
 #    script:
         - echo "--- Installation of K"
-        - wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_"$K_VERSION"_amd64_bionic.deb
-        - sudo apt install -y ./kframework_"$K_VERSION"_amd64_bionic.deb
+        - wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/K.Framework.Ubuntu.Jammy.22.04.Deb
+        - mv K.Framework.Ubuntu.Jammy.22.04.Deb k.deb
+        - sudo apt install --yes ./k.deb
+        #- wget https://github.com/runtimeverification/k/releases/download/v"$K_VERSION"/kframework_amd64_ubuntu_jammy.deb
+        #- sudo apt install --yes ./kframework_amd64_ubuntu_jammy.deb
+
 
 #job:kamelo:
 #    stage: installation
