@@ -10,11 +10,11 @@ open Interface.Output
 
 open Mecanism.Kommand_iterator
 
-open Translating.Sort
-open Translating.Symbol
-open Translating.Axiom
-open Translating.Eval_strategy
-open Translating.Viry
+open TransSem.Sort
+open TransSem.Symbol
+open TransSem.Axiom
+open TransSem.Eval_strategy
+open TransSem.Viry
 
 let main_without_lib cd : (* TODO fix heterogenous signature *)
       kommand list -> signature ->

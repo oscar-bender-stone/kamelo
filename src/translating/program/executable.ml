@@ -11,7 +11,7 @@ open Interface.Signature
 
 open Mecanism.Axiom_iterator
 
-open Axiom
+open TransSem.Axiom
 
 let iter_exec : (string -> p_term) -> axiom -> signature -> p_term * (string list) StrMap.t =
   fun f_var ax sign_init ->

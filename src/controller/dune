@@ -1,4 +1,4 @@
 (library
   (name controller)
   (modules :standard)
-  (libraries common printing translating mecanism))
+  (libraries common printing transSem mecanism))

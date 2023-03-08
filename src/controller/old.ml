@@ -10,7 +10,7 @@ open Interface.Output
 open Interface.LP_p_term
 open Interface.Signature
 
-open Translating.Axiom
+open TransSem.Axiom
 
 open Mecanism.Count_data
 
@@ -23,7 +23,7 @@ let check_induc = ref false
 let induc_to_p_inductive : sort * symbol list -> p_inductive =
   fun (sort, s_l) ->
   (* p_inductive_aux = p_ident * p_term * (p_ident * p_term) list *)
-  let f s = (create_p_ident (get_name s), Translating.Symbol.curry_symbol s) in
+  let f s = (create_p_ident (get_name s), TransSem.Symbol.curry_symbol s) in
   create_inductive (create_p_ident sort) p_TYPE (List.map f s_l)
 
 (** [create_inductive_type i] creates non-mutual inductive type
@@ -198,7 +198,7 @@ let preprocessing :
 let pp_sort ppc cd prt : sort -> unit = fun s ->
   (* incr_real_sort cd ; *)
   incr_real_symbol cd ;
-  prt ppc (Translating.Sort.sort_to_p_symbol (pp s))
+  prt ppc (TransSem.Sort.sort_to_p_symbol (pp s))
 
 let pp_induc ppc cd prt : sort * symbol list -> unit = fun i ->
   incr_real_induc cd ;
@@ -208,7 +208,7 @@ let pp_symbol ppc cd prt : symbol * attribute list -> unit =
   fun ((name, qv_l, p_l, p), attr_l) ->
   let s = (pp name, qv_l, p_l, p) in
   incr_real_symbol cd ;
-  prt ppc (Translating.Symbol.symbol_to_p_symbol s attr_l)
+  prt ppc (TransSem.Symbol.symbol_to_p_symbol s attr_l)
 
 let pp_alias ppc cd prt :
       alias * (quant_var list * axiom * attribute list) option -> unit =

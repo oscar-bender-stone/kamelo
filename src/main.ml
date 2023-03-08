@@ -34,7 +34,7 @@ let print_file ff (path : string) =
       let path = ["sem_root"] in
       let i = (name, []) in
       let import_trans =
-        Translating.Import.import_to_require_open path i
+        TransSem.Import.import_to_require_open path i
       in
       Mecanism.Count_data.incr_real_import cd ;
       LP.LP_printer.pp_command ff import_trans
@@ -105,7 +105,7 @@ let () =
     print_root_import cd ff (!Terminal.Cmd_line.semantics_file) ;
 
      (* STEP 3: Translate the executable *)
-     let p_exec, _ (* free_var_data *) = Translating.Executable.iter_exec exec empty_sign in
+     let p_exec, _ (* free_var_data *) = TransPgm.Executable.iter_exec exec empty_sign in
      (* STEP 4: Print free variables *)
      (* let f_pp : string -> string list -> unit = fun key var_l ->
        let var_type =
@@ -121,7 +121,7 @@ let () =
      in
         StrMap.iter f_pp free_var_data ; TODO not useful, right? *)
      (* STEP 5: Translate the result of the executable *)
-     let p_res, _ = Translating.Executable.iter_exec result empty_sign in
+     let p_res, _ = TransPgm.Executable.iter_exec result empty_sign in
      (* STEP 6: Print the symbol s_e which represents the executable *)
      LP.LP_printer.pp_command ff
        (Interface.LP_p_term.create_LP_symbol
