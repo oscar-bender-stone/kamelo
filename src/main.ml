@@ -183,10 +183,12 @@ let () =
              (match !Terminal.Cmd_line.mimic with
               | M_Kore    ->
                  (match !Terminal.Cmd_line.output with
-                  | O_LP | O_Dedukti ->
+                  | O_LP ->
                      Printing.Meta_printer.prt_Viry ff cd printing res
-                  (* | O_Kore ->
-                     Printing.Kore_printer.pp_kore_kommand ff cd kommand_l *) )
+                  | O_Dedukti ->
+                     Printing.Sem_printer.pp_sem_kommand ff cd kommand_l)
+                  (*| O_Kore ->
+                     Printing.Kore_printer.pp_kore_kommand ff cd kommand_l) *)
               | M_K       ->
                  Printing.Meta_printer.prt_Viry ff cd printing res
               | M_Dedukti -> ()) ; new_sign
@@ -199,6 +201,30 @@ let () =
 
      (* STEP 3: Run the main translation *)
      print_header_kamelo () ;
+     (if false
+      then
+        (print ff "%s" "symbol typeK : TYPE;\n" ;
+         print ff "%s" "symbol iK : typeK → TYPE;\n" ;
+         print ff "%s" "symbol #EQUALS R1 R2 : iK R1 → iK R1 → iK R2;\n" ;
+         print ff "%s" "symbol #EXISTS RV R : (iK RV → iK R) → iK R;\n"  ;
+         print ff "%s" "symbol #AND R : iK R → iK R → iK R;\n" ;
+         print ff "%s" "symbol #OR R : iK R → iK R → iK R;\n" ;
+         print ff "%s" "symbol #NOT R : iK R → iK R;\n" ;
+         print ff "%s" "symbol #IMPLIES R : iK R → iK R → iK R;\n" ;
+         print ff "%s" "symbol #BOTTOM R : iK R;\n" ;
+         print ff "%s" "symbol #TOP R : iK R;\n" ;
+         print ff "%s" "symbol #REWRITES R : iK R → iK R → iK R;\n" ;
+         print ff "%s" "symbol #IN R1 R2 : iK R1 → iK R2 → iK R2;\n" ;
+         print ff "%s" "symbol #DV R : iK R → iK R;\n" ;
+         print ff "%s" "symbol #CEIL R1 R2 : iK R1 → iK R2;\n" ;
+         print ff "%s" "symbol d : Π (x : typeK), iK x → TYPE;\n" ;
+         print ff "%s" "symbol SortBool : typeK;\n" ;
+         print ff "%s" "symbol true : iK SortBool;\n" ;
+         print ff "%s" "symbol false : iK SortBool;\n" ;
+         print ff "%s" "symbol SortInt : typeK;\n" ;
+         print ff "%s" "symbol 0 : iK SortInt;\n" ;
+         print ff "%s" "symbol 1 : iK SortInt;\n" ;
+        )) ;
      if !Printing.Meta_printer.lib
      then
        ((* a. The K standard library *)
