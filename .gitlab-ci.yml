@@ -89,7 +89,7 @@ preprocessing:
 #job:kamelo:
 #    stage: installation
 #    script:
-        - opam install --yes yaml
+        - opam install --yes ezjsonm yaml
         - echo "--- Generate the KaMeLo executable"
         - make
         - echo "--- Running tests"
