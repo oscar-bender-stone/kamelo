@@ -1,4 +1,4 @@
 (library
   (name transPgmSpec)
   (modules :standard)
-  (libraries common printing terminal parsing yaml yaml.unix bos ezjsonm yojson))
+  (libraries common printing terminal parsing yaml yaml.unix ezjsonm yojson))
