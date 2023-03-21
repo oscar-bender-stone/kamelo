@@ -30,7 +30,7 @@ let axiom_cases
        (f_implies_ax_predicate_false : ('a, 's) meta_axiom), (* [owise] *)
        (f_implies_ax_owise           : ('a, 's) meta_axiom),
        (f_implies_ax_default         : ('a, 's) meta_axiom)) : ('a * 's) =
-  let pos = snd data in match ax with
+  let pos = fst (snd data) in match ax with
   | Exists _ -> incr_k_exists_ax cd ;
      (match curr_attr with
       | Some (Subsort _) -> incr_k_ax_subsort cd ;
@@ -153,7 +153,7 @@ let rewriting_cases
        (f_cooling  : data -> 'a -> 's -> alias -> quant_var list * axiom -> ('a * 's)),
        (f_semantic : data -> 'a -> 's -> alias -> quant_var list * axiom -> ('a * 's))) : ('a * 's) =
   incr_k_rewriting_ax cd ;
-  let pos = snd data in
+  let pos = fst (snd data) in
   let al = match al with
     | None -> raise (KaMeLoError (NotYetImplemented, "Kommand_iterator", "rewriting_cases", "When get the needed alias."))
     | Some al -> al
@@ -211,7 +211,7 @@ let meta_kommand_iter
       (f_claim : ('a, 's) meta_axiom)
       (f_each_end_iter : unit -> unit)
     : ('a * 's) =
-  let g_attr : ('a, 's) meta_axiom = fun ((_, pos) as data) acc sign (qv_l, ax) ->
+  let g_attr : ('a, 's) meta_axiom = fun ((_, (pos, _)) as data) acc sign (qv_l, ax) ->
     match data with
     | [], _ -> (if is_predicate ax
                 then (incr_k_implies_ax cd ; incr_k_ax_predicate_true cd ;
@@ -233,28 +233,28 @@ let meta_kommand_iter
   in
   let rec aux l (acc, sign) = match l with
     | [] -> (acc, sign)
-    | (c, (attr_l, pos))::q ->
+    | (c, (attr_l, (pos, loc)))::q ->
        let res = match c with
          | Sort     s -> incr_k_sort cd ;
-                         (try f_sort (attr_l, pos) acc sign s
+                         (try f_sort (attr_l, (pos, loc)) acc sign s
                           with KaMeLoError(t, fileN, funcN, msg) ->
                             wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
          | H_sort   s -> incr_k_hooked_sort cd ;
-                         (try f_hooked_sort (attr_l, pos) acc sign s
+                         (try f_hooked_sort (attr_l, (pos, loc)) acc sign s
                           with KaMeLoError(t, fileN, funcN, msg) ->
                             wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
          | Symbol   s -> incr_k_symbol cd        ;
-                         (try f_symbol (attr_l, pos) acc sign s
+                         (try f_symbol (attr_l, (pos, loc)) acc sign s
                           with KaMeLoError(t, fileN, funcN, msg) ->
                             wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
          | H_symbol s -> incr_k_hooked_symbol cd ;
-                         (try f_hooked_symbol (attr_l, pos) acc sign s
+                         (try f_hooked_symbol (attr_l, (pos, loc)) acc sign s
                           with KaMeLoError(t, fileN, funcN, msg) ->
                             wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
-         | Alias   al -> meta_f_alias q (attr_l, pos) acc sign al
-         | Axiom(qv_l, ax) -> incr_k_axiom cd ; meta_f_axiom g_attr (attr_l, pos) acc sign (qv_l, ax)
+         | Alias   al -> meta_f_alias q (attr_l, (pos, loc)) acc sign al
+         | Axiom(qv_l, ax) -> incr_k_axiom cd ; meta_f_axiom g_attr (attr_l, (pos, loc)) acc sign (qv_l, ax)
          | Claim(qv_l, ax) -> incr_k_claim cd ;
-                              (try f_claim (attr_l, pos) acc sign (qv_l, ax)
+                              (try f_claim (attr_l, (pos, loc)) acc sign (qv_l, ax)
                                with KaMeLoError(t, fileN, funcN, msg) ->
                                  wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
        in
@@ -291,7 +291,7 @@ let kommand_iter_without_alias
       (f_claim : ('a, 's) meta_axiom)
       (f_each_end_iter : unit -> unit) : ('a * 's) =
   let meta_f_alias q data acc sign al =
-    let pos = snd data in
+    let pos = fst (snd data) in
     match q with
     | [] -> incr_k_alias cd ;
             (try  f_alias data acc sign al
@@ -299,9 +299,9 @@ let kommand_iter_without_alias
                wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign))
     | h::_ ->
        match h with
-       | Axiom(qv_l, ax), (attr_l_ax, pos) ->
+       | Axiom(qv_l, ax), (attr_l_ax, (pos, loc)) ->
           let (attr_l, _) = data in
-          let xdata = (attr_l@attr_l_ax, pos) in
+          let xdata = (attr_l@attr_l_ax, (pos, loc)) in
           if is_rule ax
           then rewriting_cases cd xdata acc sign (Some al) qv_l ax f_rewrites
           else (incr_k_alias cd ;
@@ -353,7 +353,7 @@ let kommand_iter_with_alias
     incr_k_alias cd ;
     (try f_alias data acc sign al
      with KaMeLoError(t, fileN, funcN, msg) ->
-       wrn_no_translation (t, fileN, funcN, msg) (snd data) ; (acc, sign))
+       wrn_no_translation (t, fileN, funcN, msg) (fst (snd data)) ; (acc, sign))
   in
   let meta_f_axiom g_attr data acc sign (qv_l, ax) =
     if is_rule ax

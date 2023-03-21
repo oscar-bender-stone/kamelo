@@ -47,7 +47,7 @@ let main_without_lib cd : (* TODO fix heterogenous signature *)
     fun _ acc sign (_, ax) -> (acc, collect_subsort_data ax sign)
   in
   let trans_implies =
-    fun (_, pos) acc sign (_, ax) ->
+    fun (_, (pos, _)) acc sign (_, ax) ->
     let sort_l, sym_l, ctrs_l = acc in
     try ((sort_l, sym_l, (of_implies_axiom ax)::ctrs_l), sign)
     with KaMeLoError(t, fileN, funcN, msg) -> wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign)
@@ -113,13 +113,13 @@ let main_with_lib cd : (* TODO fix heterogenous signature *)
     fun _ acc sign (_, ax) -> (acc, collect_subsort_data ax sign)
   in
   let trans_implies =
-    fun (_, pos) acc sign (_, ax) ->
+    fun (_, (pos, _)) acc sign (_, ax) ->
     let sort_l, sym_l, ctrs_l = acc in
     try ((sort_l, sym_l, (of_implies_axiom ax)::ctrs_l), sign)
     with KaMeLoError(t, fileN, funcN, msg) -> wrn_no_translation (t, fileN, funcN, msg) pos ; (acc, sign)
   in
   let trans_implies_cleaning =
-    fun (_, pos) acc sign (_, ax) ->
+    fun (_, (pos, _)) acc sign (_, ax) ->
     let sort_l, sym_l, ctrs_l = acc in
     let name = match ax with
     | Implies(_, Top _,                                       Equals(_, Predicate(Sym(name,_,_)), And(_, _, Top _)))

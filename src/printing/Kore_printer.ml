@@ -78,6 +78,11 @@ let pp_kore_attribute ppc : attribute -> unit = fun attr ->
 
   | Other(s, _)   -> print s
 
+  | Unique   (_,[s]) -> print ("ID: " ^ s)
+  | Location (_,[s]) -> print ("line " ^ s)
+  | Source   (_,[s]) -> print ("from file " ^ s)
+  | _ -> failwith "Bad formed"
+
 let pp_kore_attribute_list ppc : attribute list -> unit = fun attr_l ->
   pp_list ppc "[" pp_kore_attribute attr_l  ", " "]"
 

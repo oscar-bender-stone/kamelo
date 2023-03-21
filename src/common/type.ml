@@ -8,7 +8,11 @@ type param = S of sort | Q of quant_var
 type data_attr = param list * string list
 
 type attribute =
- (* USEFUL attributes *)
+ (* Extra data attributes *)
+ | Unique       of data_attr
+ | Location     of data_attr
+ | Source       of data_attr
+ (* USEFUL attributes     *)
  | Assoc        of data_attr
  | Comm         of data_attr
  | Idem         of data_attr
@@ -75,9 +79,6 @@ type attribute =
  | Index        of data_attr
 
  | Keyword      of data_attr
- | Unique       of data_attr
- | Location     of data_attr
- | Source       of data_attr
  | Production   of data_attr
 
  | Element      of data_attr
@@ -121,7 +122,8 @@ type kommand_aux =
  | Axiom    of quant_var list * axiom
  | Claim    of quant_var list * axiom
 
-type data = attribute list * (int * int)
+(* main attributes lists * position in the Kore file * data of the orignal file (name, line where the command was declared) * optional ID *)
+type data = attribute list * ((int * int) * (string option * int option * string option))
 type kommand = kommand_aux * data
 
 type import = name * attribute list
