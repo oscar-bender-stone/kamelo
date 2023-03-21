@@ -389,6 +389,7 @@ attributes:
 
 file:
   | axiom axiom EOF          { F_pgm($1, $2)            }
+  | axiom EOF                { F_pgm($1, $1)            } // TODO fix
   | attributes kmodules  EOF { if !claim_used
                                then F_spec_pgm($1, $2)
                                else F_sem($1, $2)       }

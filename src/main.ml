@@ -137,7 +137,7 @@ let () =
        (Interface.LP_p_term.create_assert_command s_e s_r) ;
      (* STEP 9: Close the new file *)
      close_file f ff
-  | F_spec_pgm _ -> failwith "TODO"
+  | F_spec_pgm _ -> (* failwith "TODO" *) TransPgmSpec.Data_trace.get_KProver_proof_objects ()
   | F_sem (_, file) ->
      (* STEP 1: Pre-processing *)
         (* a. Split the file and get main informations *)
