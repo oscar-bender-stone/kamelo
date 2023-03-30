@@ -36,17 +36,20 @@ let print_step : step -> unit = fun (claim, steps) ->
     Printf.printf "\n"
   in
   let print_step (ax, cond) =
-    Printf.printf "\nNew step: " ; print_kore ax   ;
-    Printf.printf "Condition: "  ; print_kore cond ;
+    Printf.printf "@@ TERM PATTERN: " ; print_kore ax   ;
+    Printf.printf "@@ PREDICATE PATTERN: "  ; print_kore cond ;
   in
+  Printf.printf "\n ------------- New step ------------- \n" ;
+  Printf.printf "@ PATTERN BEFORE APPLYING THE RULE:\n" ;
   (* Print the first step / claim *)
   print_step claim ;
   (* Print each step *)
   let f (r, l) : unit =
-    Printf.printf "Rule name: %s\n" r ;
+    Printf.printf "@ RULE NAME: %s\n" r ;
     let g (s, t) =
-      Printf.printf "The substitution: \n" ;
+      Printf.printf "@ THE SUBSTITUTION:\n" ;
       StrMap.iter (fun key v -> Printf.printf "    * %s |-> " key ; print_kore v) s ;
+      Printf.printf "@ PATTERN AFTER APPLYING THE RULE:\n" ;
       print_step t
     in
     List.iter g l
