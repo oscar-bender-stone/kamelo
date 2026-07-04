@@ -2,9 +2,9 @@ set -e
 
 IMAGE_NAME="kamelo"
 CONTAINER_NAME="my-kamelo"
-ROOT="/kamelo"
-CONTAINER_LP_DIR="$ROOT/lp-generated"
-HOST_LP_DIR="$(pwd)/lp-generated"
+# ROOT="/kamelo"
+# CONTAINER_LP_DIR="$ROOT/lp-generated"
+# HOST_LP_DIR="$(pwd)/lp-generated"
 
 if podman image exists "$IMAGE_NAME"; then
   echo "Image exists. Skipping build."
@@ -14,7 +14,6 @@ else
 fi
 
 echo "Running container..."
-mkdir -p HOST_LP_DIR
+# mkdir -p "$HOST_LP_DIR"
 podman run -it --name $CONTAINER_NAME \
-  -v "$HOST_LP_DIR:$CONTAINER_LP_DIR:Z" \
   "$IMAGE_NAME"
