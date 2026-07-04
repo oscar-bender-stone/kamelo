@@ -12,6 +12,8 @@ podman run -d --rm kamelo
 podman run -d --name my-kamelo kamelo
 ```
 
+For a full script, use [podman.sh](./podman.sh).
+
 For an overview of KaMeLo, refer to this paper:
 
 > Amélie Ledein, Valentin Blot, Catherine Dubois. A semantics of K into dedukti.
