@@ -19,7 +19,7 @@ deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe mu
   apt-get upgrade --yes
   apt-get clean
   echo "Installing system dependencies"
-  apt-get install --yes 
+  apt-get install --yes \
     wget \
     make \
     # alt-ergo
