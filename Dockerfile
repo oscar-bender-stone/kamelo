@@ -19,8 +19,18 @@ deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe mu
   apt-get upgrade --yes
   apt-get clean
   echo "Installing system dependencies"
-  # wget, make, z3, and alt-ergo
-  apt-get install --yes wget make z3 python3-z3 libgmp-dev m4 pkg-config autoconf zlib1g-dev --no-install-recommends
+  apt-get install --yes 
+    wget \
+    make \
+    # alt-ergo
+    python3-z3 \
+    libgmp-dev \
+    m4 \
+    pkg-config \
+    autoconf \
+    zlib1g-dev \
+    # k deps
+
   rm -rf /var/lib/apt/lists/*
 EOF
 
@@ -47,7 +57,7 @@ USER root
 RUN <<EOF
   echo "Installing K Framework..." 
   wget --quiet https://github.com/runtimeverification/k/releases/download/v"${K_VERSION}"/K.Framework.Ubuntu.Jammy.22.04.Deb -O K.deb
-  apt-get install -y --no-install-recommends ./K.deb
+  apt-get install -y ./K.deb
 EOF
 
 USER opam
