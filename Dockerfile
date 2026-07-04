@@ -11,8 +11,8 @@ RUN <<EOF
   apt-get update
   apt-get upgrade --yes
   echo "Installing system dependencies"
-  # Alt-ergo and wget
-  apt-get install --yes wget libgmp-dev m4 pkg-config autoconf zlib1g-dev --no-install-recommends
+  # wget, make, and alt-ergo
+  apt-get install --yes wget make libgmp-dev m4 pkg-config autoconf zlib1g-dev --no-install-recommends
   rm -rf /var/lib/apt/lists/*
 EOF
 
@@ -40,7 +40,7 @@ EOF
 
 RUN <<EOF
   echo "Building KaMeLo..."
-  make
+  opam exec --switch=kamleo -- make
 EOF
 
 RUN <<EOF 
