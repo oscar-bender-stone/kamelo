@@ -22,7 +22,7 @@ EOF
 
 RUN <<EOF
   echo "Installing framework dependencies"
-  apt-get install --yes \
+  apt-get install --yes --no-install-recommends \
     wget \
     make \
     z3 \
