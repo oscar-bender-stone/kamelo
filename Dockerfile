@@ -21,18 +21,20 @@ EOF
 USER opam
 RUN <<EOF
   echo "Setting up opam..." 
-  if [ ! -d _opam ]; then
-    echo "No local switch detected. Creating new switch."
-    opam switch create --yes kamelo ${OCAML_VERSION}
-  fi
+  # TODO: decide whether to use
+  # custom switch or not.
+  # if [ ! -d _opam ]; then
+  #  echo "No local switch detected. Creating new switch."
+  #  opam switch create --yes kamelo ocaml-base-compiler.${OCAML_VERSION}
+  # fi
   opam update
 EOF
 
 RUN <<EOF
   echo "Installing Lambdapi..."
-  opam install --yes --switch kamelo dune bindlib timed sedlex menhir pratter ezjsonm yaml yojson cmdliner why3 alcotest alt-ergo odoc
-  opam exec --switch=kamelo -- why3 config detect
-  opam install --yes --switch=kamelo lambdapi.2.2.1
+  opam install --yes dune bindlib timed sedlex menhir pratter ezjsonm yaml yojson cmdliner why3 alcotest alt-ergo odoc
+  why3 config detect
+  opam install --yes lambdapi.2.2.1
 EOF
 
 RUN <<EOF
@@ -42,7 +44,7 @@ EOF
 
 RUN <<EOF
   echo "Building KaMeLo..."
-  opam exec --switch=kamleo -- make
+  make
 EOF
 
 RUN <<EOF 
