@@ -5,8 +5,10 @@ translator, created by Amélie Ledein, Valentin Blot, and Catherine Dubois.
 KaMeLo translates specifications written in the
 [K Framework](https://kframework.org/) into the logical framework
 [Dedukti](https://github.com/Deducteam/Dedukti). Due to breaking changes in K,
-specific package versions are required. The container fixes this, pinning the
-newest version that are known to work.
+the container needs specific package versions. Most of the container is adapted
+from the old CI script.
+
+Recommended Docker version: 23.0+.
 
 For an overview of KaMeLo, refer to this paper:
 
