@@ -1,6 +1,6 @@
 # K has binaries available or Ubuntu.
 # Easier than Nix for quick tests
-FROM docker.io/ocaml/opam:ubuntu-24.04-opam-4.13
+FROM docker.io/ocaml/opam:ubuntu-22.04-ocaml-4.13
 ARG OCAML_VERSION="4.13.1"
 ARG K_VERSION="5.5.53"
 # TODO: determine if versions of system libraries should be pinned. Not mentioned in the original CI script. 
