@@ -29,8 +29,6 @@ deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe mu
     pkg-config \
     autoconf \
     zlib1g-dev \
-    # k deps
-
   rm -rf /var/lib/apt/lists/*
 EOF
 
