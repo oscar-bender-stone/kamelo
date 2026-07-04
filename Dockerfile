@@ -37,11 +37,14 @@ RUN <<EOF
   opam install --yes lambdapi.2.2.1
 EOF
 
+USER root
 RUN <<EOF
   echo "Installing K Framework..."
-  wget --quiet https://github.com/runtimeverification/k/releases/download/v"${K_VERSION}"/K.Framework.Ubuntu.Jammy.22.04.Deb
+  wget --quiet https://github.com/runtimeverification/k/releases/download/v"${K_VERSION}"/K.Framework.Ubuntu.Jammy.22.04.Deb -O K.deb
+  sudo apt install ./K.deb
 EOF
 
+USER opam
 RUN <<EOF
   echo "Building KaMeLo..."
   eval "$(opam env)"
