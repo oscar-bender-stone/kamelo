@@ -54,6 +54,7 @@ RUN <<EOF
 EOF
 
 USER root
+# hadolint ignore=DL3015
 RUN <<EOF
   echo "Installing K Framework..." 
   wget --quiet https://github.com/runtimeverification/k/releases/download/v"${K_VERSION}"/K.Framework.Ubuntu.Jammy.22.04.Deb -O K.deb
