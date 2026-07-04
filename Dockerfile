@@ -44,11 +44,13 @@ EOF
 
 RUN <<EOF
   echo "Building KaMeLo..."
+  eval "$(opam env)"
   make
 EOF
 
 RUN <<EOF 
   echo "Running tests..."
+  eval "$(opam env)"
   make test-lsp
 EOF
 
