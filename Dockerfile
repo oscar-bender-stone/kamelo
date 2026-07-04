@@ -8,9 +8,9 @@ COPY --chown=opam:opam . .
 
 # TODO: determine if versions of system libraries should be pinned. Not mentioned in the original CI script. 
 USER root
+# hadolint ignore=DL3009
 RUN <<EOF 
   echo "Upgrading base system..."
-
   # Need extra repos for K framework
   echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
 deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
@@ -18,11 +18,13 @@ deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe mu
   apt-get update
   apt-get upgrade --yes
   apt-get clean
+EOF
+
+RUN <<EOF
   echo "Installing system dependencies"
   apt-get install --yes \
     wget \
     make \
-    # alt-ergo
     python3-z3 \
     libgmp-dev \
     m4 \
