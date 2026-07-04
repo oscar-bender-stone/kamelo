@@ -30,7 +30,11 @@ RUN <<EOF
   echo "Installing K Framework..."
   wget -q https://github.com/runtimeverification/k/releases/download/v"${K_VERSION}"/K.Framework.Ubuntu.Jammy.22.04.Deb
 
-
+  echo "Building KaMeLo..."
+  opam install --yes ezjsonm yaml
+  make
+  ecoh "Running tests..."
+  make test-lsp
 EOF
 
 
