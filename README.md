@@ -1,50 +1,75 @@
-KaMeLo  
-========  
+# KaMeLo (Docker)
 
-KaMeLo is a translator from **the semantical framework K** to **the logical framework Dedukti**.  
-More precisely, KaMeLo takes as input **a Kore file**, that is the translation of a K semantics into **a Matching Logic theory**, and generates a Lambdapi file or a Dedukti file.  
-More concretly, you can translate a K semantics, let say *imp-dico.k*, into Dedukti as follow:  
-  - *kompile imp-dico.k*  
-  - *cd kamelo*  
-  - *make*  
-  - *./KaMeLo -r --lib ../imp-dico-kompiled/definition.kore*  
+A docker container to run the [KaMeLo](https://gitlab.com/semantiko/kamelo)
+translator, created by Amélie Ledein, Valentin Blot, and Catherine Dubois.
+KaMeLo translates specifications written in the
+[K Framework](https://kframework.org/) into the logical framework
+[Dedukti](https://github.com/Deducteam/Dedukti). Due to breaking changes in K,
+specific package versions are required. The container fixes this, pinning the
+newest version that are known to work.
 
-The option "-r" is used to obtain more readable identifiers.  
-The option "--lib" is used to include the manual translation of the K standard library into the generated file.  
+For an overview of KaMeLo, refer to this paper:
 
-Moreover, you can translate the program *sum.imp*, which follows the K semantics *imp-dico.lp*, into Dedukti as follow:  
-  - *bash utilities/translate_pgm.sh imp-dico.lp sum.imp*  
+> Amélie Ledein, Valentin Blot, Catherine Dubois. A semantics of K into dedukti.
+> TYPES 2022 - 28th International Conference on Types for Proofs and Programs
+> (TYPES), Jul 2023, Nantes, France. ⟨10.4230/LIPIcs.TYPES.2022.23⟩.
+> ⟨hal-03895834v2⟩
 
-Note: Resulting outputs can be found in the folder *example/*.  
+The original README is provided below.
 
-Finally, you can run all the tests with *make test-lp*.  
-If you interrupt a *kompile* command, you may need to run *test-clean*.  
+---
 
-The files' hierarchy of KaMeLo  
-==============================  
+KaMeLo is a translator from **the semantical framework K** to **the logical
+framework Dedukti**.\
+More precisely, KaMeLo takes as input **a Kore file**, that is the translation
+of a K semantics into **a Matching Logic theory**, and generates a Lambdapi file
+or a Dedukti file.\
+More concretly, you can translate a K semantics, let say _imp-dico.k_, into
+Dedukti as follow:
 
-.  
-├── main.ml: *The main algorithm to translate a semantics or an executable*  
-├── Makefile  
-├── README.md: *This file*  
-├── example: *Examples of K semantics translation*  
-├── src: *Source of KaMeLo. (See src/README.md)*  
-├── utilities: *Some useful scripts*  
-└── tests  
-      ├── 001_imp-dico/: *A modified IMP semantics*   
-      ├── 002_imp-lib/: *A IMP semantics that uses the K standard library*   
-      └── gen_tests.sh: *Run this script to launch all the tests*  
+- _kompile imp-dico.k_
+- _cd kamelo_
+- _make_
+- _./KaMeLo -r --lib ../imp-dico-kompiled/definition.kore_
 
-Note: The files "dune" and "dune-project" are just here to compile the OCaml code.  
+The option "-r" is used to obtain more readable identifiers.\
+The option "--lib" is used to include the manual translation of the K standard
+library into the generated file.
 
-Paper  
-=====  
+Moreover, you can translate the program _sum.imp_, which follows the K semantics
+_imp-dico.lp_, into Dedukti as follow:
 
-This translator is described in the following paper:  
-A. Ledein, V. Blot, C. Dubois, *Vers une traduction de K en Dedukti*,  
-JFLA 2022, Juin 2022, Périgord, France. (See http://jfla.inria.fr/jfla2022.html)  
+- _bash utilities/translate_pgm.sh imp-dico.lp sum.imp_
 
-The following command is used to retrieve the version of the translator KaMeLo  
-associated with the previous article:  
+Note: Resulting outputs can be found in the folder _example/_.
 
-   git clone -b JFLA2022 https://gitlab.com/semantiko/kamelo.git
+Finally, you can run all the tests with _make test-lp_.\
+If you interrupt a _kompile_ command, you may need to run _test-clean_.
+
+# The files' hierarchy of KaMeLo
+
+.\
+├── main.ml: _The main algorithm to translate a semantics or an executable_\
+├── Makefile\
+├── README.md: _This file_\
+├── example: _Examples of K semantics translation_\
+├── src: _Source of KaMeLo. (See src/README.md)_\
+├── utilities: _Some useful scripts_\
+└── tests\
+      ├── 001_imp-dico/: _A modified IMP semantics_\
+      ├── 002_imp-lib/: _A IMP semantics that uses the K standard library_\
+      └── gen_tests.sh: _Run this script to launch all the tests_
+
+Note: The files "dune" and "dune-project" are just here to compile the OCaml
+code.
+
+# Paper
+
+This translator is described in the following paper:\
+A. Ledein, V. Blot, C. Dubois, _Vers une traduction de K en Dedukti_,\
+JFLA 2022, Juin 2022, Périgord, France. (See http://jfla.inria.fr/jfla2022.html)
+
+The following command is used to retrieve the version of the translator KaMeLo\
+associated with the previous article:
+
+git clone -b JFLA2022 https://gitlab.com/semantiko/kamelo.git
