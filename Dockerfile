@@ -20,6 +20,9 @@ deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe mu
   apt-get clean
 EOF
 
+# Dev tools: wget, make
+# K Framework: z3 through llvm-14
+# Alt-ergo: libgmp-dev through zlib1g-dev
 RUN <<EOF
   echo "Installing framework dependencies"
   apt-get install --yes --no-install-recommends \
@@ -27,6 +30,18 @@ RUN <<EOF
     make \
     z3 \
     python3-z3 \
+    bison \
+    clang-14 \
+    default-jre-headless \
+    flex \
+    libffi-dev \
+    libjemalloc-dev \
+    libmpfr-dev \
+    libtinfo-dev \
+    libyaml-0-2 \
+    lld-14 \
+    llvm-14 \
+    clang-14 \
     libgmp-dev \
     m4 \
     pkg-config \
@@ -55,11 +70,10 @@ RUN <<EOF
 EOF
 
 USER root
-# hadolint ignore=DL3015
 RUN <<EOF
   echo "Installing K Framework..." 
   wget --quiet https://github.com/runtimeverification/k/releases/download/v"${K_VERSION}"/K.Framework.Ubuntu.Jammy.22.04.Deb -O K.deb
-  apt-get install -y ./K.deb
+  apt-get install -y --no-install-recommends ./K.deb
 EOF
 
 USER opam
