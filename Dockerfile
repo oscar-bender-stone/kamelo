@@ -21,10 +21,11 @@ deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe mu
 EOF
 
 RUN <<EOF
-  echo "Installing system dependencies"
+  echo "Installing framework dependencies"
   apt-get install --yes \
     wget \
     make \
+    z3 \
     python3-z3 \
     libgmp-dev \
     m4 \
