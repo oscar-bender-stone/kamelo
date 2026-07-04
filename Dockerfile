@@ -10,11 +10,17 @@ COPY --chown=opam:opam . .
 USER root
 RUN <<EOF 
   echo "Upgrading base system..."
+
+  # Need extra repos for K framework
+  echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse" > /etc/apt/sources.list
   apt-get update
   apt-get upgrade --yes
+  apt-get clean
   echo "Installing system dependencies"
-  # wget, make, and alt-ergo
-  apt-get install --yes wget make libgmp-dev m4 pkg-config autoconf zlib1g-dev --no-install-recommends
+  # wget, make, z3, and alt-ergo
+  apt-get install --yes wget make z3 python3-z3 libgmp-dev m4 pkg-config autoconf zlib1g-dev --no-install-recommends
   rm -rf /var/lib/apt/lists/*
 EOF
 
@@ -39,9 +45,9 @@ EOF
 
 USER root
 RUN <<EOF
-  echo "Installing K Framework..."
+  echo "Installing K Framework..." 
   wget --quiet https://github.com/runtimeverification/k/releases/download/v"${K_VERSION}"/K.Framework.Ubuntu.Jammy.22.04.Deb -O K.deb
-  sudo apt install ./K.deb
+  apt-get install -y --no-install-recommends ./K.deb
 EOF
 
 USER opam
