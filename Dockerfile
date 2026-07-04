@@ -51,7 +51,7 @@ EOF
 RUN <<EOF 
   echo "Running tests..."
   eval "$(opam env)"
-  make test-lsp
+  make test-lp
 EOF
 
 
