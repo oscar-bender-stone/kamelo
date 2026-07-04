@@ -1,14 +1,16 @@
 # KaMeLo (Docker)
 
-A docker container to run the [KaMeLo](https://gitlab.com/semantiko/kamelo)
-translator, created by Amélie Ledein, Valentin Blot, and Catherine Dubois.
-KaMeLo translates specifications written in the
-[K Framework](https://kframework.org/) into the logical framework
-[Dedukti](https://github.com/Deducteam/Dedukti). Due to breaking changes in K,
-the container needs specific package versions. Most of the container is adapted
-from the old CI script.
+# A docker container to run the [KaMeLo](https://gitlab.com/semantiko/kamelo) translator, created by Amélie Ledein, Valentin Blot, and Catherine Dubois. KaMeLo translates specifications written in the [K Framework](https://kframework.org/) into the logical framework [Dedukti](https://github.com/Deducteam/Dedukti). Due to breaking changes in K, the container needs specific package versions. Most of the container is adapted from the old CI script.
 
-Recommended Docker version: 23.0+.
+Recommended Docker version: 23.0+. Works with podman via:
+
+```bash
+podman build -t kamelo .
+# For a single run
+podman run -d --rm kamelo
+# To keep the container
+podman run -d --name my-kamelo kamelo
+```
 
 For an overview of KaMeLo, refer to this paper:
 
