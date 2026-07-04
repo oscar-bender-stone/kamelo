@@ -30,7 +30,7 @@ RUN <<EOF
     m4 \
     pkg-config \
     autoconf \
-    zlib1g-dev \
+    zlib1g-dev
   rm -rf /var/lib/apt/lists/*
 EOF
 
