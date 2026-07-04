@@ -14,6 +14,7 @@ else
 fi
 
 echo "Running container..."
-podman run --name $CONTAINER_NAME \
-  -v "$HOST_LP_DIR:$CONTAINER_LP_DIR" \
+mkdir -p HOST_LP_DIR
+podman run -it --name $CONTAINER_NAME \
+  -v "$HOST_LP_DIR:$CONTAINER_LP_DIR:Z" \
   "$IMAGE_NAME"
